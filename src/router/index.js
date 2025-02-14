@@ -6,7 +6,7 @@ import ForoComponent from "@/components/ForoComponent.vue";
 const routes = [
   { path: "/", name: "Login", component: LoginComponent },
   { path: "/inicio", name: "Inicio", component: InicioComponent },
-  { path: "foro", name: "Foro", component: ForoComponent },
+  { path: "/foro", name: "Foro", component: ForoComponent },
 ];
 
 const router = createRouter({
