@@ -4,8 +4,10 @@
         <div class="cover" @click="openBook"></div>
         <div class="content">
           <h3>Iniciar Sesión</h3>
-          <form @submit.prevent="login">
+          <form @submit.prevent="registerUsuario">
             <div class="mb-3">
+              <label class="form-label mt-3">Nombre</label>
+              <input type="text" class="form-control" v-model="name" />
               <label class="form-label">Email</label>
               <input type="email" class="form-control" v-model="email" />
             </div>
@@ -25,10 +27,13 @@
   </template>
   
   <script>
+  import axios from "axios";
+
   export default {
     data() {
       return {
         isOpen: false,
+        name: "",
         email: "",
         password: "",
       };
@@ -39,6 +44,20 @@
       },
       login() {
         console.log(`Iniciando sesión con: ${this.email} / ${this.password}`);
+      },
+      async registerUsuario() {
+        try{
+          const response = await axios.post('http://localhost:3000/api/usuarios/registro', {
+            correo: this.email,
+            nombre: this.name,
+            contrasena: this.password
+          });
+          console.log('Usuario registrado:', response.data);
+          alert('Usuario registrado exitosamente');
+        } catch (error) {
+          console.error('Error al registrar usuario:', error);
+          alert(`Error al registrar usuario, desde LoginComponent: ${error.response ? error.response.data : error.message}`);
+        }
       },
       loginWithGoogle() {
         console.log("Iniciar sesión con Google");
