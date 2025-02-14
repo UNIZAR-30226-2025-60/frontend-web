@@ -3,7 +3,7 @@
       <div class="book">
         <div class="cover" @click="openBook"></div>
         <div class="content">
-          <h3>Iniciar Sesión</h3>
+          <h3>Registrarse</h3>
           <form @submit.prevent="registerUsuario">
             <div class="mb-3">
               <label class="form-label mt-3">Nombre</label>
