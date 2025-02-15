@@ -122,7 +122,7 @@ export default {
     async registerUsuario() {
       try {
         const response = await axios.post('http://localhost:3000/api/usuarios/registro', {
-          email: this.email,
+          correo: this.email,
           nombre: this.name,
           contrasena: this.password
         });
