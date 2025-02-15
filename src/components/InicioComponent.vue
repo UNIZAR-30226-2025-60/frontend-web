@@ -1,60 +1,47 @@
-<!-- <template>
-  <div>
-    <h3>Bienvenido, {{ user.displayName }}</h3>
-    <p>Correo: {{ user.email }}</p>
-    
-  </div>
-</template>
-
-<script>
-import axios from "axios";
-
-export default {
-  data() {
-    return {
-      user: null,
-    };
-  },
-  async mounted() {
-    try {
-      const response = await axios.get("http://localhost:3000/api/user", {
-        withCredentials: true,
-      });
-      this.user = response.data;
-    } catch (error) {
-      console.error("Error al obtener los datos del usuario:", error);
-      this.$router.push("/");
-    }
-  },
-};
-</script> -->
-
 <template>
   <div v-if="user">
     <NavBar></NavBar>
-    <div>
-      <form class="align-items-center" role="search" style="margin: 0 10px;">
+    <div class="container mt-4">
+      
+      <!-- Barra de búsqueda -->
+      <form class="d-flex mb-3">
         <div class="input-group">
-          <input class="form-control rounded-pill" type="search" placeholder="Search" aria-label="Search">
-          <button class="btn btn-outline-success rounded-pill" type="submit">Search</button>
+          <input class="form-control rounded-pill" type="search" placeholder="Buscar..." aria-label="Buscar">
+          <button class="btn btn-success rounded-pill" type="submit">Buscar</button>
         </div>
       </form>
-      <h4>Categorías:</h4>
-      <div class="row g-2">
-        <div v-for="tema in temas" :key="tema.tematica" class="col-1">
-          <button class="btn btn-outline-success rounded-pill btn-sm w-100">{{ tema.tematica }}</button>
+    
+      <!-- Categorías -->
+      <div class="d-flex mb-3">
+        <h4 class="mb-3">Categorías:</h4>
+        <div class="categorias-container">
+          <div class="categorias-scroll">
+            <button v-for="tema in temas" :key="tema.tematica" class="btn btn-outline-success rounded-pill btn-sm">
+              {{ tema.tematica }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Información del usuario -->
+      <div class="text-center mt-4">
+        <h3>Bienvenido, {{ user.nombre }}</h3>
+        <p>Correo: {{ user.correo }}</p>
+      </div>
+
+      <!-- Lista de libros -->
+      <h4 class="mt-4">Libros disponibles</h4>
+      <div class="row libros-container">
+        <div v-for="libro in libros" :key="libro.enlace" class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4 d-flex justify-content-center">
+          <div class="book-card card shadow-sm">
+            <img :src="libro.imagen_portada" class="book-image card-img-top" alt="Portada del libro">
+            <div class="card-body text-center p-2">
+              <h6 class="book-title">{{ libro.nombre }}</h6>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    <div v-for="libro in libros" :key="libro.enlace" class="col-md-3 col-sm-4 col-6">
-      <a href="#">
-        <img class="img fluid" v-bind:src="libro.imagen_portada">
-      </a>
-      <p>{{ libro.nombre }}</p>
-    </div>
-
-    <h3>Bienvenido, {{ user.nombre }}</h3>
-    <p>Correo: {{ user.correo }}</p>
   </div>
   <div v-else>
     <p>Cargando...</p>
@@ -123,12 +110,61 @@ export default {
 };
 </script>
 <style scoped>
-  h4 {
-    margin-bottom: 10px;
+  
+  .container {
+    max-width: 1100px;
   }
 
-  button {
-    font-size: 0.8rem;  /* Ajustamos el tamaño del texto en los botones */
-    padding: 8px 16px;  /* Ajustamos el padding de los botones */
+  .categorias-container {
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 10px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .categorias-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .categorias-scroll {
+    display: flex;
+    gap: 12px;
+    padding: 5px;
+  }
+
+  .libros-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .book-card {
+    width: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .book-card:hover {
+    transform: scale(1.05);
+  }
+
+  .book-image {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 5px;
+  }
+
+  .book-title {
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
   }
 </style>
