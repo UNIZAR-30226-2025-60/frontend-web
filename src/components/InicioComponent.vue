@@ -53,8 +53,8 @@ export default {
       <p>{{ libro.nombre }}</p>
     </div>
 
-    <h3>Bienvenido, {{ user.displayName }}</h3>
-    <p>Correo: {{ user.email }}</p>
+    <h3>Bienvenido, {{ user.nombre }}</h3>
+    <p>Correo: {{ user.correo }}</p>
   </div>
   <div v-else>
     <p>Cargando...</p>

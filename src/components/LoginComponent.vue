@@ -79,12 +79,6 @@ export default {
         console.log('Usuario registrado:', response.data);
         alert('Usuario registrado exitosamente');
 
-        //Inicio automático de sesión, para permitir que tras el registro el usuario pueda acceder a la app, sin necesidad de volver a iniciar sesión
-        // await axios.post('http://localhost:3000/api/auth/login', { // Falta de hacer la petición de login, de momento esto no va pero la estructura es esta
-        //   correo: this.email,
-        //   contrasena: this.password
-        // }, { withCredentials: true });
-
         window.location.href = 'http://localhost:8081/inicio'; // Redirigo al inicio (de momento, cuando tengamos la pantalla correspondiente a esa irá)
       } catch (error) {
         console.error(`Error al registrar usuario:${error.response ? error.response.data : error.message}`, error);
