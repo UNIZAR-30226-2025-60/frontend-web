@@ -48,7 +48,7 @@ export default {
     </div>
     <div v-for="libro in libros" :key="libro.enlace" class="col-md-3 col-sm-4 col-6">
       <a href="#">
-        <img class="img fluid" v-bind:src="libro.imagen_portada"
+        <img class="img fluid" v-bind:src="libro.imagen_portada">
       </a>
       <p>{{ libro.nombre }}</p>
     </div>
