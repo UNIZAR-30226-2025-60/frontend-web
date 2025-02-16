@@ -125,10 +125,10 @@ export default {
           correo: this.email,
           nombre: this.name,
           contrasena: this.password
-        });
+        }, {withCredentials: true});
         console.log('Usuario registrado:', response.data);
         alert('Usuario registrado exitosamente');
-        window.location.href = 'http://localhost:8081/inicio';
+        this.$router.push('/inicio');
       } catch (error) {
         console.error('Error al registrar usuario:', error);
         alert('Error al registrar usuario');
