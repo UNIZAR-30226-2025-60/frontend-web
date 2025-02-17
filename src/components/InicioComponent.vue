@@ -4,13 +4,13 @@
     <div class="container mt-4">
       
       <!-- Barra de búsqueda -->
-      <form class="d-flex mb-3">
+      <form class="d-flex mb-3" @submit.prevent="buscarLibros">
         <div class="input-group">
-          <input class="form-control rounded-pill" type="search" placeholder="Buscar..." aria-label="Buscar">
-          <button class="btn btn-success rounded-pill" type="submit">Buscar</button>
+          <input class="form-control rounded-pill" type="search" placeholder="Buscar título" aria-label="Buscar" v-model="busqueda">
+          <button v-if="busqueda" class="btn btn-outline-secondary rounded-pill ms-2" type="button" @click="limpiarBusqueda">Limpiar</button>
         </div>
       </form>
-    
+
       <!-- Categorías -->
       <div class="d-flex mb-3">
         <h4 class="mb-3">Categorías:</h4>
@@ -22,7 +22,7 @@
           </div>
         </div>
       </div>
-
+      
       <!-- Información del usuario -->
       <div class="text-center mt-4">
         <h3>Bienvenido, {{ user.nombre }}</h3>
@@ -30,9 +30,11 @@
       </div>
 
       <!-- Lista de libros -->
-      <h4 class="mt-4">Libros disponibles</h4>
+      <h4 class="mt-4">
+        {{ busqueda ? 'Resultados de la búsqueda' : 'Libros disponibles' }}
+      </h4>
       <div class="row libros-container">
-        <div v-for="libro in libros" :key="libro.enlace" class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4 d-flex justify-content-center">
+        <div v-for="libro in libros" :key="libro.enlace" class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4 d-flex justify-content-center" @click="goToDetalles(libro)">
           <div class="book-card card shadow-sm">
             <img :src="libro.imagen_portada" class="book-image card-img-top" alt="Portada del libro">
             <div class="card-body text-center p-2">
@@ -51,120 +53,137 @@
 <script>
 import axios from "axios";
 import NavBar from '@/components/NavBar.vue'
+
 export default {
+  name: 'InicioComponent',
   components: {
     NavBar
   },
   data() {
     return {
-      user: null, // Inicializamos con null
-      //Para probar botones de categorias
-      temas : [
-        {tematica: 'Amor'},
-        {tematica: 'Aventura'},
-        {tematica: 'Terror'},
-        {tematica: 'Comedia'},
-        {tematica: 'Fantasía'},
-        {tematica: 'Drama'},
-        {tematica: 'Acción'},
+      user: null,
+      temas: [
+      {tematica: 'Aventura'},
+        {tematica: 'Biografía'},
         {tematica: 'Ciencia Ficción'},
-        {tematica: 'Romántico'},
-        {tematica: 'Misterio'},
-        {tematica: 'Thriller'},
-        {tematica: 'Historia'},
-        {tematica: 'Ficción'},
+        {tematica: 'Cómic'},
+        {tematica: 'Drama'},
+        {tematica: 'Erótico'},
+        {tematica: 'Fantasía'},
+        {tematica: 'Filosofía'},
+        {tematica: 'Histórico'},
+        {tematica: 'Humor'},
         {tematica: 'Infantil'},
-        {tematica: 'Suspenso'},
-        {tematica: 'Psicológico'},
-        {tematica: 'Terror Psicológico'},
-        {tematica: 'Romántico'},
-        {tematica: 'Superhéroes'}
+        {tematica: 'Juvenil'},
+        {tematica: 'Literatura Clásica'},
+        {tematica: 'Misterio'},
+        {tematica: 'Poesía'},
+        {tematica: 'Romance'},
+        {tematica: 'Terror'},
+        {tematica: 'Thriller'},
       ],
-      libros: []
+      libros: [],
+      busqueda: ""
     };
   },
   async mounted() {
     try {
-      // Petición para obtener los datos del usuario autenticado
       const response = await axios.get("http://localhost:3000/api/user", {
-        withCredentials: true, // Permite enviar cookies al backend
+        withCredentials: true,
       });
-      this.user = response.data; // Guardamos los datos del usuario
+      this.user = response.data;
       this.cargarLibros();
     } catch (error) {
       console.error("Error al obtener los datos del usuario:", error);
-      // Si hay error, redirigimos al login
       this.$router.push("/");
     }
-  }, 
+  },
   methods: {
     async cargarLibros() {
       try {
-            const response = await axios.get('http://localhost:3000/api/libros');
-            this.libros = response.data;
-          } catch (error) {
-            console.error('Error al cargar el foro:', error);
-          }
+        const response = await axios.get('http://localhost:3000/api/libros');
+        this.libros = response.data;
+      } catch (error) {
+        console.error('Error al cargar los libros:', error);
       }
+    },
+    async buscarLibros() {
+      try {
+        const response = await axios.get(`http://localhost:3000/api/libros/titulo/${this.busqueda.trim()}`);
+        this.libros = Array.isArray(response.data) ? response.data : [response.data];
+      } catch (error) {
+        console.error('Error al buscar el libro:', error);
+        this.libros = [];
+      }
+    },
+    async limpiarBusqueda() {
+      this.busqueda = "";
+      await this.cargarLibros();
+    },
+    goToDetalles(libro) {
+      this.$router.push({ name: 'detalles', params: { id: libro.nombre } });
     }
+  }
 };
 </script>
+
 <style scoped>
-  
-  .container {
-    max-width: 1100px;
-  }
+.container {
+  max-width: 1100px;
+}
 
-  .categorias-container {
-    width: 100%;
-    overflow-x: auto;
-    white-space: nowrap;
-    padding-bottom: 10px;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
+.categorias-container {
+  width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding-bottom: 10px;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 
-  .categorias-container::-webkit-scrollbar {
-    display: none;
-  }
+.categorias-container::-webkit-scrollbar {
+  display: none;
+}
 
-  .categorias-scroll {
-    display: flex;
-    gap: 12px;
-    padding: 5px;
-  }
+.categorias-scroll {
+  display: flex;
+  gap: 12px;
+  padding: 5px;
+}
 
-  .libros-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
+.libros-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
 
-  .book-card {
-    width: 180px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.3s ease-in-out;
-  }
+.book-card {
+  width: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease-in-out;
+  cursor: pointer;
+}
 
-  .book-card:hover {
-    transform: scale(1.05);
-  }
+.book-card:hover {
+  transform: scale(1.05);
+}
 
-  .book-image {
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-    border-radius: 5px;
-  }
+.book-image {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 5px;
+}
 
-  .book-title {
-    font-size: 0.9rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
-  }
+.book-title {
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
 </style>
