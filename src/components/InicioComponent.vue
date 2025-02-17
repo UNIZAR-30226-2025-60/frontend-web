@@ -1,44 +1,48 @@
 <template>
   <div v-if="user">
     <NavBar></NavBar>
-    <div class="container mt-4">
-      
-      <!-- Barra de búsqueda -->
-      <form class="d-flex mb-3" @submit.prevent="buscarLibros">
-        <div class="input-group">
-          <input class="form-control rounded-pill" type="search" placeholder="Buscar título" aria-label="Buscar" v-model="busqueda">
-          <button v-if="busqueda" class="btn btn-outline-secondary rounded-pill ms-2" type="button" @click="limpiarBusqueda">Limpiar</button>
-        </div>
-      </form>
+    <div class="cabecera" style="background-color: #9b885b;">
+      <div class="container mt-2" style="background-color: #9b885b;">
+        <!-- Barra de búsqueda -->
+        <form class="d-flex mb-3 mt-4" @submit.prevent="buscarLibros">
+          <div class="input-group">
+            <input class="form-control rounded-pill" type="search" placeholder="Buscar título" aria-label="Buscar" v-model="busqueda">
+            <button v-if="busqueda" class="btn btn-outline-secondary rounded-pill ms-2" type="button" @click="limpiarBusqueda">Limpiar</button>
+          </div>
+        </form>
 
-      <!-- Categorías -->
-      <div class="d-flex mb-3">
-        <h4 class="mb-3">Categorías:</h4>
-        <div class="categorias-container">
-          <div class="categorias-scroll">
-            <button v-for="tema in temas" :key="tema.tematica" class="btn btn-outline-success rounded-pill btn-sm">
-              {{ tema.tematica }}
-            </button>
+        <!-- Categorías -->
+        <div class="d-flex mb-3">
+          <h4 class="mb-3">Categorías:</h4>
+          <div class="categorias-container">
+            <div class="categorias-scroll">
+              <button v-for="tema in temas" :key="tema.tematica" @click="filtrarPorCategoria(tema.tematica)" class="btn rounded-pill btn-sm" style="color: darkgoldenrod;" :style="categoriaSeleccionada === tema.tematica ? 'background-color: #e5c578; color: #343434;' : 'background-color: #f6e5bb; color: #9b665b;'">
+                {{ tema.tematica }}
+              </button>
+            </div>
           </div>
         </div>
+        
+        <!-- Información del usuario -->
+        <div class="text-center mt-4">
+          <h3>Bienvenido, {{ user.nombre }}</h3>
+          <p>Correo: {{ user.correo }}</p>
+        </div>
       </div>
-      
-      <!-- Información del usuario -->
-      <div class="text-center mt-4">
-        <h3>Bienvenido, {{ user.nombre }}</h3>
-        <p>Correo: {{ user.correo }}</p>
-      </div>
-
-      <!-- Lista de libros -->
-      <h4 class="mt-4">
-        {{ busqueda ? 'Resultados de la búsqueda' : 'Libros disponibles' }}
-      </h4>
-      <div class="row libros-container">
-        <div v-for="libro in libros" :key="libro.enlace" class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4 d-flex justify-content-center" @click="goToDetalles(libro)">
-          <div class="book-card card shadow-sm">
-            <img :src="libro.imagen_portada" class="book-image card-img-top" alt="Portada del libro">
-            <div class="card-body text-center p-2">
-              <h6 class="book-title">{{ libro.nombre }}</h6>
+    </div>
+    <div class="listado" style="background-color: #343434;">
+      <div class="container mt-4">
+        <!-- Lista de libros -->
+        <h4 class="mt-4">
+          {{ busqueda ? 'Resultados de la búsqueda' : 'Libros disponibles' }}
+        </h4>
+        <div class="row libros-container">
+          <div v-for="libro in libros" :key="libro.enlace" class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4 d-flex justify-content-center" @click="goToDetalles(libro)">
+            <div class="book-card card shadow-sm">
+              <img :src="libro.imagen_portada" class="book-image card-img-top" alt="Portada del libro">
+              <div class="card-body text-center p-2">
+                <h6 class="book-title">{{ libro.nombre }}</h6>
+              </div>
             </div>
           </div>
         </div>
@@ -62,26 +66,8 @@ export default {
   data() {
     return {
       user: null,
-      temas: [
-      {tematica: 'Aventura'},
-        {tematica: 'Biografía'},
-        {tematica: 'Ciencia Ficción'},
-        {tematica: 'Cómic'},
-        {tematica: 'Drama'},
-        {tematica: 'Erótico'},
-        {tematica: 'Fantasía'},
-        {tematica: 'Filosofía'},
-        {tematica: 'Histórico'},
-        {tematica: 'Humor'},
-        {tematica: 'Infantil'},
-        {tematica: 'Juvenil'},
-        {tematica: 'Literatura Clásica'},
-        {tematica: 'Misterio'},
-        {tematica: 'Poesía'},
-        {tematica: 'Romance'},
-        {tematica: 'Terror'},
-        {tematica: 'Thriller'},
-      ],
+      categoriaSeleccionada: '',
+      temas: [],
       libros: [],
       busqueda: ""
     };
@@ -93,6 +79,8 @@ export default {
       });
       this.user = response.data;
       this.cargarLibros();
+      this.cargarTematicas();
+      this.categoria = '';
     } catch (error) {
       console.error("Error al obtener los datos del usuario:", error);
       this.$router.push("/");
@@ -107,12 +95,33 @@ export default {
         console.error('Error al cargar los libros:', error);
       }
     },
+    async cargarTematicas() {
+      const response = await axios.get('http://localhost:3000/api/libros/tematicas');
+      this.temas = response.data;
+    },
     async buscarLibros() {
       try {
         const response = await axios.get(`http://localhost:3000/api/libros/titulo/${this.busqueda.trim()}`);
         this.libros = Array.isArray(response.data) ? response.data : [response.data];
       } catch (error) {
         console.error('Error al buscar el libro:', error);
+        this.libros = [];
+      }
+    },
+    async filtrarPorCategoria(categoria) {
+      // Si ya está seleccionada, deseleccionar y cargar todos los libros
+      if (this.categoriaSeleccionada === categoria) {
+        this.categoriaSeleccionada = "";
+        return this.cargarLibros();
+      }
+      
+      this.categoriaSeleccionada = categoria;
+      
+      try {
+        const response = await axios.get(`http://localhost:3000/api/libros/tematica/${categoria}`);
+        this.libros = response.data;
+      } catch (error) {
+        console.error(`Error al cargar libros de la categoría ${categoria}:`, error);
         this.libros = [];
       }
     },
