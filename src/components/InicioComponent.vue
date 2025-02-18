@@ -48,6 +48,7 @@
         </div>
       </div>
     </div>
+    <Footer></Footer>
   </div>
   <div v-else>
     <p>Cargando...</p>
@@ -57,11 +58,14 @@
 <script>
 import axios from "axios";
 import NavBar from '@/components/NavBar.vue'
+import Footer from '@/components/Footer.vue'
+
 
 export default {
   name: 'InicioComponent',
   components: {
-    NavBar
+    NavBar,
+    Footer
   },
   data() {
     return {
