@@ -22,7 +22,8 @@ No es definitiva, editarla como querais.(javier)
   
   <script>
   import axios from 'axios';
-  
+  import { API_URL, AUTH_URL } from '../config';
+
   export default {
     data() {
       return {
@@ -35,7 +36,8 @@ No es definitiva, editarla como querais.(javier)
     methods: {
       async cargarForoCompleto() {
         try {
-          const response = await axios.get('http://localhost:3000/api/obtenerForoCompleto');
+          //const response = await axios.get('http://localhost:3000/api/obtenerForoCompleto');
+          const response = await axios.get(`${API_URL}/obtenerForoCompleto`);
           this.foro = response.data;
         } catch (error) {
           console.error('Error al cargar el foro:', error);

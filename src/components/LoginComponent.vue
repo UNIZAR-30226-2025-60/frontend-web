@@ -77,6 +77,7 @@
 <script>
 import axios from "axios";
 import { useRouter } from "vue-router";
+import { API_URL, AUTH_URL } from '../config';
 
 export default {
   setup() {
@@ -121,7 +122,8 @@ export default {
 
     async registerUsuario() {
       try {
-        const response = await axios.post('http://localhost:3000/api/usuarios/registro', {
+       // const response = await axios.post('http://localhost:3000/api/usuarios/registro', {
+        const response = await axios.post(`${API_URL}/usuarios/registro`, {
           correo: this.email,
           nombre: this.name,
           contrasena: this.password
@@ -136,7 +138,8 @@ export default {
     },
 
     loginWithGoogle() {
-      window.location.href = "http://localhost:3000/auth/google";
+      //window.location.href = "http://localhost:3000/auth/google";
+      window.location.href = (`${AUTH_URL}/google`);
     }
   }
 };

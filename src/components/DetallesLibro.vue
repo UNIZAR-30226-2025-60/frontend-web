@@ -30,6 +30,7 @@ import axios from 'axios';
 import NavBar from '@/components/NavBar.vue'
 //import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 //import { faClock, faBook, faFileWord } from '@fortawesome/free-solid-svg-icons';
+import { API_URL, AUTH_URL } from '../config';
 
 export default {
   name: 'DetallesLibro',
@@ -44,7 +45,8 @@ export default {
   async mounted() {
     try {
       const libroId = this.$route.params.id;
-      const response = await axios.get(`http://localhost:3000/api/libros/titulo/${libroId}`);
+      //const response = await axios.get(`http://localhost:3000/api/libros/titulo/${libroId}`);
+      const response = await axios.get(`${API_URL}/libros/titulo/${libroId}`);
       this.libro = response.data;
     } catch (error) {
       console.error('Error al cargar los detalles del libro:', error);
