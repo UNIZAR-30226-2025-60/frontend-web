@@ -48,7 +48,6 @@
         </div>
       </div>
     </div>
-    <Footer></Footer>
   </div>
   <div v-else>
     <p>Cargando...</p>
@@ -58,15 +57,11 @@
 <script>
 import axios from "axios";
 import NavBar from '@/components/NavBar.vue'
-import Footer from '@/components/Footer.vue'
-import { API_URL, AUTH_URL } from '../config';
-
 
 export default {
   name: 'InicioComponent',
   components: {
-    NavBar,
-    Footer
+    NavBar
   },
   data() {
     return {
@@ -79,8 +74,7 @@ export default {
   },
   async mounted() {
     try {
-      //const response = await axios.get("http://localhost:3000/api/user", {
-      const response = await axios.get(`${API_URL}/user`, {
+      const response = await axios.get("http://localhost:3000/api/user", {
         withCredentials: true,
       });
       this.user = response.data;
@@ -95,22 +89,19 @@ export default {
   methods: {
     async cargarLibros() {
       try {
-        //const response = await axios.get('http://localhost:3000/api/libros');
-        const response = await axios.get(`${API_URL}/libros`);
+        const response = await axios.get('http://localhost:3000/api/libros');
         this.libros = response.data;
       } catch (error) {
         console.error('Error al cargar los libros:', error);
       }
     },
     async cargarTematicas() {
-      //const response = await axios.get('http://localhost:3000/api/libros/tematicas');
-      const response = await axios.get(`${API_URL}/libros/tematicas`);
+      const response = await axios.get('http://localhost:3000/api/libros/tematicas');
       this.temas = response.data;
     },
     async buscarLibros() {
       try {
-        //const response = await axios.get(`http://localhost:3000/api/libros/titulo/${this.busqueda.trim()}`);
-        const response = await axios.get(`${API_URL}/libros/titulo/${this.busqueda.trim()}`);
+        const response = await axios.get(`http://localhost:3000/api/libros/obtenerTitulo/${this.busqueda.trim()}`);
         this.libros = Array.isArray(response.data) ? response.data : [response.data];
       } catch (error) {
         console.error('Error al buscar el libro:', error);
@@ -127,8 +118,7 @@ export default {
       this.categoriaSeleccionada = categoria;
       
       try {
-        //const response = await axios.get(`http://localhost:3000/api/libros/tematica/${categoria}`);
-        const response = await axios.get(`${API_URL}/libros/tematica/${categoria}`);
+        const response = await axios.get(`http://localhost:3000/api/libros/tematica/${categoria}`);
         this.libros = response.data;
       } catch (error) {
         console.error(`Error al cargar libros de la categoría ${categoria}:`, error);
