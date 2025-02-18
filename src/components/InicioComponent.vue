@@ -110,7 +110,7 @@ export default {
     async buscarLibros() {
       try {
         //const response = await axios.get(`http://localhost:3000/api/libros/titulo/${this.busqueda.trim()}`);
-        const response = await axios.get(`${API_URL}/libros/titulo/${this.busqueda.trim()}`);
+        const response = await axios.get(`${API_URL}/libros/obtenerTitulo/${this.busqueda.trim()}`);
         this.libros = Array.isArray(response.data) ? response.data : [response.data];
       } catch (error) {
         console.error('Error al buscar el libro:', error);
