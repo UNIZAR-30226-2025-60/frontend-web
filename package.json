@@ -1,0 +1,24 @@
+{
+  "name": "plantilla-app",
+  "version": "1.0.0",
+  "description": "```\r npm install\r ```",
+  "main": "babel.config.js",
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "start": "vue-cli-service serve --mode production",
+    "lint": "vue-cli-service lint"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.7.2",
+    "@popperjs/core": "^2.11.8",
+    "@vue/cli-service": "^5.0.8",
+    "axios": "^1.7.9",
+    "bootstrap": "^5.3.3",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
+  }
+}

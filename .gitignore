@@ -137,7 +137,7 @@ dist
 .DS_Store
 Thumbs.db
 
-package.json
+
 package-lock.json
 
 
