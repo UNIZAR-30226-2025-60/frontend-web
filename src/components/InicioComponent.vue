@@ -24,16 +24,16 @@
         </div>
         
         <!-- Información del usuario -->
-        <div class="text-center mt-4">
+        <div class="text-center">
           <h3>Bienvenido, {{ user.nombre }}</h3>
           <p>Correo: {{ user.correo }}</p>
         </div>
       </div>
     </div>
     <div class="listado" style="background-color: #343434;">
-      <div class="container mt-4">
+      <div class="container">
         <!-- Lista de libros -->
-        <h4 class="mt-4">
+        <h4 class="text-white">
           {{ busqueda ? 'Resultados de la búsqueda' : 'Libros disponibles' }}
         </h4>
         <div class="row libros-container">
@@ -147,10 +147,6 @@ export default {
 </script>
 
 <style scoped>
-.container {
-  max-width: 1100px;
-}
-
 .categorias-container {
   width: 100%;
   overflow-x: auto;
@@ -158,10 +154,6 @@ export default {
   padding-bottom: 10px;
   -ms-overflow-style: none;
   scrollbar-width: none;
-}
-
-.categorias-container::-webkit-scrollbar {
-  display: none;
 }
 
 .categorias-scroll {
@@ -198,11 +190,21 @@ export default {
 }
 
 .book-title {
+  width: 160px; 
+  white-space: normal; 
   font-size: 0.9rem;
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
+  -webkit-box-orient: vertical;
+  text-align: center;
 }
 
+.cabecera {
+  padding: 20px;
+}
+
+.cabecera .container {
+  margin-top: 0 !important; 
+}
 </style>
