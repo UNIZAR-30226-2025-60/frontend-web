@@ -117,7 +117,7 @@ export default {
     },
 
     goToApp() {
-      this.$router.push('/inicio');
+      this.router.push('/inicio');
     },
 
     async registerUsuario() {
