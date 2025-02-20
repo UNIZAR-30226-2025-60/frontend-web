@@ -140,7 +140,7 @@ export default {
       await this.cargarLibros();
     },
     goToDetalles(libro) {
-      this.$router.push({ name: 'detalles', params: { id: libro.nombre } });
+      this.$router.push({ name: 'Detalles', params: { id: libro.nombre } });
     }
   }
 };

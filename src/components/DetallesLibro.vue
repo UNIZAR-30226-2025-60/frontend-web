@@ -1,7 +1,6 @@
 <template>
   <div>
     <NavBar></NavBar>
-    
     <div v-if="libro" class="container mt-4">
       <div class="row">
         <div class="col-md-4">
@@ -22,20 +21,23 @@
         <span class="visually-hidden">Cargando...</span>
       </div>
     </div>
+    <Footer></Footer>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
 import NavBar from '@/components/NavBar.vue'
+import Footer from '@/components/Footer.vue'
 //import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 //import { faClock, faBook, faFileWord } from '@fortawesome/free-solid-svg-icons';
 import { API_URL, AUTH_URL } from '../config';
 
 export default {
-  name: 'DetallesLibro',
+  name: 'Detalles',
   components: {
-    NavBar
+    NavBar,
+    Footer
   },
   data() {
     return {

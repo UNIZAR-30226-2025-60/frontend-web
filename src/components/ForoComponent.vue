@@ -1,15 +1,13 @@
-<!-- He hecho esta pantalla fea de prueba para ver que funcione la obtención de datos del foro completo. 
-No es definitiva, editarla como querais.(javier)
- Os lo digo por si teneis algún problema o dudas, pq supuestamene he hecho la función de obtener el foro completo.
- de tal forma que os lo va a devolver con esta estructura ya organizado. -->
 <template>
-    <div>
-      <h1>Foro Completo</h1>
+  <div>
+    <NavBar></NavBar>
+    <div class= "container-fluid pt-5 p-5 text-white min-vh-100" style="background-color: #343434;">
+      <h2 class="section-title text-center mb-5">Foro</h2>
       <div v-for="pregunta in foro" :key="pregunta.id" class="pregunta">
-        <h2>{{ pregunta.cuestion }}</h2>
+        <h5>{{ pregunta.cuestion }}</h5>
         <p><strong>Por:</strong> {{ pregunta.usuario }} <strong>Fecha:</strong> {{ pregunta.fecha }}</p>
         <div v-if="pregunta.respuestas.length > 0" class="respuestas">
-          <h3>Respuestas:</h3>
+          <h5>Respuestas:</h5>
           <div v-for="respuesta in pregunta.respuestas" :key="respuesta.id" class="respuesta">
             <p>{{ respuesta.mensaje }}</p>
             <p><strong>Por:</strong> {{ respuesta.usuario }} <strong>Fecha:</strong> {{ respuesta.fecha }}</p>
@@ -18,13 +16,22 @@ No es definitiva, editarla como querais.(javier)
         <p v-else>Sin respuestas.</p>
       </div>
     </div>
-  </template>
+    <Footer></Footer>
+  </div>
+</template>
   
-  <script>
+<script>
   import axios from 'axios';
   import { API_URL, AUTH_URL } from '../config';
+  import NavBar from '@/components/NavBar.vue'
+  import Footer from '@/components/Footer.vue'
 
   export default {
+    name: 'ForoComponent',
+    components: {
+    NavBar,
+    Footer
+  },
     data() {
       return {
         foro: [],
@@ -45,9 +52,9 @@ No es definitiva, editarla como querais.(javier)
       },
     },
   };
-  </script>
+</script>
   
-  <style scoped>
+<style scoped>
   .pregunta {
     border: 1px solid #ccc;
     padding: 10px;
@@ -61,4 +68,4 @@ No es definitiva, editarla como querais.(javier)
     padding-top: 10px;
     margin-top: 10px;
   }
-  </style>
+</style>

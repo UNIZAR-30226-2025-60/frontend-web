@@ -8,8 +8,7 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <!-- Agregamos mx-auto para centrar los elementos -->
-      <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+      <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
         <li class="nav-item">
           <a class="nav-link nav-bold" href="#" @click="goToForo">Foro</a>
         </li>
@@ -32,8 +31,7 @@
           <a class="nav-link nav-bold" href="#">En proceso</a>
         </li>
       </ul>
-      <!-- Botón de Perfil alineado a la derecha con ms-auto -->
-      <ul class="navbar-nav ms-auto">
+      <ul class="navbar-nav">
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             Perfil
