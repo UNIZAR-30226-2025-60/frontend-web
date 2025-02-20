@@ -22,9 +22,9 @@
   
 <script>
   import axios from 'axios';
-  import { API_URL, AUTH_URL } from '../config';
   import NavBar from '@/components/NavBar.vue'
   import Footer from '@/components/Footer.vue'
+  import { apiClient } from '../config';
 
   export default {
     name: 'ForoComponent',
@@ -43,11 +43,10 @@
     methods: {
       async cargarForoCompleto() {
         try {
-          //const response = await axios.get('http://localhost:3000/api/obtenerForoCompleto');
-          const response = await axios.get(`${API_URL}/obtenerForoCompleto`);
+          const response = await apiClient.get("/obtenerForoCompleto");
           this.foro = response.data;
         } catch (error) {
-          console.error('Error al cargar el foro:', error);
+          console.error("Error al cargar el foro:", error);
         }
       },
     },

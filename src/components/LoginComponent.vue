@@ -77,7 +77,7 @@
 <script>
 import axios from "axios";
 import { useRouter } from "vue-router";
-import { API_URL, AUTH_URL } from '../config';
+import { apiClient, GOOGLE_REDIRECT_URI } from '../config'; // Importamos
 
 export default {
   setup() {
@@ -122,25 +122,23 @@ export default {
 
     async registerUsuario() {
       try {
-       // const response = await axios.post('http://localhost:3000/api/usuarios/registro', {
-        const response = await axios.post(`${API_URL}/usuarios/registro`, {
+        //Se mantiene `/api/usuarios/registro`**
+        const response = await apiClient.post("/usuarios/registro", {
           correo: this.email,
           nombre: this.name,
-          contrasena: this.password
-        }, {withCredentials: true});
-        console.log('Usuario registrado:', response.data);
-        alert('Usuario registrado exitosamente');
-        this.$router.push('/inicio');
+          contrasena: this.password,
+        });
+        console.log("Usuario registrado:", response.data);
+        alert("Usuario registrado exitosamente");
+        this.$router.push("/inicio");
       } catch (error) {
-        console.error('Error al registrar usuario:', error);
-        alert('Error al registrar usuario');
+        console.error("Error al registrar usuario:", error);
+        alert("Error al registrar usuario");
       }
     },
-
     loginWithGoogle() {
-      //window.location.href = "http://localhost:3000/auth/google";
-      window.location.href = (`${AUTH_URL}/google`);
-    }
+      window.location.href = GOOGLE_REDIRECT_URI;
+    },
   }
 };
 </script>

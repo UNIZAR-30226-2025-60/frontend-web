@@ -59,7 +59,7 @@
 import axios from "axios";
 import NavBar from '@/components/NavBar.vue'
 import Footer from '@/components/Footer.vue'
-import { API_URL, AUTH_URL } from '../config';
+import { apiClient } from '../config';
 
 
 export default {
@@ -78,57 +78,51 @@ export default {
     };
   },
   async mounted() {
-    try {
-      //const response = await axios.get("http://localhost:3000/api/user", {
-      const response = await axios.get(`${API_URL}/user`, {
-        withCredentials: true,
-      });
-      this.user = response.data;
-      this.cargarLibros();
-      this.cargarTematicas();
-      this.categoria = '';
-    } catch (error) {
-      console.error("Error al obtener los datos del usuario:", error);
-      this.$router.push("/");
-    }
+  try {
+    const response = await apiClient.get("/user"); // Llamada a usuario
+    this.user = response.data;
+    this.cargarLibros();
+    this.cargarTematicas();
+  } catch (error) {
+    console.error("Error al obtener los datos del usuario:", error);
+    this.$router.push("/");
+  }
   },
   methods: {
     async cargarLibros() {
       try {
-        //const response = await axios.get('http://localhost:3000/api/libros');
-        const response = await axios.get(`${API_URL}/libros`);
+        const response = await apiClient.get("/libros"); // Llamada a libros
         this.libros = response.data;
       } catch (error) {
-        console.error('Error al cargar los libros:', error);
+        console.error("Error al cargar los libros:", error);
       }
     },
     async cargarTematicas() {
-      //const response = await axios.get('http://localhost:3000/api/libros/tematicas');
-      const response = await axios.get(`${API_URL}/libros/tematicas`);
-      this.temas = response.data;
+      try {
+        const response = await apiClient.get("/libros/tematicas");
+        this.temas = response.data;
+      } catch (error) {
+        console.error("Error al cargar temáticas:", error);
+      }
     },
     async buscarLibros() {
       try {
-        //const response = await axios.get(`http://localhost:3000/api/libros/titulo/${this.busqueda.trim()}`);
-        const response = await axios.get(`${API_URL}/libros/obtenerTitulo/${this.busqueda.trim()}`);
+        const response = await apiClient.get(`/libros/obtenerTitulo/${this.busqueda.trim()}`);
         this.libros = Array.isArray(response.data) ? response.data : [response.data];
       } catch (error) {
-        console.error('Error al buscar el libro:', error);
+        console.error("Error al buscar el libro:", error);
         this.libros = [];
       }
     },
     async filtrarPorCategoria(categoria) {
-      // Si ya está seleccionada, deseleccionar y cargar todos los libros
       if (this.categoriaSeleccionada === categoria) {
         this.categoriaSeleccionada = "";
         return this.cargarLibros();
       }
-      
+
       this.categoriaSeleccionada = categoria;
-      
       try {
-        //const response = await axios.get(`http://localhost:3000/api/libros/tematica/${categoria}`);
-        const response = await axios.get(`${API_URL}/libros/tematica/${categoria}`);
+        const response = await apiClient.get(`/libros/tematica/${categoria}`);
         this.libros = response.data;
       } catch (error) {
         console.error(`Error al cargar libros de la categoría ${categoria}:`, error);
