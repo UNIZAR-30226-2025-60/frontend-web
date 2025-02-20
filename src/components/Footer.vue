@@ -6,17 +6,17 @@
         <div class="row text-center d-flex justify-content-center pt-4">
           <div class="col-md-2">
             <h6 class="text-uppercase">
-              <a href="#" class="footer-link" @click="mostrarAvisoLegal">Aviso Legal</a>
+              <a href="#" class="footer-link" @click="goToAvisoLegal">Aviso Legal</a>
             </h6>
           </div>
           <div class="col-md-2">
             <h6 class="text-uppercase">
-              <a href="#" class="footer-link" @click="mostrarPolitica">Política de Privacidad</a>
+              <a href="#" class="footer-link" @click="goToPolitica">Política de Privacidad</a>
             </h6>
           </div>
           <div class="col-md-2">
             <h6 class="text-uppercase">
-              <a href="#" class="footer-link" @click="mostrarContacto">Contacto</a>
+              <a href="#" class="footer-link" @click="goToContacto">Contacto</a>
             </h6>
           </div>
         </div>
@@ -44,14 +44,14 @@
 export default {
   name: "Footer",
   methods: {
-    mostrarAvisoLegal() {
-      alert("📜 Aviso Legal: Aquí iría la información legal de la plataforma.");
+    goToAvisoLegal() {
+        this.$router.push('/avisoLegal');
     },
-    mostrarPolitica() {
-      alert("🔐 Política de Privacidad: Información sobre cómo protegemos tus datos.");
+    goToPolitica() {
+        this.$router.push('/politica');
     },
-    mostrarContacto() {
-      alert("📩 Contacto: Puedes escribirnos a contacto@bookly.com");
+    goToContacto() {
+        this.$router.push('/contacto');
     }
   }
 };

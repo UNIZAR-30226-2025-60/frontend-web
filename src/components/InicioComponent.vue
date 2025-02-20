@@ -33,7 +33,7 @@
     <div class="listado" style="background-color: #343434;">
       <div class="container">
         <!-- Lista de libros -->
-        <h4 class="text-white">
+        <h4 class="text-white p-2">
           {{ busqueda ? 'Resultados de la búsqueda' : 'Libros disponibles' }}
         </h4>
         <div class="row libros-container">
