@@ -79,14 +79,14 @@ export default {
   },
   async mounted() {
   try {
-    const response = await apiClient.get("/user", { withCredentials: true });
+    const response = await apiClient.get("/user"); // Llamada a usuario
     this.user = response.data;
+    this.cargarLibros();
+    this.cargarTematicas();
   } catch (error) {
-    console.warn("No hay usuario autenticado, pero permitimos el acceso.");
+    console.error("Error al obtener los datos del usuario:", error);
+    this.$router.push("/");
   }
-  this.cargarLibros();
-
-
   },
   methods: {
     async cargarLibros() {
