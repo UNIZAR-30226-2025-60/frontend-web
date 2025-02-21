@@ -13,7 +13,7 @@ const AUTH_URL =
 const GOOGLE_REDIRECT_URI =
   window.location.hostname === "localhost"
     ? process.env.VUE_APP_GOOGLE_REDIRECT_URI || "http://localhost:3000/auth/google/callback"
-    : process.env.VUE_APP_RENDER_GOOGLE_REDIRECT_URI || "https://booklyweb-469w.onrender.com/auth/google/callback";
+    : process.env.VUE_APP_RENDER_GOOGLE_REDIRECT_URI || "https://backend-dcy8.onrender.com/auth/google/callback";
 
 // Configuración de Axios para reutilizar en todas las peticiones, esto es lo que comparto a los componentes vue
 const apiClient = axios.create({
