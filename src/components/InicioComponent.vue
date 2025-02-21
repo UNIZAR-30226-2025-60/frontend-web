@@ -79,7 +79,7 @@ export default {
   },
   async mounted() {
   try {
-    const response = await apiClient.get("/user"); // Llamada a usuario
+    const response = await apiClient.get("/user",{ withCredentials: true,}); // Llamada a usuario
     this.user = response.data;
     this.cargarLibros();
     this.cargarTematicas();
