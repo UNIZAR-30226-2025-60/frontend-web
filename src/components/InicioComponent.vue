@@ -1,8 +1,12 @@
 <template>
   <div v-if="user">
-    <NavBar></NavBar>
+    <NavBar :dark-mode="darkMode"></NavBar>
     <div class="cabecera" style="background-color: #9b885b;">
-      <div class="container mt-2" style="background-color: #9b885b;">
+      <div class="container mt-2">
+        <!-- Boton modos -->
+        <button @click="toggleDarkMode" class="theme-toggle-btn">
+          {{ darkMode ? 'Modo Claro' : 'Modo Oscuro' }}
+        </button>
         <!-- Barra de búsqueda -->
         <form class="d-flex mb-3 mt-4" @submit.prevent="buscarLibros">
           <div class="input-group">
@@ -10,7 +14,6 @@
             <button v-if="busqueda" class="btn btn-outline-secondary rounded-pill ms-2" type="button" @click="limpiarBusqueda">Limpiar</button>
           </div>
         </form>
-
         <!-- Categorías -->
         <div class="d-flex mb-3">
           <h4 class="mb-3">Categorías:</h4>
@@ -30,10 +33,10 @@
         </div>
       </div>
     </div>
-    <div class="listado" style="background-color: #343434;">
-      <div class="container">
+    <div class="listado">
+      <div class="l-container p-2 mx-5">
         <!-- Lista de libros -->
-        <h4 class="text-white p-2">
+        <h4 class="text p-2">
           {{ busqueda ? 'Resultados de la búsqueda' : 'Libros disponibles' }}
         </h4>
         <div class="row libros-container">
@@ -74,15 +77,18 @@ export default {
       categoriaSeleccionada: '',
       temas: [],
       libros: [],
-      busqueda: ""
+      busqueda: "",
+      darkMode: localStorage.getItem("darkMode") === "true", // Obtener el tema guardado
     };
   },
   async mounted() {
   try {
-    const response = await apiClient.get("/user",{ withCredentials: true,}); // Llamada a usuario
+    const response = await apiClient.get("/user"); // Llamada a usuario
     this.user = response.data;
     this.cargarLibros();
     this.cargarTematicas();
+    this.applyTheme();
+
   } catch (error) {
     console.error("Error al obtener los datos del usuario:", error);
     this.$router.push("/");
@@ -129,10 +135,20 @@ export default {
         this.libros = [];
       }
     },
+    toggleDarkMode() {
+      this.darkMode = !this.darkMode; // Cambiar el estado
+      localStorage.setItem("darkMode", this.darkMode); // Guardar la elección
+      this.applyTheme(); // Aplicar el nuevo tema
+    },
+    applyTheme() {
+      document.body.classList.toggle("dark-mode", this.darkMode);
+      document.body.classList.toggle("light-mode", !this.darkMode);
+    },
     async limpiarBusqueda() {
       this.busqueda = "";
       await this.cargarLibros();
     },
+    
     goToDetalles(libro) {
       this.$router.push({ name: 'Detalles', params: { id: libro.nombre } });
     }
@@ -141,6 +157,37 @@ export default {
 </script>
 
 <style scoped>
+/* Estilos del botón */
+.theme-toggle-btn {
+  background-color: #444;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.theme-toggle-btn:hover {
+  background-color: #666;
+}
+
+/* Modo oscuro */
+.dark-mode .listado {
+  background-color: #343434;
+  color: #ffffff;
+}
+
+/* Modo claro */
+.light-mode {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.light-mode .listado {
+  background-color: #ead5a1;
+  color: #000000;
+}
+
 .categorias-container {
   width: 100%;
   overflow-x: auto;

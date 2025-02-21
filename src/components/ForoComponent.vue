@@ -19,7 +19,7 @@
     <Footer></Footer>
   </div>
 </template>
-  
+
 <script>
   import axios from 'axios';
   import NavBar from '@/components/NavBar.vue'
@@ -52,7 +52,7 @@
     },
   };
 </script>
-  
+
 <style scoped>
   .pregunta {
     border: 1px solid #ccc;
