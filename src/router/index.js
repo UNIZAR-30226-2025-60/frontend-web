@@ -6,7 +6,7 @@ import DetallesComponent from "@/components/DetallesLibro.vue";
 import AvisoLegalComponent from "@/components/AvisoLegalComponent.vue";
 import PoliticaComponent from "@/components/PoliticaComponent.vue";
 import ContactoComponent from "@/components/ContactoComponent.vue";
-import WebViewer from "@/components/WebViewer.vue";
+//import WebViewer from "@/components/WebViewer.vue";
 
 const routes = [
   { path: "/", name: "Login", component: LoginComponent },
@@ -16,7 +16,7 @@ const routes = [
   { path: "/avisoLegal", name: "AvisoLegal", component: AvisoLegalComponent },
   { path: "/politica", name: "Politica", component: PoliticaComponent },
   { path: "/contacto", name: "Contacto", component: ContactoComponent },
-  { path: "/webviewer", name: "WebViewer", component: WebViewer }, 
+  //{ path: "/webviewer", name: "WebViewer", component: WebViewer }, 
 ];
 
 const router = createRouter({
