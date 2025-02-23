@@ -6,7 +6,6 @@ import DetallesComponent from "@/components/DetallesLibro.vue";
 import AvisoLegalComponent from "@/components/AvisoLegalComponent.vue";
 import PoliticaComponent from "@/components/PoliticaComponent.vue";
 import ContactoComponent from "@/components/ContactoComponent.vue";
-import LectorPDF from "@/components/LectorPDF.vue";
 
 const routes = [
   { path: "/", name: "Login", component: LoginComponent },
