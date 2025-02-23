@@ -42,6 +42,7 @@ export default {
                     'fileAttachmentPanel-tabPanel',
                     'layersPanel-tabPanel',
                     'thumbnailsPanel-tabPanel',
+                    'bookmarksPanel-tabPanel',
                     'page-nav-floating-header',
 
                 ]);
@@ -49,6 +50,8 @@ export default {
                 Core.documentViewer.addEventListener('pageNumberUpdated', (pageNumber) => {
                     currentPage.value = pageNumber;
                 });             
+                // Atajo para habilitar el icono de marcadores de forma directa
+                UI.enableBookmarkIconShortcutVisibility()
                 
             });
         });
