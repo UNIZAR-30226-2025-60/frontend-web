@@ -16,7 +16,6 @@ const routes = [
   { path: "/avisoLegal", name: "AvisoLegal", component: AvisoLegalComponent },
   { path: "/politica", name: "Politica", component: PoliticaComponent },
   { path: "/contacto", name: "Contacto", component: ContactoComponent },
-  { path: "/lectorPDF", name: "LectorPDF", component: LectorPDF },
 ];
 
 const router = createRouter({
