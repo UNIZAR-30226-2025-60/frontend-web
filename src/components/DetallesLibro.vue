@@ -146,7 +146,6 @@ export default {
       mostrarModal: false,
       nuevaValoracion: {
         usuario_id: "", 
-        fecha: "",
         libro_id: "", 
         titulo_resena: "", 
         mensaje: "", 
@@ -181,16 +180,13 @@ export default {
     aniadirAFavoritos() {
     },
     aniadirValoracion(libro) {
-    const fechaActual = new Date().toISOString();
     this.nuevaValoracion = {
-      usuario_id: this.user.nombre,
+      usuario_id: this.user.correo,
       libro_id: libro.id,
-      fecha: fechaActual, // Asignar correctamente la fecha aquí
       titulo_resena: "",
       mensaje: "",
       valor: null
     };
-    console.log("Fecha asignada: ", this.nuevaValoracion.fecha); // Comprobar que la fecha se asigna correctamente
     this.mostrarModal = true; // Abre el modal
     },
     cerrarModal() {
@@ -202,26 +198,21 @@ export default {
         return;
       }
       try {
-        // Guardamos todos los datos necesarios para realizar la consulta (no es necesaria la fecha)
+        // Aquí no enviamos la fecha, porque el backend la maneja automáticamente
         const nuevaValoracion = {
-          usuario_id: this.user.nombre,
-          libro_id: this.libro.enlace,
+          usuario_id: this.user.correo,  // Asegúrate de que el valor es correcto
+          libro_id: this.libro.enlace,   // Asegúrate de que el enlace es correcto
           titulo_resena: this.nuevaValoracion.titulo_resena,
-          fecha: this.nuevaValoracion.fecha, 
           mensaje: this.nuevaValoracion.mensaje,
           valor: this.nuevaValoracion.valor
         };
 
-        console.log("Enviando los siguientes datos de valoración:");
-        console.log("Fecha:", nuevaValoracion.fecha);  // Verifica que se pasa correctamente
-
         console.log("Enviando los siguientes datos de valoración:");
         console.log("Usuario ID:", nuevaValoracion.usuario_id);
-        console.log("Fecha: ", nuevaValoracion.fecha);
         console.log("Libro ID:", nuevaValoracion.libro_id);
         console.log("Título de la Reseña:", nuevaValoracion.titulo_resena);
         console.log("Mensaje:", nuevaValoracion.mensaje);
-        console.log("Puntuación: ", nuevaValoracion.valor);
+        console.log("Puntuación:", nuevaValoracion.valor);
         
         const response = await apiClient.post('/opiniones', nuevaValoracion);
         console.log('Valoración añadida con éxito:', response.data);
@@ -245,6 +236,7 @@ export default {
         alert("Hubo un error al enviar tu valoración. Inténtalo de nuevo.");
       }
     },
+
     mostrarPDF() {
 
     },

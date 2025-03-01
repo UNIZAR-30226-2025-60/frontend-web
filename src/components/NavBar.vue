@@ -13,7 +13,7 @@
           <a class="nav-link nav-bold" href="#" @click="goToForo">Foro</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link nav-bold" href="#">Estadísticas</a>
+          <a class="nav-link nav-bold" href="#" @click="goToEstadisticas">Estadísticas</a>
         </li>
         <li class="nav-item">
           <a class="nav-link nav-bold" href="#">Listas</a>
@@ -71,6 +71,9 @@ export default {
     },
     goToInicio() {
         this.$router.push('/inicio');
+    },
+    goToEstadisticas() {
+        this.$router.push('/estadisticas');
     }
   }
 };
