@@ -119,7 +119,22 @@ export default {
     goToApp() {
       this.$router.push('/inicio');
     },
-
+    async login() {
+      try {
+        const response = await apiClient.post("/usuarios/login", {
+          correo: this.email,
+          contrasena: this.password,
+        });
+        console.log("Correo: ", response.data.correo);
+        console.log("Contraseña:", response.data.contrasena);
+        console.log("Usuario que ha iniciado sesión:", response.data);
+        alert("Inicio de sesión exitoso");
+        this.$router.push("/inicio");
+      } catch (error) {
+        console.error("Error al iniciar sesión con usuario:", error);
+        alert("Error al iniciar sesión");
+      }
+    },
     async registerUsuario() {
       try {
         //Se mantiene `/api/usuarios/registro`**

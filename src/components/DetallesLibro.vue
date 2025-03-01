@@ -1,7 +1,13 @@
 <template>
-  <div v-if="user">
-    <NavBar></NavBar>
+  <div v-if="user" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
+    <NavBar :dark-mode="darkMode"></NavBar>
     <div v-if="libro" class="container mt-4">
+
+      <!-- Botón de cambio de tema -->
+      <button @click="toggleDarkMode" class="theme-toggle-btn mb-3">
+        {{ darkMode ? 'Modo Claro' : 'Modo Oscuro' }}
+      </button>
+
       <div class="row">
         <div class="col-md-4 d-flex flex-column align-items-center">
           <img :src="libro.imagen_portada" class="img-fluid" alt="Portada del libro">
@@ -56,23 +62,38 @@
           <!-- Línea horizontal antes de valoraciones del libro -->
           <hr class="my-3">
 
-          <h5>Valoraciones del libro:</h5>
-          <p class="mb-1"> Valoración general</p>
-          <p> {{ libro.puntuacion_media }} de 5</p>
-          <button class="btn" @click="aniadirValoracion(libro)">Añadir Valoración</button>
+          <div class="col-md-8">
+            <h5>Valoraciones del libro:</h5>
+            <div class="d-flex justify-content-between align-items-center">
+              <div class=" pe-3 border-end">
+                <p class="mb-1"> Valoración general</p>
+                <p> {{ libro.puntuacion_media.toFixed(2) }} de 5</p>
+                <button class="btn" @click="aniadirValoracion(libro)">Añadir Valoración</button>
+              </div>
+              <div>
+                <p class="mb-1"> 5 ESTRELLAS   {{ conteoValoraciones[5] }}</p>
+                <p class="mb-1"> 4 ESTRELLAS   {{ conteoValoraciones[4] }}</p>
+                <p class="mb-1"> 3 ESTRELLAS   {{ conteoValoraciones[3] }}</p>
+                <p class="mb-1"> 2 ESTRELLAS   {{ conteoValoraciones[2] }}</p>
+                <p class="mb-1"> 1 ESTRELLAS   {{ conteoValoraciones[1] }}</p>
+              </div>
+            </div>
+          </div>
 
           <!-- Línea horizontal antes del título todas las reseñas del libro -->
           <hr class="my-3">
 
-          <div class="d-flex justify-content-between align-items-center">
+          <div class="d-flex justify-content-between align-items-center"> 
             <h5>Todas las reseñas del libro:</h5>
             <div class="dropdown">
-              <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Ordena por: </button>
+              <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Ordena por: 
+              </button>
               <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#">Valoración más alta</a></li>
-                <li><a class="dropdown-item" href="#">Valoración más baja</a></li>
-                <li><a class="dropdown-item" href="#">Valoración más antigua</a></li>
-                <li><a class="dropdown-item" href="#">Valoración más reciente</a></li>
+                <li><a class="dropdown-item" @click="filtroSeleccionado = 'alta'">Valoración más alta</a></li>
+                <li><a class="dropdown-item" @click="filtroSeleccionado = 'baja'">Valoración más baja</a></li>
+                <li><a class="dropdown-item" @click="filtroSeleccionado = 'antigua'">Valoración más antigua</a></li>
+                <li><a class="dropdown-item" @click="filtroSeleccionado = 'reciente'">Valoración más reciente</a></li>
               </ul>
             </div>
           </div>
@@ -80,6 +101,17 @@
           <!-- Línea horizontal antes de todas las reseñas del libro -->
           <hr class="my-3">
 
+          <div v-if="valoracionesOrdenadas.length > 0">
+            <div v-for="valoracion in valoracionesOrdenadas" :key="valoracion.id" class="valoracion">
+              <p class="mb-1">{{ valoracion.valor }} estrellas <strong>{{ valoracion.titulo_resena }}</strong></p>
+              <p class="mb-1">{{ valoracion.mensaje }}</p>
+              <p>Por {{valoracion.usuario_id}} en {{ new Date(valoracion.fecha).toLocaleDateString() }}</p>
+              <hr>
+            </div>
+          </div>
+          <div v-else>
+            <p>No hay valoraciones todavía.</p>
+          </div>
         </div>        
       </div>
     </div>
@@ -144,6 +176,8 @@ export default {
       libro: null,
       librosRelacionados: [],
       mostrarModal: false,
+      valoraciones: [], 
+      filtroSeleccionado: "reciente",
       nuevaValoracion: {
         usuario_id: "", 
         fecha: "",
@@ -151,8 +185,32 @@ export default {
         titulo_resena: "", 
         mensaje: "", 
         valor: null
-      }
+      },
+      conteoValoraciones: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+      darkMode: localStorage.getItem("darkMode") === "true" // Obtener el tema guardado
     };
+  },
+  computed: {
+    valoracionesOrdenadas() {
+      let ordenadas = [...this.valoraciones];
+
+      switch (this.filtroSeleccionado) {
+        case "alta":
+          ordenadas.sort((a, b) => b.valor - a.valor);
+          break;
+        case "baja":
+          ordenadas.sort((a, b) => a.valor - b.valor);
+          break;
+        case "antigua":
+          ordenadas.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+          break;
+        case "reciente":
+        default:
+          ordenadas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+          break;
+      }
+      return ordenadas;
+    }
   },
   async mounted() {
     try {
@@ -164,6 +222,11 @@ export default {
       if (this.libro) {
         await this.obtenerLibrosDelMismoAutor();
       }
+      await this.obtenerConteoValoraciones();
+      await this.obtenerValoraciones();
+
+      // Aplicar el tema guardado al cargar la página
+      this.applyTheme();
     } 
     catch (error) {
       console.error('Error al cargar los detalles del libro:', error);
@@ -183,14 +246,13 @@ export default {
     aniadirValoracion(libro) {
     const fechaActual = new Date().toISOString();
     this.nuevaValoracion = {
-      usuario_id: this.user.nombre,
+      usuario_id: this.user.correo,
       libro_id: libro.id,
-      fecha: fechaActual, // Asignar correctamente la fecha aquí
+      fecha: fechaActual, 
       titulo_resena: "",
       mensaje: "",
       valor: null
     };
-    console.log("Fecha asignada: ", this.nuevaValoracion.fecha); // Comprobar que la fecha se asigna correctamente
     this.mostrarModal = true; // Abre el modal
     },
     cerrarModal() {
@@ -202,9 +264,9 @@ export default {
         return;
       }
       try {
-        // Guardamos todos los datos necesarios para realizar la consulta (no es necesaria la fecha)
+        // Guardamos todos los datos necesarios para realizar la consulta
         const nuevaValoracion = {
-          usuario_id: this.user.nombre,
+          usuario_id: this.user.correo,
           libro_id: this.libro.enlace,
           titulo_resena: this.nuevaValoracion.titulo_resena,
           fecha: this.nuevaValoracion.fecha, 
@@ -213,7 +275,7 @@ export default {
         };
 
         console.log("Enviando los siguientes datos de valoración:");
-        console.log("Fecha:", nuevaValoracion.fecha);  // Verifica que se pasa correctamente
+        console.log("Fecha:", nuevaValoracion.fecha);
 
         console.log("Enviando los siguientes datos de valoración:");
         console.log("Usuario ID:", nuevaValoracion.usuario_id);
@@ -229,6 +291,12 @@ export default {
         // Cerrar el modal después de enviar la valoración
         this.cerrarModal();
 
+        // Recargar los detalles del libro para actualizar la lista de valoraciones
+        await this.cargarDetallesLibro();
+
+        // Recargar el conteo de valoraciones
+        await this.obtenerConteoValoraciones();
+
         // Limpiar el formulario después de enviar la reseña
         this.nuevaValoracion = {
           usuario_id: "", 
@@ -239,14 +307,43 @@ export default {
         };
 
         // Mostrar mensaje de éxito
-        alert("¡Tu valoración ha sido publicada!");
+        alert("Tu valoración ha sido publicada.");
       } catch (error) {
         console.error('Error al enviar la valoración:', error);
         alert("Hubo un error al enviar tu valoración. Inténtalo de nuevo.");
       }
     },
-    mostrarPDF() {
+    async obtenerConteoValoraciones() {
+      try {
+        // Reiniciamos el contador para cada nueva consulta
+        this.conteoValoraciones = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+        for (let valor = 5; valor >= 1; valor--) {
+          const response = await apiClient.get(`/opiniones/valoracion/${encodeURIComponent(this.libro.enlace)}/${valor}`);
+          const valoraciones = response.data;
 
+          // Contamos las valoraciones por cada valor
+          valoraciones.forEach((valoracion) => {
+            // Aseguramos que el valor es un número
+            const valor = parseInt(valoracion.valor);
+            if (this.conteoValoraciones[valor] !== undefined) {
+              this.conteoValoraciones[valor]++;
+            }
+          });
+        }
+
+        console.log("Conteo de valoraciones:", this.conteoValoraciones);
+        
+      } catch (error) {
+        console.error("Error al obtener el conteo de las valoraciones:", error);
+      }
+    },
+    async obtenerValoraciones() {
+      try {
+        const response = await apiClient.get(`/opiniones/${encodeURIComponent(this.libro.enlace)}`);
+        this.valoraciones = response.data;
+      } catch (error) {
+        console.error("Error al obtener las valoraciones:", error);
+      }
     },
     async cargarDetallesLibro() {
       try {
@@ -271,6 +368,16 @@ export default {
     },
     goToDetalles(libro) {
       this.$router.push({ name: 'Detalles', params: { id: libro.nombre } });
+    },
+    // Métodos para el tema oscuro/claro
+    toggleDarkMode() {
+      this.darkMode = !this.darkMode;
+      localStorage.setItem("darkMode", this.darkMode);
+      this.applyTheme();
+    },
+    applyTheme() {
+      document.body.classList.toggle("dark-mode", this.darkMode);
+      document.body.classList.toggle("light-mode", !this.darkMode);
     }
   }
 };
@@ -278,6 +385,15 @@ export default {
 
 <style scoped>
 /* Estilos del botón */
+.theme-toggle-btn {
+  background-color: #444;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
 .btn {
   background-color: #444;
   color: #fff;
@@ -358,5 +474,43 @@ export default {
   padding: 20px;
   border-radius: 10px;
   text-align: center;
+}
+
+/* Estilos para modo oscuro */
+:deep(.dark-mode) {
+  background-color: #343434;
+  color: #ffffff;
+}
+
+:deep(.dark-mode) .container {
+  background-color: #343434;
+  color: #ffffff;
+}
+
+:deep(.dark-mode) hr {
+  border-color: #555;
+}
+
+:deep(.dark-mode) .dropdown-menu {
+  background-color: #444;
+}
+
+:deep(.dark-mode) .dropdown-item {
+  color: #fff;
+}
+
+:deep(.dark-mode) .dropdown-item:hover {
+  background-color: #555;
+  color: #fff;
+}
+
+/* Estilos para modo claro */
+:deep(.light-mode) {
+  color: #000000;
+}
+
+:deep(.light-mode) .container {
+  background-color: #ead5a1;
+  color: #000000;
 }
 </style>
