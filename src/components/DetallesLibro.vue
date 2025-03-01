@@ -180,7 +180,6 @@ export default {
       filtroSeleccionado: "reciente",
       nuevaValoracion: {
         usuario_id: "", 
-        fecha: "",
         libro_id: "", 
         titulo_resena: "", 
         mensaje: "", 
@@ -244,8 +243,8 @@ export default {
     aniadirAFavoritos() {
     },
     aniadirValoracion(libro) {
-    const fechaActual = new Date().toISOString();
     this.nuevaValoracion = {
+      usuario_id: this.user.correo,
       usuario_id: this.user.correo,
       libro_id: libro.id,
       fecha: fechaActual, 
@@ -269,7 +268,6 @@ export default {
           usuario_id: this.user.correo,
           libro_id: this.libro.enlace,
           titulo_resena: this.nuevaValoracion.titulo_resena,
-          fecha: this.nuevaValoracion.fecha, 
           mensaje: this.nuevaValoracion.mensaje,
           valor: this.nuevaValoracion.valor
         };
@@ -279,11 +277,10 @@ export default {
 
         console.log("Enviando los siguientes datos de valoración:");
         console.log("Usuario ID:", nuevaValoracion.usuario_id);
-        console.log("Fecha: ", nuevaValoracion.fecha);
         console.log("Libro ID:", nuevaValoracion.libro_id);
         console.log("Título de la Reseña:", nuevaValoracion.titulo_resena);
         console.log("Mensaje:", nuevaValoracion.mensaje);
-        console.log("Puntuación: ", nuevaValoracion.valor);
+        console.log("Puntuación:", nuevaValoracion.valor);
         
         const response = await apiClient.post('/opiniones', nuevaValoracion);
         console.log('Valoración añadida con éxito:', response.data);
