@@ -21,7 +21,8 @@
               <h4>de: {{ libro.autor }}</h4>
             </div>
             <div>
-              <button class="btn me-3" @click="aniadirAFavoritos">Añadir a favoritos</button>
+              <font-awesome-icon :icon="['far', 'heart']" /> <!-- Vue no consigue procesarlo, pero no da error de compilación -->
+              <button class="btn me-3" @click="aniadirAFavoritos(libro)">Añadir a favoritos</button>
               <button class="btn" @click="aniadirALista">Añadir a lista</button>
             </div>
           </div>
@@ -159,8 +160,6 @@
 import axios from 'axios';
 import NavBar from '@/components/NavBar.vue'
 import Footer from '@/components/Footer.vue'
-//import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-//import { faClock, faBook, faFileWord } from '@fortawesome/free-solid-svg-icons';
 import { apiClient } from '../config';
 
 
@@ -184,6 +183,10 @@ export default {
         titulo_resena: "", 
         mensaje: "", 
         valor: null
+      },
+      favoritos: {
+        usuario_id: "",
+        enlace_libro: ""
       },
       conteoValoraciones: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
       darkMode: localStorage.getItem("darkMode") === "true" // Obtener el tema guardado
@@ -240,19 +243,42 @@ export default {
   methods: {
     aniadirALista() {
     },
-    aniadirAFavoritos() {
+    async aniadirAFavoritos(libro) {
+      try {
+        const favoritos = {
+          usuario_id: this.user.correo,
+          enlace_libro: this.libro.enlace
+        };
+
+        console.log("Usuario ID:", favoritos.usuario_id);
+        console.log("Libro ID:", favoritos.enlace_libro);
+
+        const response = await apiClient.post('/listas/favoritos', favoritos);
+        alert(response.data.mensaje);
+
+        // Limpiar los parámetros después de añadir a favoritos
+        this.nuevaValoracion = {
+          usuario_id: "", 
+          libro_id: "" 
+        };
+      } catch (error) {
+        if (error.response) {
+          alert(error.response.data);
+        } else {
+          alert("Hubo un error al guardar tu libro en favoritos. Inténtalo de nuevo.");
+        }
+      }
     },
     aniadirValoracion(libro) {
-    this.nuevaValoracion = {
-      usuario_id: this.user.correo,
-      usuario_id: this.user.correo,
-      libro_id: libro.id,
-      fecha: fechaActual, 
-      titulo_resena: "",
-      mensaje: "",
-      valor: null
-    };
-    this.mostrarModal = true; // Abre el modal
+      this.nuevaValoracion = {
+        usuario_id: this.user.correo,
+        libro_id: libro.id,
+        fecha: fechaActual, 
+        titulo_resena: "",
+        mensaje: "",
+        valor: null
+      };
+      this.mostrarModal = true; // Abre el modal
     },
     cerrarModal() {
       this.mostrarModal = false; // Cierra el modal
@@ -473,40 +499,38 @@ export default {
   text-align: center;
 }
 
-/* Estilos para modo oscuro */
-:deep(.dark-mode) {
+/* Colores modo oscuro */
+.dark-mode {
   background-color: #343434;
   color: #ffffff;
 }
 
-:deep(.dark-mode) .container {
+.dark-mode .container {
   background-color: #343434;
   color: #ffffff;
 }
 
-:deep(.dark-mode) hr {
-  border-color: #555;
-}
-
-:deep(.dark-mode) .dropdown-menu {
-  background-color: #444;
-}
-
-:deep(.dark-mode) .dropdown-item {
-  color: #fff;
-}
-
-:deep(.dark-mode) .dropdown-item:hover {
-  background-color: #555;
-  color: #fff;
-}
-
-/* Estilos para modo claro */
-:deep(.light-mode) {
+/* Colores modo claro */
+.light-mode {
+  background-color: #ffffff;
   color: #000000;
 }
 
-:deep(.light-mode) .container {
+.light-mode .container {
+  background-color: #ead5a1;
+  color: #000000;
+}
+
+.page-wrapper {
+  min-height: 100vh;
+}
+
+.page-wrapper.dark-mode {
+  background-color: #343434;
+  color: #ffffff;
+}
+
+.page-wrapper.light-mode {
   background-color: #ead5a1;
   color: #000000;
 }

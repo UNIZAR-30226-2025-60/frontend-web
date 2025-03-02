@@ -160,8 +160,7 @@ export default {
 
 <style scoped>
 .book-scene {
-  min-height: 100vh;
-  background: #1a1a1a;
+  height: 70vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -178,8 +177,8 @@ export default {
 
 .book {
   position: relative;
-  width: 100%;
-  height: 100%;
+  width: 128%;
+  height: 128%;
   transform-style: preserve-3d;
   transition: transform 0.5s;
 }
@@ -190,12 +189,26 @@ export default {
   width: 100%;
   height: 100%;
   border-radius: 2px 20px 20px 2px;
-  box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.6);
   transform-origin: left;
   transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   z-index: 10;
   overflow: hidden; /* Evita que la imagen sobresalga */
+}
+
+.index {
+  position: absolute;
+  width: 65%; 
+  height: 62.5%; 
+  background: #f8f1e4;
+  padding: 40px;
+  border-radius: 1px 15px 15px 1px;
+  transform-origin: left;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  z-index: 5;
+  top: 19%; 
+  left: 17%;
 }
 
 .cover-image {
@@ -215,7 +228,6 @@ export default {
 }
 
 /* Contenido */
-/* Contenido */
 .content-wrapper {
   position: absolute;
   width: 100%;
@@ -226,8 +238,8 @@ export default {
 
 .content {
   position: absolute;
-  width: 100%;
-  height: 100%;
+  width: 65%;
+  height: 62.5%;
   background: #f8f1e4;
   padding: 40px;
   border-radius: 1px 15px 15px 1px;
@@ -236,6 +248,8 @@ export default {
   transition: transform 0.5s ease-out;
   opacity: 0;
   visibility: hidden;
+  top: 19%;
+  left: 17%;
 }
 
 .content.active {
