@@ -7,6 +7,8 @@ import AvisoLegalComponent from "@/components/AvisoLegalComponent.vue";
 import PoliticaComponent from "@/components/PoliticaComponent.vue";
 import ContactoComponent from "@/components/ContactoComponent.vue";
 import EstadisticasComponent from "../components/EstadisticasComponent.vue";
+import MisListasComponent from "../components/MisListasComponent.vue";
+import CrearListaComponent from "../components/CrearListaComponent.vue";
 //import WebViewer from "@/components/WebViewer.vue";
 
 const routes = [
@@ -18,6 +20,10 @@ const routes = [
   { path: "/politica", name: "Politica", component: PoliticaComponent },
   { path: "/contacto", name: "Contacto", component: ContactoComponent },
   { path: "/estadisticas", name: "Estadisticas", component: EstadisticasComponent },
+  { path: "/mislistas", name: "MisListas", component: MisListasComponent },
+  { path: "/crearlista", name: "CrearLista", component: CrearListaComponent },
+
+
   //{ path: "/webviewer", name: "WebViewer", component: WebViewer }, 
 ];
 

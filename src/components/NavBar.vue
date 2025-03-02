@@ -16,13 +16,13 @@
           <a class="nav-link nav-bold" href="#" @click="goToEstadisticas">Estadísticas</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link nav-bold" href="#">Listas</a>
+          <a class="nav-link nav-bold" href="#" >Listas</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link nav-bold" href="#">Mis Listas</a>
+          <a class="nav-link nav-bold" href="#" @click="goToMisListas">Mis Listas</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link nav-bold" href="#">Mis Favoritos</a>
+        <li class="nav-item" >
+          <a class="nav-link nav-bold" href="#" @click="goToFavoritos">Mis Favoritos</a>
         </li>
         <li class="nav-item">
           <a class="nav-link nav-bold" href="#">Leídos</a>
@@ -74,7 +74,12 @@ export default {
     },
     goToEstadisticas() {
         this.$router.push('/estadisticas');
+    },
+    goToMisListas() {
+        this.$router.push('/mislistas');
     }
+
+    
   }
 };
 </script>

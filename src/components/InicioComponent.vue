@@ -82,17 +82,17 @@ export default {
     };
   },
   async mounted() {
-  try {
-    const response = await apiClient.get("/user"); // Llamada a usuario
-    this.user = response.data;
-    this.cargarLibros();
-    this.cargarTematicas();
-    this.applyTheme();
+    try {
+      const response = await apiClient.get("/user"); // Llamada a usuario
+      this.user = response.data;
+      this.cargarLibros();
+      this.cargarTematicas();
+      this.applyTheme();
 
-  } catch (error) {
-    console.error("Error al obtener los datos del usuario:", error);
-    this.$router.push("/");
-  }
+    } catch (error) {
+      console.error("Error al obtener los datos del usuario:", error);
+      this.$router.push("/");
+    }
   },
   methods: {
     async cargarLibros() {
