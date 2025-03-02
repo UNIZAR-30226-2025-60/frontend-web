@@ -12,7 +12,6 @@
         <div class="col-md-4 d-flex flex-column align-items-center">
           <img :src="libro.imagen_portada" class="img-fluid" alt="Portada del libro">
           <p class="mb-3 text-center">{{ libro.nombre }}</p>
-          <button class="btn px-5" @click="mostrarPDF">Leer</button>
         </div>
         <div class="col-md-8">
           <div class="d-flex justify-content-between align-items-center">
@@ -219,26 +218,32 @@ export default {
       return ordenadas;
     }
   },
+
   async mounted() {
-    try {
-      const response1 = await apiClient.get("/user"); // Llamada a usuario
-      this.user = response1.data;
-      const libroId = encodeURIComponent(this.$route.params.id);
-      const response = await apiClient.get(`/libros/titulo/${libroId}`);
-      this.libro = response.data;
-      if (this.libro) {
-        await this.obtenerLibrosDelMismoAutor();
-      }
+  try {
+    console.log("Componente montado.");
+    // Obtener información del usuario
+    const response1 = await apiClient.get("/user");
+    this.user = response1.data;
+
+    // Obtener detalles del libro
+    const libroId = encodeURIComponent(this.$route.params.id);
+    const response = await apiClient.get(`/libros/titulo/${libroId}`);
+    this.libro = response.data;
+
+    // Si se obtiene el libro, obtener libros relacionados y valoraciones
+    if (this.libro) {
+      await this.obtenerLibrosDelMismoAutor();
       await this.obtenerConteoValoraciones();
       await this.obtenerValoraciones();
-
-      // Aplicar el tema guardado al cargar la página
-      this.applyTheme();
-    } 
-    catch (error) {
-      console.error('Error al cargar los detalles del libro:', error);
     }
-  },
+
+    // Aplicar el tema guardado al cargar la página
+    this.applyTheme();
+  } catch (error) {
+    console.error('Error al cargar los detalles del libro:', error);
+  }
+},
   watch: {
     // Observa cambios en la ruta y vuelve a cargar los detalles del libro
     '$route.params.id': async function() {
@@ -406,38 +411,41 @@ export default {
     applyTheme() {
       document.body.classList.toggle("dark-mode", this.darkMode);
       document.body.classList.toggle("light-mode", !this.darkMode);
-    }
-  }
+    },
     aniadirAFavoritos() {
     },
     leerLibro() {
-    console.log("📖 Datos del libro:", this.libro);
-
-    if (this.libro && this.libro.enlace) {
-      // Extraer la ID del archivo desde la URL de Google Drive
-      const driveIdMatch = this.libro.enlace.match(/\/d\/(.*?)\//);
+      console.log("Botón 'Leer' presionado"); // Verifica si esta línea aparece en la consola
       
-      if (!driveIdMatch || !driveIdMatch[1]) {
-        alert("❌ Error: No se pudo extraer la ID del archivo PDF.");
-        return;
+
+      if (this.libro && this.libro.enlace) {
+        console.log("📖 Datos del libro:", this.libro);
+        // Extraer la ID del archivo desde la URL de Google Drive
+        const driveIdMatch = this.libro.enlace.match(/\/d\/(.*?)\//);
+        
+        if (!driveIdMatch || !driveIdMatch[1]) {
+          alert("❌ Error: No se pudo extraer la ID del archivo PDF.");
+          return;
+        }
+
+        const fileId = driveIdMatch[1];
+        const pdfUrl = `${apiClient.defaults.baseURL}/proxy-pdf?url=https://drive.google.com/uc?id=${fileId}&export=download`;
+
+        console.log("✅ Redirigiendo al visor con URL:", pdfUrl);
+
+        // Redirigir al visor
+        this.$router.push({
+          path: "/visor-pdf",
+          query: { url: pdfUrl }
+        });
+      } else {
+        alert("❌ Este libro no tiene un PDF disponible.");
       }
-
-      const fileId = driveIdMatch[1];
-      const pdfUrl = `${apiClient.defaults.baseURL}/proxy-pdf?url=https://drive.google.com/uc?id=${fileId}&export=download`;
-
-      console.log("✅ Redirigiendo al visor con URL:", pdfUrl);
-
-      // Redirigir al visor
-      this.$router.push({
-        path: "/visor-pdf",
-        query: { url: pdfUrl } // 🔥 Aquí NO usamos encodeURIComponent()
-      });
-    } else {
-      alert("❌ Este libro no tiene un PDF disponible.");
     }
-  }
+  },
+
 }
-};
+;
 </script>
 
 <style scoped>
