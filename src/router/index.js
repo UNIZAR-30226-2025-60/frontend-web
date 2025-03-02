@@ -29,7 +29,7 @@ const routes = [
       pdfUrl: `http://localhost:3000/api/proxy-pdf?url=${route.query.url}`
     }),
     meta: { cleanLayout: true }
-  }
+  },
   { path: "/estadisticas", name: "Estadisticas", component: EstadisticasComponent },
   { path: "/mislistas", name: "MisListas", component: MisListasComponent },
   { path: "/crearlista", name: "CrearLista", component: CrearListaComponent },
