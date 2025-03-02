@@ -1,4 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
+import { API_URL } from "@/config"; // Importamos la URL dinámica desde config.js
+
 import LoginComponent from "@/components/LoginComponent.vue";
 import InicioComponent from "@/components/InicioComponent.vue";
 import ForoComponent from "@/components/ForoComponent.vue";
@@ -26,7 +28,7 @@ const routes = [
     name: "VisorPdf",
     component: WebViewer,
     props: (route) => ({
-      pdfUrl: `http://localhost:3000/api/proxy-pdf?url=${route.query.url}`
+      pdfUrl: `${API_URL}/proxy-pdf?url=${route.query.url}`
     }),
     meta: { cleanLayout: true }
   },
