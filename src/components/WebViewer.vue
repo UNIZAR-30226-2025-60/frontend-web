@@ -263,15 +263,27 @@
            console.log(`✅ Página ${num} renderizada con éxito`);
    
            // Guardar la página solo si ha cambiado
-           await apiClient.post('/guardar-pagina', {
-             correo,
-             libro_id: libroUrl,
-             pagina: num,
-           });
+        //    await apiClient.post('/guardar-pagina', {
+        //      correo,
+        //      libro_id: libroUrl,
+        //      pagina: num,
+        //    });
    
-         } catch (error) {
-           console.error("❌ Error al renderizar la página:", error);
-         } finally {
+        //  } catch (error) {
+        //    console.error("❌ Error al renderizar la página:", error);
+        //  } 
+        const response = await apiClient.post('/guardar-pagina', {
+          correo: correo || "correo_no_definido", // Para evitar valores `undefined`
+          libro_id: libroUrl,
+          pagina: num,
+        }, { withCredentials: true });
+
+        console.log("📌 Respuesta del servidor al guardar página:", response.data);
+
+        } catch (error) {
+          console.error("❌ Error al renderizar la página:", error.response ? error.response.data : error);
+        }
+        finally {
            isRendering.value = false;
          }
        };
