@@ -6,6 +6,7 @@ import DetallesComponent from "@/components/DetallesLibro.vue";
 import AvisoLegalComponent from "@/components/AvisoLegalComponent.vue";
 import PoliticaComponent from "@/components/PoliticaComponent.vue";
 import ContactoComponent from "@/components/ContactoComponent.vue";
+import WebViewer from "@/components/WebViewer.vue";
 import EstadisticasComponent from "../components/EstadisticasComponent.vue";
 import MisListasComponent from "../components/MisListasComponent.vue";
 import CrearListaComponent from "../components/CrearListaComponent.vue";
@@ -19,6 +20,16 @@ const routes = [
   { path: "/avisoLegal", name: "AvisoLegal", component: AvisoLegalComponent },
   { path: "/politica", name: "Politica", component: PoliticaComponent },
   { path: "/contacto", name: "Contacto", component: ContactoComponent },
+  { path: "/lector", name: "WebViewer", component: WebViewer }, 
+  {
+    path: "/visor-pdf",
+    name: "VisorPdf",
+    component: WebViewer,
+    props: (route) => ({
+      pdfUrl: `http://localhost:3000/api/proxy-pdf?url=${route.query.url}`
+    }),
+    meta: { cleanLayout: true }
+  }
   { path: "/estadisticas", name: "Estadisticas", component: EstadisticasComponent },
   { path: "/mislistas", name: "MisListas", component: MisListasComponent },
   { path: "/crearlista", name: "CrearLista", component: CrearListaComponent },
@@ -32,4 +43,24 @@ const router = createRouter({
   routes,
 });
 
+// const routes = [
+//   // otras rutas
+//   {
+//     path: '/visor-pdf',
+//     name: 'VisorPdf',
+//     component: () => import('@/components/WebViewer.vue'),
+//     props: (route) => ({
+//       pdfUrl: `http://localhost:3000/api/proxy-pdf?url=${route.query.url}` // ← línea exacta aquí
+//     }),
+//     meta: { cleanLayout: true }
+//   },  
+// ];
+
+// const router = createRouter({
+//   history: createWebHistory(),
+//   routes,
+// });
+
 export default router;
+
+

@@ -1,0 +1,54 @@
+<!-- <!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Visor PDF Aislado Final</title>
+  <script src="/lib/webviewer.min.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+    #viewer {
+      width: 100vw !important;
+      height: 100vh !important;
+      display: block !important;
+      visibility: visible !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="viewer"></div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const pdfUrl = params.get('url');
+
+    const viewerElement = document.getElementById('viewer');
+
+    document.addEventListener("DOMContentLoaded", function(){
+      WebViewer({
+        path: '/lib',
+        initialDoc: `/api/proxy-pdf?url=${encodeURIComponent(pdfUrl)}`,
+      }, viewerElement).then(instance => {
+        const { Core, UI } = instance;
+
+        UI.disableElements([
+          'toolbarGroup-Annotate', 'toolbarGroup-Shapes', 'toolbarGroup-Insert',
+          'toolbarGroup-Edit', 'toolbarGroup-FillAndSign', 'toolbarGroup-Forms',
+          'annotationEditToolButton', 'panToolButton', 'view-controls-toggle-button',
+          'fileAttachmentPanel-tabPanel', 'layersPanel-tabPanel',
+          'thumbnailsPanel-tabPanel', 'bookmarksPanel-tabPanel', 'page-nav-floating-header',
+        ]);
+
+        UI.enableBookmarkIconShortcutVisibility();
+      }).catch((error)=>{
+        console.error("WebViewer Error definitivo:", error);
+      });
+    });
+  </script>
+</body>
+</html> -->

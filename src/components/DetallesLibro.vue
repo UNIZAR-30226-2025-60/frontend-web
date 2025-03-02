@@ -47,6 +47,11 @@
           <hr class="my-3">
 
           <h5>Sinopsis</h5>
+          <h2 class="mb-3">{{ libro.nombre }} de {{ libro.autor }}</h2>
+          <!--<FontAwesomeIcon :icon="faHeart" class="me-2 text-black rounded" @click="aniadirAFavoritos" />-->
+          <button class="me-2 text-black rounded" @click="aniadirALista">Añadir a lista:</button>
+          <button class="btn btn-primary" @click="leerLibro">📖 Leer</button>
+          <h4>Sinopsis</h4>
           <p class="text-justify">{{ libro.resumen }}</p>
 
           <!-- Línea horizontal antes de la información de las páginas del libro, horas de lectura, ... -->
@@ -403,6 +408,35 @@ export default {
       document.body.classList.toggle("light-mode", !this.darkMode);
     }
   }
+    aniadirAFavoritos() {
+    },
+    leerLibro() {
+    console.log("📖 Datos del libro:", this.libro);
+
+    if (this.libro && this.libro.enlace) {
+      // Extraer la ID del archivo desde la URL de Google Drive
+      const driveIdMatch = this.libro.enlace.match(/\/d\/(.*?)\//);
+      
+      if (!driveIdMatch || !driveIdMatch[1]) {
+        alert("❌ Error: No se pudo extraer la ID del archivo PDF.");
+        return;
+      }
+
+      const fileId = driveIdMatch[1];
+      const pdfUrl = `${apiClient.defaults.baseURL}/proxy-pdf?url=https://drive.google.com/uc?id=${fileId}&export=download`;
+
+      console.log("✅ Redirigiendo al visor con URL:", pdfUrl);
+
+      // Redirigir al visor
+      this.$router.push({
+        path: "/visor-pdf",
+        query: { url: pdfUrl } // 🔥 Aquí NO usamos encodeURIComponent()
+      });
+    } else {
+      alert("❌ Este libro no tiene un PDF disponible.");
+    }
+  }
+}
 };
 </script>
 

@@ -1,85 +1,374 @@
-<template>
-    <div id="webViewerContainer">
-        <div id="pageIndicator">Página: {{ currentPage }}</div>
-        <div id="webViewer" ref="viewerDiv"></div>
+   <!-- <template>
+
+    <div id="pdf-container">
+      <canvas ref="canvas"></canvas>
+      <div id="nav-controls">
+        <button @click="prevPage" :disabled="pageNum <= 1">Anterior</button>
+        <span>Página {{ pageNum }} de {{ pageCount }}</span>
+        <button @click="nextPage" :disabled="pageNum >= pageCount">Siguiente</button>
+      </div>
     </div>
-</template>
-
-<script>
-import { ref, onMounted, computed } from 'vue';
-import { useRoute } from 'vue-router';
-import WebViewer from '@pdftron/webviewer';
-
-export default {
-    name: 'WebViewer',
-    setup() {
-        const viewerDiv = ref(null);
-        const currentPage = ref(1); // Página inicial
-        const route = useRoute();
-
-        // Obtener el PDF desde los parámetros de la URL
-        const pdfSrc = '/lib/librosPrueba/Moby_Dick.pdf';
-
-        onMounted(() => {
-            const path = `${process.env.BASE_URL}lib`;
-            WebViewer({
-                path,
-                initialDoc: pdfSrc, // Aqui usare la URL del pdf obtenida mediante la query params (ahora para probar lo pongo yo (Simon) estatico)
-            }, viewerDiv.value).then(instance => {
-                const { UI, Core } = instance;
-
-                // Esto es para deshabilitar algunas pestañas y botones que no necesitamos
-                UI.disableElements([
-                    'toolbarGroup-Annotate',  // Pestaña "Annotate"
-                    'toolbarGroup-Shapes',    // Pestaña "Shapes"
-                    'toolbarGroup-Insert',    // Pestaña "Insert"
-                    'toolbarGroup-Edit',      // Pestaña "Edit"
-                    'toolbarGroup-FillAndSign', // Pestaña "Fill and Sign"
-                    'toolbarGroup-Forms',     // Pestaña "Forms"
-                    'annotationEditToolButton',
-                    'panToolButton',
-                    'view-controls-toggle-button',
-                    'fileAttachmentPanel-tabPanel',
-                    'layersPanel-tabPanel',
-                    'thumbnailsPanel-tabPanel',
-                    'bookmarksPanel-tabPanel',
-                    'page-nav-floating-header',
-
-                ]);
-                // Escuchar cambios en la página actual
-                Core.documentViewer.addEventListener('pageNumberUpdated', (pageNumber) => {
-                    currentPage.value = pageNumber;
-                });             
-                // Atajo para habilitar el icono de marcadores de forma directa
-                UI.enableBookmarkIconShortcutVisibility()
-                
-            });
-        });
-
-        return { viewerDiv, currentPage };
+  </template>
+  
+  <script>
+  import { ref, onMounted } from 'vue';
+  import * as pdfjsLib from 'pdfjs-dist/build/pdf';
+  import * as pdfjsWorker from 'pdfjs-dist/build/pdf.worker';
+  
+  pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+  
+  export default {
+    props: {
+      pdfUrl: { type: String, required: true }
+    },
+    setup(props) {
+      const canvas = ref(null);
+      const pageNum = ref(1);
+      const pageCount = ref(0);
+      let pdfDoc = null;
+  
+      const renderPage = async (num) => {
+        const page = await pdfDoc.getPage(num);
+        const viewport = page.getViewport({ scale: 1.5 });
+        const context = canvas.value.getContext('2d');
+  
+        canvas.value.height = viewport.height;
+        canvas.value.width = viewport.width;
+  
+        await page.render({ canvasContext: context, viewport }).promise;
+      };
+  
+      const loadPdf = async () => {
+        pdfDoc = await pdfjsLib.getDocument(props.pdfUrl).promise;
+        pageCount.value = pdfDoc.numPages;
+        renderPage(pageNum.value);
+      };
+  
+      const prevPage = () => {
+        if (pageNum.value <= 1) return;
+        pageNum.value--;
+        renderPage(pageNum.value);
+      };
+  
+      const nextPage = () => {
+        if (pageNum.value >= pageCount.value) return;
+        pageNum.value++;
+        renderPage(pageNum.value);
+      };
+  
+      onMounted(loadPdf);
+  
+      return { canvas, pageNum, pageCount, prevPage, nextPage };
     }
-}
-</script>
-
-<style>
-#webViewerContainer {
-    position: relative;
-    height: 100vh;
-}
-
-#pageIndicator {
-    position: absolute;
-    top: 10px;
-    right: 45%;
-    background-color: rgba(194, 144, 36, 0.7);
-    color: rgb(255, 255, 255);
-    padding: 5px 10px;
+  };
+  </script>
+  
+  <style scoped>
+  #pdf-container {
+    text-align: center;
+    margin: 0 auto;
+    overflow: auto;
+  }
+  
+  #nav-controls {
+    margin-top: 10px;
+  }
+  
+  canvas {
+    border: 1px solid #ccc;
     border-radius: 5px;
-    font-size: 16px;
-    z-index: 100;
-}
+  }
+  </style>
+   -->
+   <template>
+    <div id="pdf-container">
+      <canvas ref="canvas"></canvas>
+      <div id="nav-controls">
+        <button @click="prevPage">Anterior</button>
+        <span>Página {{ pageNum }} de {{ pageCount }}</span>
+        <button @click="nextPage">Siguiente</button>
+        <button @click="toggleFavorita">🌟 Favorita</button>
+        <button @click="zoomOut">-</button>
+        <span>{{ zoomLevel.toFixed(1) }}x</span>
+        <button @click="zoomIn">+</button>
+      </div>
+    </div>
+  </template>
+  
+  <!-- <script>
+  import { ref, onMounted } from 'vue';
+  import axios from 'axios';
+  import * as pdfjsLib from 'pdfjs-dist/build/pdf';
+  import { useRoute } from 'vue-router';
+  import { apiClient } from '../config';
 
-#webViewer {
-    height: 100vh;
-}
-</style>
+  
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist/build/pdf.worker.min.js';
+  
+  export default {
+    setup() {
+      const canvas = ref(null);
+      const pageNum = ref(1);
+      const pageCount = ref(0);
+      const zoomLevel = ref(1);
+      let pdfDoc = null;
+      const route = useRoute();
+      console.log("📄 URL recibida en el visor:", route.query.url);
+      console.log("📩 Valor de document.cookie:", document.cookie);
+
+      const correo = document.cookie.replace(/(?:(?:^|.*;\s*)userEmail\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+      console.log("📩 Correo extraído de la cookie:", correo);
+
+      const libroUrl = route.query.url;
+      
+      const renderPage = async (num) => {
+        if (!pdfDoc) {
+          console.error("❌ Error: `pdfDoc` es `null`, no se puede renderizar la página.");
+          return;
+        }
+        const page = await pdfDoc.getPage(num);
+        const viewport = page.getViewport({ scale: zoomLevel.value });
+        const context = canvas.value.getContext('2d');
+  
+        canvas.value.height = viewport.height;
+        canvas.value.width = viewport.width;
+  
+        await page.render({ canvasContext: context, viewport }).promise;
+  
+        // Guardar página actual automáticamente
+        await apiClient.post('/guardar-pagina', {
+          correo,
+          libro_id: libroUrl,
+          pagina: num,
+        });
+      };
+  
+      const loadPdf = async () => {
+        try {
+          console.log("📄 URL recibida en el visor:", route.query.url);
+          
+          // Decodificar la URL antes de usarla
+          const pdfUrl = decodeURIComponent(route.query.url);
+          console.log("✅ URL decodificada en WebViewer:", pdfUrl);
+
+          pdfDoc = await pdfjsLib.getDocument(pdfUrl).promise;
+          pageCount.value = pdfDoc.numPages;
+          const { data } = await apiClient.get('/ultima-pagina', {
+            params: { correo, libro_id: libroUrl }
+          });
+
+          pageNum.value = data.pagina || 1;
+          renderPage(pageNum.value);
+      } catch (error) {
+          console.error("❌ Error al cargar el PDF:", error);
+          alert("Error al cargar el PDF. Verifica que el archivo está disponible.");
+      }
+  
+      const pdfUrl = `${apiClient.defaults.baseURL}/proxy-pdf?url=${encodeURIComponent(route.query.url)}`;
+        pageCount.value = pdfDoc.numPages;
+        renderPage(pageNum.value);
+      };
+  
+      const prevPage = () => {
+        if (pageNum.value <= 1) return;
+        pageNum.value--;
+        renderPage(pageNum.value);
+      };
+  
+      const nextPage = () => {
+        if (pageNum.value >= pageCount.value) return;
+        pageNum.value++;
+        renderPage(pageNum.value);
+      };
+  
+      const zoomIn = () => {
+        zoomLevel.value += 0.2;
+        renderPage(pageNum.value);
+      };
+  
+      const zoomOut = () => {
+        if (zoomLevel.value <= 0.6) return;
+        if (zoomLevel.value >= 4.0) return;
+        zoomLevel.value -= 0.2;
+        renderPage(pageNum.value);
+      };
+  
+      const toggleFavorita = async () => {
+        await apiClient.post('/guardar-favorita', {
+          correo,
+          enlace: libroUrl,
+          pagina: pageNum.value,
+        }).then(() => alert('Página añadida a favoritas'));
+      };
+  
+      onMounted(loadPdf);
+  
+      return { canvas, pageNum, pageCount, prevPage, nextPage, zoomIn, zoomOut, zoomLevel, toggleFavorita };
+    }
+  };
+  </script>
+   -->
+   <script>
+   import { ref, onMounted } from 'vue';
+   import * as pdfjsLib from 'pdfjs-dist/build/pdf';
+   import { useRoute } from 'vue-router';
+   import { apiClient } from '../config';
+   
+   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist/build/pdf.worker.min.js';
+   
+   export default {
+     setup() {
+       const canvas = ref(null);
+       const pageNum = ref(1);
+       const pageCount = ref(0);
+       const zoomLevel = ref(1.5);
+       const isRendering = ref(false);
+       let pdfDoc = null;
+       const route = useRoute();
+   
+       console.log("📄 URL recibida en el visor:", route.query.url);
+       console.log("📩 Valor de document.cookie:", document.cookie);
+   
+       const correo = document.cookie.replace(/(?:(?:^|.*;\s*)userEmail\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+       console.log("📩 Correo extraído de la cookie:", correo);
+   
+       const libroUrl = route.query.url;
+   
+       const renderPage = async (num) => {
+         if (!pdfDoc) {
+           console.error("❌ Error: `pdfDoc` es `null`, no se puede renderizar la página.");
+           return;
+         }
+   
+         if (isRendering.value) {
+           console.warn("⚠️ Renderización en proceso, esperando...");
+           return;
+         }
+   
+         isRendering.value = true;
+   
+         try {
+           const page = await pdfDoc.getPage(num);
+           const viewport = page.getViewport({ scale: zoomLevel.value });
+           const context = canvas.value.getContext('2d');
+   
+           canvas.value.height = viewport.height;
+           canvas.value.width = viewport.width;
+   
+           // Limpiar el canvas antes de redibujar
+           context.clearRect(0, 0, canvas.value.width, canvas.value.height);
+   
+           await page.render({ canvasContext: context, viewport }).promise;
+   
+           console.log(`✅ Página ${num} renderizada con éxito`);
+   
+           // Guardar la página solo si ha cambiado
+           await apiClient.post('/guardar-pagina', {
+             correo,
+             libro_id: libroUrl,
+             pagina: num,
+           });
+   
+         } catch (error) {
+           console.error("❌ Error al renderizar la página:", error);
+         } finally {
+           isRendering.value = false;
+         }
+       };
+   
+       const loadPdf = async () => {
+         try {
+           console.log("📄 URL recibida en el visor:", route.query.url);
+   
+           const pdfUrl = decodeURIComponent(route.query.url);
+           console.log("✅ URL decodificada en WebViewer:", pdfUrl);
+   
+           pdfDoc = await pdfjsLib.getDocument(pdfUrl).promise;
+           pageCount.value = pdfDoc.numPages;
+   
+           // **Esperar obtener la última página antes de renderizar**
+           try {
+             const { data } = await apiClient.get('/ultima-pagina', {
+               params: { correo, libro_id: libroUrl }
+             });
+   
+             if (data.pagina) {
+               console.log("📌 Última página recuperada:", data.pagina);
+               pageNum.value = data.pagina;
+             } else {
+               console.warn("⚠️ No se encontró página guardada, iniciando en 1.");
+               pageNum.value = 1;
+             }
+           } catch (error) {
+             console.error("❌ Error al obtener la última página:", error);
+             pageNum.value = 1;
+           }
+   
+           console.log("🔄 Renderizando página inicial:", pageNum.value);
+           await renderPage(pageNum.value);
+   
+         } catch (error) {
+           console.error("❌ Error al cargar el PDF:", error);
+           alert("Error al cargar el PDF. Verifica que el archivo está disponible.");
+         }
+       };
+   
+       const prevPage = () => {
+         if (pageNum.value <= 1) return;
+         pageNum.value--;
+         renderPage(pageNum.value);
+       };
+   
+       const nextPage = () => {
+         if (pageNum.value >= pageCount.value) return;
+         pageNum.value++;
+         renderPage(pageNum.value);
+       };
+   
+       const zoomIn = () => {
+         zoomLevel.value += 0.2;
+         renderPage(pageNum.value);
+       };
+   
+       const zoomOut = () => {
+         if (zoomLevel.value <= 0.6) return;
+         zoomLevel.value -= 0.2;
+         renderPage(pageNum.value);
+       };
+   
+       const toggleFavorita = async () => {
+         await apiClient.post('/guardar-favorita', {
+           correo,
+           enlace: libroUrl,
+           pagina: pageNum.value,
+         }).then(() => alert('Página añadida a favoritas'));
+       };
+   
+       onMounted(loadPdf);
+   
+       return { canvas, pageNum, pageCount, prevPage, nextPage, zoomIn, zoomOut, zoomLevel, toggleFavorita };
+     }
+   };
+   </script>
+   
+
+  <style scoped>
+  #pdf-container {
+    text-align: center;
+    overflow: auto;
+  }
+  
+  #nav-controls {
+    margin-top: 10px;
+  }
+  
+  canvas {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  button {
+    margin: 0 5px;
+  }
+  </style>
+  
