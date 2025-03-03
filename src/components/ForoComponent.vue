@@ -203,7 +203,7 @@ export default {
         console.log("ID usuario que responde:", nuevaRespuesta.usuario_respuesta);
         console.log("Mensaje:", nuevaRespuesta.mensaje_respuesta);
         
-        const response = await apiClient.post('/APIforo/agregarRespuesta', nuevaRespuesta);
+        const response = await apiClient.post('/agregarRespuesta', nuevaRespuesta);
         console.log('Respuesta añadida con éxito:', response.data);
 
         // Cerrar el modal después de enviar la respuesta
