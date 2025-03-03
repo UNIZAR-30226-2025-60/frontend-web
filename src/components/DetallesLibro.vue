@@ -12,6 +12,7 @@
         <div class="col-md-4 d-flex flex-column align-items-center">
           <img :src="libro.imagen_portada" class="img-fluid" alt="Portada del libro">
           <p class="mb-3 text-center">{{ libro.nombre }}</p>
+          <button class="btn btn-primary" @click="leerLibro">📖 Leer</button>
         </div>
         <div class="col-md-8">
           <div class="d-flex justify-content-between align-items-center">
@@ -44,12 +45,7 @@
 
           <!-- Línea horizontal antes de la sinopsis -->
           <hr class="my-3">
-
-          <h5>Sinopsis</h5>
-          <h2 class="mb-3">{{ libro.nombre }} de {{ libro.autor }}</h2>
-          <!--<FontAwesomeIcon :icon="faHeart" class="me-2 text-black rounded" @click="aniadirAFavoritos" />-->
-          <button class="me-2 text-black rounded" @click="aniadirALista">Añadir a lista:</button>
-          <button class="btn btn-primary" @click="leerLibro">📖 Leer</button>
+          
           <h4>Sinopsis</h4>
           <p class="text-justify">{{ libro.resumen }}</p>
 
