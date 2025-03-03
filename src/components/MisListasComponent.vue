@@ -11,12 +11,22 @@
         <h4 class="text p-2">{{ listas.length > 0 ? 'Tus listas' : 'No tienes listas aún' }}</h4>
         <div class="row listas-container">
           <!-- Listado de listas -->
-          <div v-for="lista in listas" :key="lista.nombre" class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4 d-flex justify-content-center">
+          <div v-for="lista in listas" :key="lista.id" class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4 d-flex justify-content-center">
             <div class="lista-card card shadow-sm">
-              <img :src="lista.portada || '../assets/libro.jpg'" class="lista-image card-img-top" alt="Portada de la lista">
-              <div class="card-body text-center p-2">
-                <h6 class="lista-title">{{ lista.nombre }}</h6>
-                <p class="lista-desc">{{ lista.descripcion || 'Sin descripción' }}</p>
+              <img src="https://via.placeholder.com/180" class="lista-image card-img-top" alt="Portada de la lista">
+              <div class="lista-header d-flex justify-content-between align-items-center p-2">
+                <div class="card-body text-center p-2">
+                  <h6 class="lista-title">{{ lista.nombre }}</h6>
+                  <div class="options-menu">
+                    <button class="btn btn-light btn-sm" @click.stop="lista.mostrarMenu = !lista.mostrarMenu">⋮</button>
+                    <div v-if="lista.mostrarMenu" class="menu-dropdown">
+                      <ul>
+                        <li @click="editarLista(lista)">Editar</li>
+                        <li @click="eliminarLista(lista)">Eliminar</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -37,6 +47,7 @@
     <p>Cargando...</p>
   </div>
 </template>
+
 
 <script>
 import NavBar from '@/components/NavBar.vue';
@@ -59,16 +70,20 @@ export default {
       this.user = response.data;
       this.cargarListas();
       this.applyTheme();
+      document.addEventListener("click", this.closeAllMenus);
     } catch (error) {
       console.error("Error al obtener el usuario:", error);
       this.$router.push("/");
     }
   },
+  beforeUnmount() {
+    document.removeEventListener("click", this.closeAllMenus);
+  },
   methods: {
     async cargarListas() {
       try {
         const response = await apiClient.get(`/listas/${this.user.correo}`);
-        this.listas = response.data;
+        this.listas = response.data.map(lista => ({ ...lista, mostrarMenu: false }));
       } catch (error) {
         console.error("Error al cargar las listas:", error);
       }
@@ -79,10 +94,25 @@ export default {
     applyTheme() {
       document.body.classList.toggle("dark-mode", this.darkMode);
       document.body.classList.toggle("light-mode", !this.darkMode);
-    }
-  }
+    },
+    editarLista(lista) {
+      console.log("Editando lista:", lista.nombre);
+    },
+    async eliminarLista(lista) {
+      try {
+        await apiClient.delete(`/listas/${this.user.correo}/${encodeURIComponent(lista.nombre)}`);
+        this.cargarListas(); // Recargar listas después de eliminar
+      } catch (error) {
+        alert("Error al eliminar la lista:", error);
+      }
+    },
+    closeAllMenus() {
+      this.listas.forEach(lista => (lista.mostrarMenu = false));
+    },
+  },
 };
 </script>
+
 
 <style scoped>
 .listas-container {
@@ -116,15 +146,49 @@ export default {
   font-weight: bold;
 }
 
-.lista-desc {
-  font-size: 0.8rem;
-  color: gray;
-}
-
 .create-list {
   background-color: #f6e5bb;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.options-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.btn {
+  border: none;
+  background: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.menu-dropdown {
+  position: absolute;
+  right: 0;
+  top: 30px;
+  background: white;
+  border-radius: 5px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  min-width: 120px;
+}
+
+.menu-dropdown ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menu-dropdown li {
+  padding: 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.menu-dropdown li:hover {
+  background-color: #f0f0f0;
 }
 </style>
