@@ -496,12 +496,36 @@ export default {
     };
 
     const toggleFavorita = async () => {
-         await apiClient.post('/guardar-favorita', {
-           correo,
-           enlace: libroUrl,
-           pagina: pageNum.value,
-         }).then(() => alert('Página añadida a favoritas'));
-    };
+  if (!correo.value) {
+    console.error("❌ No se puede guardar como favorita: usuario no autenticado.");
+    alert("Debes iniciar sesión para guardar favoritas.");
+    return;
+  }
+
+  if (!libroUrl) {
+    console.error("❌ No se puede guardar como favorita: libro no definido.");
+    return;
+  }
+
+  try {
+    const response = await apiClient.post(
+      "/guardar-favorita",
+      {
+        correo: correo.value,
+        enlace: libroUrl,
+        pagina: pageNum.value,
+      },
+      { withCredentials: true } // Asegurar que las cookies se envían
+    );
+
+    console.log("✅ Página añadida a favoritas:", response.data);
+    alert("Página añadida a favoritas");
+  } catch (error) {
+    console.error("❌ Error al guardar favorita:", error.response ? error.response.data : error);
+    alert("Error al guardar la página como favorita.");
+  }
+};
+
    
 
     return { canvas, pageNum, pageCount, prevPage, nextPage, zoomIn, zoomOut, zoomLevel, toggleFavorita};
