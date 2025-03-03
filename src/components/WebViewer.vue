@@ -495,7 +495,16 @@ export default {
       renderPage(pageNum.value);
     };
 
-    return { canvas, pageNum, pageCount, prevPage, nextPage, zoomIn, zoomOut, zoomLevel };
+    const toggleFavorita = async () => {
+         await apiClient.post('/guardar-favorita', {
+           correo,
+           enlace: libroUrl,
+           pagina: pageNum.value,
+         }).then(() => alert('Página añadida a favoritas'));
+    };
+   
+
+    return { canvas, pageNum, pageCount, prevPage, nextPage, zoomIn, zoomOut, zoomLevel, toggleFavorita};
   },
 };
 </script>
