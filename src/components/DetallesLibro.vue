@@ -279,7 +279,6 @@ export default {
       this.nuevaValoracion = {
         usuario_id: this.user.correo,
         libro_id: libro.id,
-        fecha: fechaActual, 
         titulo_resena: "",
         mensaje: "",
         valor: null
@@ -305,7 +304,6 @@ export default {
         };
 
         console.log("Enviando los siguientes datos de valoración:");
-        console.log("Fecha:", nuevaValoracion.fecha);
 
         console.log("Enviando los siguientes datos de valoración:");
         console.log("Usuario ID:", nuevaValoracion.usuario_id);
@@ -407,8 +405,6 @@ export default {
     applyTheme() {
       document.body.classList.toggle("dark-mode", this.darkMode);
       document.body.classList.toggle("light-mode", !this.darkMode);
-    },
-    aniadirAFavoritos() {
     },
     leerLibro() {
       console.log("Botón 'Leer' presionado"); // Verifica si esta línea aparece en la consola

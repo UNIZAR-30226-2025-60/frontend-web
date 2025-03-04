@@ -11,7 +11,6 @@
         <form class="d-flex mb-3 mt-4" @submit.prevent="buscarLibros">
           <div class="input-group">
             <input class="form-control rounded-pill" type="search" placeholder="Buscar título" aria-label="Buscar" v-model="busqueda">
-            <button v-if="busqueda" class="btn btn-outline-secondary rounded-pill ms-2" type="button" @click="limpiarBusqueda">Limpiar</button>
           </div>
         </form>
         <!-- Categorías -->
@@ -94,11 +93,29 @@ export default {
       this.$router.push("/");
     }
   },
+  watch: {
+    // Observador para buscar mientras se escribe
+    busqueda(newValue) {
+      if (!newValue) {
+        // Si está vacío, se muestran todos los libros
+        this.libros = this.librosOriginales;
+        return;
+      }
+      
+      // Filtrar libros basado en la búsqueda
+      const busquedaMinuscula = newValue.toLowerCase().trim();
+      this.libros = this.librosOriginales.filter(libro => 
+        libro.nombre.toLowerCase().includes(busquedaMinuscula)
+      );
+    }
+  },
   methods: {
     async cargarLibros() {
       try {
         const response = await apiClient.get("/libros"); // Llamada a libros
         this.libros = response.data;
+        // Guardar una copia de todos los libros para búsquedas
+        this.librosOriginales = [...response.data];
       } catch (error) {
         console.error("Error al cargar los libros:", error);
       }
@@ -144,9 +161,9 @@ export default {
       document.body.classList.toggle("dark-mode", this.darkMode);
       document.body.classList.toggle("light-mode", !this.darkMode);
     },
-    async limpiarBusqueda() {
+    limpiarBusqueda() {
       this.busqueda = "";
-      await this.cargarLibros();
+      this.libros = this.librosOriginales;
     },
     
     goToDetalles(libro) {
