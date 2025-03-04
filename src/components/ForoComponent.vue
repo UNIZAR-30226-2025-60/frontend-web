@@ -31,15 +31,18 @@
       </form>
 
       <div v-for="pregunta in preguntasFiltradas" :key="pregunta.id" class="pregunta">
-        <div class="col-md-8">
-          <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <div class="align-items-center ms-auto d-flex">
             <div>
               <h5>{{ pregunta.cuestion }}</h5>
               <p><strong>Por:</strong> {{ pregunta.usuario }} <strong>Fecha:</strong> {{ pregunta.fecha }}</p>
+              <p v-if="!pregunta.mostrarRespuestas" class="respuestas-contador">
+                {{ pregunta.respuestas.length }} respuestas
+              </p> 
             </div>
             <div>
               <!-- Botón para añadir respuesta -->
-              <button class="btn" @click="aniadirRespuesta(pregunta.id)">Añadir Respuesta</button>
+              <button class="btn me-3" @click="aniadirRespuesta(pregunta.id)">Añadir Respuesta</button>
 
               <!-- Botón para ver respuestas (solo si hay respuestas) -->
               <button v-if="pregunta.respuestas.length > 0" @click="toggleVerRespuestas(pregunta.id)" class="btn">
@@ -100,7 +103,11 @@ export default {
   data() {
     return {
       foro: [],
-      pregunta: '',
+      nuevaPregunta: {
+        usuarioCorreo: "",
+        pregunta: ""
+      },
+      pregunta: "",
       filtrarPorUsuario: false, // Estado para el switch de filtrado
       mostrarModal: false,
       user: null, 
@@ -129,7 +136,7 @@ export default {
       this.applyTheme();
     } 
     catch (error) {
-      console.error('Error al cargar los detalles del libro:', error);
+      console.error('Error al cargar el foro:', error);
     }
   },
   methods: {
@@ -142,21 +149,36 @@ export default {
       }
     },
     async publicarPregunta() {
-      if (!this.pregunta.trim()) {
+      if (!this.pregunta) {
         alert('Por favor, escribe una pregunta.');
         return;
       }
       try {
-        const response = await apiClient.post('/preguntas', {
-          cuestion: this.pregunta,
-          usuario: this.user,
-          fecha: new Date().toISOString(),
-          respuestas: [] // Inicialmente sin respuestas
-        });
-        this.foro.push({ ...response.data, mostrarRespuestas: false });
-        this.pregunta = '';
+        // Guardamos todos los datos necesarios para realizar la consulta
+        const nuevaPregunta = {
+          usuarioCorreo: this.user.correo,
+          pregunta: this.pregunta
+        };
+
+        console.log("ID usuario que pregunta:", nuevaPregunta.usuarioCorreo);
+        console.log("Pregunta:", nuevaPregunta.pregunta);
+
+        const response = await apiClient.post('/APIforo/preguntas', nuevaPregunta);
+        console.log('Pregunta añadida con éxito:', response.data);
+
+        // Recargar el foro para actualizar las preguntas
+        await this.cargarForoCompleto();
+
+        // Limpiar el formulario después de enviar la pregunta
+        this.nuevaPregunta = {
+          usuarioCorreo: "",
+          pregunta: ""
+        };
+        // Mostrar mensaje de éxito
+        alert("Tu pregunta ha sido publicada.");
       } catch (error) {
-        console.error('Error al publicar:', error);
+        console.error('Error al enviar la pregunta:', error);
+        alert("Hubo un error al enviar tu pregunta. Inténtalo de nuevo.");
       }
     },
     // Métodos para el tema oscuro/claro
@@ -179,7 +201,7 @@ export default {
       this.nuevaRespuesta = {
         pregunta_id: preguntaId,
         usuario_respuesta: this.user.correo,
-        mensaje_respuesta: "",
+        mensaje_respuesta: ""
       };
       this.mostrarModal = true; // Abre el modal
     },
@@ -213,7 +235,7 @@ export default {
         await this.cargarForoCompleto();
 
         // Limpiar el formulario después de enviar la reseña
-        this.nuevaValoracion = {
+        this.nuevaRespuesta = {
           pregunta_id: "",
           usuario_respuesta: "",
           mensaje_respuesta: "",
@@ -305,12 +327,6 @@ export default {
   color: #fff;
 }
 
-.pregunta {
-  border: 1px solid #ccc;
-  padding: 10px;
-  margin-bottom: 10px;
-}
-
 .respuestas {
   margin-left: 20px;
 }
@@ -332,6 +348,12 @@ export default {
   color: #ffffff;
 }
 
+.dark-mode .pregunta {
+  background: #989898;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
 /* Colores modo claro */
 .light-mode {
   background-color: #ffffff;
@@ -341,6 +363,12 @@ export default {
 .light-mode .container-fluid {
   background-color: #ead5a1;
   color: #000000;
+}
+
+.light-mode .pregunta {
+  background: #dedede;
+  padding: 10px;
+  margin-bottom: 10px;
 }
 
 .page-wrapper {
