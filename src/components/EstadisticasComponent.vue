@@ -1,109 +1,426 @@
 <template>
-    <div :class="estadisticasTheme">
-      <NavBar :darkMode="darkMode" @toggle-dark-mode="toggleDarkMode"></NavBar>
-  
-      <div class="container-fluid pt-5 p-5 min-vh-100 text-black">
-        <button @click="toggleDarkMode" class="theme-toggle-btn">
-          {{ darkMode ? 'Modo Claro' : 'Modo Oscuro' }}
-        </button>
-  
-        <h2 class="section-title text-center mb-5">Mis Estadísticas</h2>
-  
-        <div class="my-stats">
-          <h5>Mis estadísticas:</h5>
-          <div>
-            <span><strong>Libros leídos este mes:</strong> {{ totalLibrosLeidos }}</span>
-            <span><strong>Temáticas más leídas:</strong> {{ tematicasMasLeidas }}</span>
+  <div :class="themeClass">
+    <NavBar :darkMode="darkMode" @toggle-dark-mode="toggleDarkMode"></NavBar>
+
+    <div class="container py-4">
+      <!-- Botón modo oscuro/claro -->
+      <button @click="toggleDarkMode" class="theme-toggle-btn mb-3">
+        {{ darkMode ? 'Modo Claro' : 'Modo Oscuro' }}
+      </button>
+
+      <h2 class="mb-4 text-center">Estadísticas</h2>
+
+      <div class="row">
+        <!-- COLUMNA "MIS ESTADÍSTICAS" -->
+        <div class="col-md-6 mb-4 border-end pe-4">
+          <h4 class="mb-4 text-center">Mis Estadísticas</h4>
+
+          <!-- Bloque con 3 círculos -> libros en progreso, leídos mes, leídos total -->
+          <div class="stats-circles d-flex justify-content-around align-items-center mb-4">
+            <!-- Círculo en progreso -->
+            <div class="stat-circle shadow" :class="darkMode ? 'circle-dark' : 'circle-light'">
+              <div class="circle-text">{{ librosEnProgreso }}</div>
+              <div class="circle-label">En progreso</div>
+            </div>
+
+            <!-- Círculo leídos este mes -->
+            <div class="stat-circle shadow" :class="darkMode ? 'circle-dark' : 'circle-light'">
+              <div class="circle-text">{{ totalLibrosLeidosMes }}</div>
+              <div class="circle-label">Leídos mes</div>
+            </div>
+
+            <!-- Círculo leídos en total -->
+            <div class="stat-circle shadow" :class="darkMode ? 'circle-dark' : 'circle-light'">
+              <div class="circle-text">{{ librosTotales }}</div>
+              <div class="circle-label">Leídos total</div>
+            </div>
+          </div>
+
+          <!-- Bloque de temáticas más leídas -->
+          <div
+            class="p-3 tematicas-block mx-auto"
+            :class="darkMode ? 'tematicas-block-dark' : 'tematicas-block-light'"
+          >
+            <h6 class="tematicas-title mb-2">Temáticas más leídas:</h6>
+            <ul class="list-unstyled mt-2">
+              <li v-for="(tema, idx) in tematicasMasLeidas" :key="idx" class="tema-item">
+                {{ tema.tematica }} 
+              </li>
+            </ul>
+          </div>
+
+          <!-- Bloque de Libros Recomendados -->
+          <div class="mt-4">
+            <h5>Libros recomendados:</h5>
+            <div class="carousel-container d-flex align-items-center">
+              <!-- Flecha izquierda -->
+              <button class="btn btn-outline-secondary me-3" @click="prevSlide">‹</button>
+              
+              <!-- Contenedor para mostrar 3 libros -->
+              <div class="row" style="flex: 1;">
+                <div
+                  class="col-4 d-flex justify-content-center mb-4"
+                  v-for="(libro, index) in visibleBooks"
+                  :key="index"
+                >
+                  <div class="card recommended-card shadow-sm" @click="goToDetalles(libro)">
+                    <img
+                      :src="libro.portada || libro.imagen_portada || placeholder"
+                      class="book-image"
+                      alt="Portada"
+                    />
+                    <div class="card-body text-limited-4lines">
+                      <h6 class="card-title">{{ libro.nombre }}</h6>
+                      <p>{{ libro.resumen }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Flecha derecha -->
+              <button class="btn btn-outline-secondary ms-3" @click="nextSlide">›</button>
+            </div>
           </div>
         </div>
-  
-        <div class="tematicas">
-          <h5>Temáticas más leídas:</h5>
-          <div v-for="(tematica, index) in tematicasMasLeidas" :key="index" class="tematica">
-            <span>{{ tematica }}</span>
+
+        <!-- COLUMNA "ESTADÍSTICAS GENERALES" -->
+        <div class="col-md-6">
+          <h4 class="mb-4">Estadísticas Generales</h4>
+
+          <div class="mb-4">
+            <h6>Top 3 Usuarios (Mes)</h6>
+            <ul>
+              <li v-for="(usuario, i) in top3UsuariosMes" :key="i">
+                {{ usuario.correo }} - {{ usuario.totalLeidosMes }} libros leídos
+              </li>
+            </ul>
           </div>
-        </div>
-  
-        <div class="recommended-books">
-          <h5>Libros recomendados:</h5>
-          <div v-for="(libro, index) in librosRecomendados" :key="index" class="book">
-            <img :src="libro.imagen" alt="Portada del libro">
-            <h6>{{ libro.nombre }}</h6>
-            <p>{{ libro.descripcion }}</p>
+
+          <div class="mb-4">
+            <h6>Top 3 Usuarios (Año)</h6>
+            <ul>
+              <li v-for="(usuario, i) in top3UsuariosAnio" :key="i">
+                {{ usuario.correo }} - {{ usuario.totalLeidosAnio }} libros leídos
+              </li>
+            </ul>
+          </div>
+
+          <div class="mb-4">
+            <h6>Top 5 Libros (Mes Actual)</h6>
+            <ul>
+              <li v-for="(libro, idx) in top5LibrosMesActual" :key="idx">
+                {{ libro.nombre }} - {{ libro.contador_lecturas }} lecturas
+              </li>
+            </ul>
+          </div>
+
+          <div class="mb-4">
+            <h6>Top 5 Libros (Año Actual)</h6>
+            <ul>
+              <li v-for="(libro, idx) in top5LibrosAnioActual" :key="idx">
+                {{ libro.nombre }} - {{ libro.contador_lecturas }} lecturas
+              </li>
+            </ul>
           </div>
         </div>
       </div>
-  
-      <Footer></Footer>
     </div>
-  </template>
-  
-  <script>
-  import axios from 'axios';
-  import NavBar from '@/components/NavBar.vue';
-  import Footer from '@/components/Footer.vue';
-  import { apiClient } from '../config';
-  
-  export default {
-    name: 'EstadisticasComponent',
-    components: {
-      NavBar,
-      Footer
+
+    <Footer />
+  </div>
+</template>
+
+<script>
+import axios from 'axios';
+import NavBar from '@/components/NavBar.vue';
+import Footer from '@/components/Footer.vue';
+import { apiClient } from '../config';
+
+export default {
+  name: 'EstadisticasComponent',
+  components: { NavBar, Footer },
+  data() {
+    return {
+      darkMode: false,
+      user: null,
+
+      // Datos del mes => /api/estadisticas/:correo
+      totalLibrosLeidosMes: 0,
+
+      // Datos generales => /api/estadisticas/generales/:correo
+      librosEnProgreso: 0,
+      librosTotales: 0,
+      tematicasMasLeidas: [],
+
+      // Libros recomendados
+      librosRecomendados: [],
+      placeholder: 'https://via.placeholder.com/300x400?text=Sin+Portada',
+
+      // Estadísticas globales
+      top3UsuariosMes: [],
+      top3UsuariosAnio: [],
+      top5LibrosMesActual: [],
+      top5LibrosAnioActual: [],
+
+      // Carrusel
+      currentIndex: 0,
+      visibleCount: 3,
+
+    };
+  },
+  computed: {
+    themeClass() {
+      return this.darkMode ? 'foro-dark' : 'foro-light';
     },
-    data() {
-      return {
-        darkMode: false,
-        totalLibrosLeidos: 0,
-        tematicasMasLeidas: [],
-        librosRecomendados: []
-      };
-    },
-    created() {
-      this.cargarEstadisticas();
-      this.cargarLibrosRecomendados();
-    },
-    methods: {
-      async cargarEstadisticas() {
-      },
-      async cargarLibrosRecomendados() {
-      },
-      toggleDarkMode() {
-        this.darkMode = !this.darkMode;
+    visibleBooks() {
+      const start = this.currentIndex;
+      const end = this.currentIndex + this.visibleCount;
+      if (end <= this.librosRecomendados.length) {
+        return this.librosRecomendados.slice(start, end);
+      } else {
+        const remainder = end - this.librosRecomendados.length;
+        return [
+          ...this.librosRecomendados.slice(start),
+          ...this.librosRecomendados.slice(0, remainder)
+        ];
       }
     }
-  };
-  </script>
-  
-  <style scoped>
-  .theme-toggle-btn {
-    background-color: #444;
-    color: #fff;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 20px;
-    cursor: pointer;
+  },
+  async mounted() {
+    try {
+      const response = await apiClient.get("/user");
+      this.user = response.data;
+
+      await this.cargarEstadisticasMes();
+      await this.cargarEstadisticasGenerales();
+      await this.cargarLibrosRecomendados();
+
+      await this.cargarTop3UsuariosMes();
+      await this.cargarTop3UsuariosAnio();
+      await this.cargarTop5LibrosMesActual();
+      await this.cargarTop5LibrosAnioActual();
+
+      this.applyTheme();
+    } catch (error) {
+      console.error("Error al obtener el usuario o estadísticas:", error);
+      this.$router.push("/");
+    }
+  },
+  methods: {
+    toggleDarkMode() {
+      this.darkMode = !this.darkMode;
+      localStorage.setItem("darkMode", this.darkMode);
+      this.applyTheme();
+    },
+    applyTheme() {
+      document.body.classList.toggle("dark-mode", this.darkMode);
+      document.body.classList.toggle("light-mode", !this.darkMode);
+    },
+    truncarTexto(texto, maxLength) {
+      if (!texto) return '';
+      if (texto.length <= maxLength) return texto;
+      return texto.substring(0, maxLength) + '...';
+    },
+    nextSlide() {
+      const total = this.librosRecomendados.length;
+      this.currentIndex = (this.currentIndex + 3) % total;
+    },
+    prevSlide() {
+      const total = this.librosRecomendados.length;
+      this.currentIndex = (this.currentIndex - 3 + total) % total;
+    },
+
+    // /api/estadisticas/:correo
+    async cargarEstadisticasMes() {
+      if (!this.user) return;
+      try {
+        const resp = await axios.get(`http://localhost:3000/api/estadisticas/${this.user.correo}`);
+        console.log("Estadísticas mes:", resp.data);
+        this.rawEstadisticasMes = resp.data;
+        this.totalLibrosLeidosMes = parseInt(resp.data.totalLibrosLeidos || 0, 10);
+      } catch (error) {
+        console.error('Error al cargar estadísticas del mes:', error);
+      }
+    },
+
+    // /api/estadisticas/generales/:correo
+    async cargarEstadisticasGenerales() {
+      if (!this.user) return;
+      try {
+        const resp = await axios.get(`http://localhost:3000/api/estadisticas/generales/${this.user.correo}`);
+        console.log("Estadísticas generales:", resp.data);
+        this.rawEstadisticasGenerales = resp.data;
+
+        this.librosEnProgreso = parseInt(resp.data.librosEnProgreso || 0, 10);
+        this.librosTotales = parseInt(resp.data.totalLibrosLeidos || 0, 10);
+        this.tematicasMasLeidas = resp.data.tematicasMasLeidas || [];
+      } catch (error) {
+        console.error('Error al cargar estadísticas generales:', error);
+      }
+    },
+
+    // /api/estadisticas/librosrecomendados/:correo
+    async cargarLibrosRecomendados() {
+      if (!this.user) return;
+      try {
+        const resp = await axios.get(`http://localhost:3000/api/estadisticas/librosrecomendados/${this.user.correo}`);
+        this.librosRecomendados = resp.data || [];
+      } catch (error) {
+        console.error('Error al cargar libros recomendados:', error);
+      }
+    },
+
+    // Estadísticas globales
+    async cargarTop3UsuariosMes() {
+      try {
+        const resp = await axios.get('http://localhost:3000/api/estadisticas/top3');
+        this.top3UsuariosMes = resp.data;
+      } catch (error) {
+        console.error('Error al cargar top3 usuarios del mes:', error);
+      }
+    },
+    async cargarTop3UsuariosAnio() {
+      try {
+        const resp = await axios.get('http://localhost:3000/api/estadisticas/top3anuales');
+        this.top3UsuariosAnio = resp.data;
+      } catch (error) {
+        console.error('Error al cargar top3 usuarios del año:', error);
+      }
+    },
+    async cargarTop5LibrosMesActual() {
+      try {
+        const fecha = new Date();
+        const year = fecha.getFullYear();
+        const month = fecha.getMonth() + 1;
+        const resp = await axios.get(`http://localhost:3000/api/estadisticas/top5libros/${month}/${year}`);
+        this.top5LibrosMesActual = resp.data;
+      } catch (error) {
+        console.error('Error al cargar top5 libros mes actual:', error);
+      }
+    },
+    async cargarTop5LibrosAnioActual() {
+      try {
+        const year = new Date().getFullYear();
+        const resp = await axios.get(`http://localhost:3000/api/estadisticas/top5libros/${year}`);
+        this.top5LibrosAnioActual = resp.data;
+      } catch (error) {
+        console.error('Error al cargar top5 libros año actual:', error);
+      }
+    },
+
+    goToDetalles(libro) {
+      this.$router.push({ name: 'Detalles', params: { id: libro.nombre } });
+    }
   }
-  
-  .theme-toggle-btn:hover {
-    background-color: #666;
-  }
-  
-  .my-stats, .tematicas, .recommended-books {
-    margin-bottom: 20px;
-  }
-  
-  .tematica, .book {
-    margin: 5px;
-  }
-  
-  .foro-light {
-    background-color: #f8f9fa; 
-    color: #343434;
-  }
-  
-  .foro-dark {
-    background-color: #343434; 
-    color: #e5c578;
-  }
-  </style>
-  
+};
+</script>
+
+<style scoped>
+
+.theme-toggle-btn {
+  background-color: #444;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+.theme-toggle-btn:hover {
+  background-color: #666;
+}
+
+
+.foro-light {
+  background-color: #ead5a1; 
+  color: #343434;
+}
+
+.foro-dark {
+  background-color: #343434;
+  color: #e5c578;
+}
+
+.small-cover {
+  height: 150px;
+  object-fit: cover;
+}
+
+.carousel-container {
+  overflow: hidden;
+}
+
+.border-end {
+  border-right: 1px solid #ccc !important;
+}
+
+.tematicas-block {
+  border-radius: 8px;
+  max-width: 220px;
+  margin-bottom: 1.5rem;
+}
+.tematicas-block-light {
+  background-color: #f6e5bb; 
+  color: #343434;
+}
+.tematicas-block-dark {
+  background-color: #444; 
+  color: #e5c578;
+}
+.tematicas-title {
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.stats-circles {
+  margin-bottom: 1rem;
+}
+.stat-circle {
+  width: 100px;   
+  height: 100px;
+  border-radius: 50%;
+  margin: 0 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border: 4px solid #ccc;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+.circle-light {
+  border-color: #c7c7c7;
+  background-color: #fff;
+}
+.circle-dark {
+  border-color: #999;
+  background-color: #2f2f2f;
+}
+.circle-text {
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+.circle-label {
+  font-size: 0.85rem;
+  margin-top: 2px;
+  color: inherit;
+}
+
+.recommended-card {
+  width: 180px; 
+  cursor: pointer; 
+}
+
+.book-image {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 5px 5px 0 0;
+}
+
+.text-limited-4lines {
+  display: -webkit-box;
+  -webkit-line-clamp: 4; 
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+</style>
