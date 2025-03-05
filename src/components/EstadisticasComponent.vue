@@ -8,12 +8,12 @@
         {{ darkMode ? 'Modo Claro' : 'Modo Oscuro' }}
       </button>
 
-      <h2 class="mb-4 text-center">Estadísticas</h2>
+      <h4 class="mb-4 text-center">Estadísticas</h4>
 
       <div class="row">
         <!-- COLUMNA "MIS ESTADÍSTICAS" -->
         <div class="col-md-6 mb-4 border-end pe-4">
-          <h4 class="mb-4 text-center">Mis Estadísticas</h4>
+          <h5 class="mb-4 text-center">Mis Estadísticas</h5>
 
           <!-- Bloque con 3 círculos -> libros en progreso, leídos mes, leídos total -->
           <div class="stats-circles d-flex justify-content-around align-items-center mb-4">
@@ -64,15 +64,8 @@
                   :key="index"
                 >
                   <div class="card recommended-card shadow-sm" @click="goToDetalles(libro)">
-                    <img
-                      :src="libro.portada || libro.imagen_portada || placeholder"
-                      class="book-image"
-                      alt="Portada"
+                    <img :src="libro.portada || libro.imagen_portada || placeholder" class="book-image" alt="Portada"
                     />
-                    <div class="card-body text-limited-4lines">
-                      <h6 class="card-title">{{ libro.nombre }}</h6>
-                      <p>{{ libro.resumen }}</p>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -85,13 +78,12 @@
 
         <!-- COLUMNA "ESTADÍSTICAS GENERALES" -->
         <div class="col-md-6">
-          <h4 class="mb-4">Estadísticas Generales</h4>
-
+          <h5 class="mb-4">Estadísticas Generales</h5>
           <div class="mb-4">
             <h6>Top 3 Usuarios (Mes)</h6>
             <ul>
               <li v-for="(usuario, i) in top3UsuariosMes" :key="i">
-                {{ usuario.correo }} - {{ usuario.totalLeidosMes }} libros leídos
+                {{ usuario.usuario_id }} - {{ usuario.libros_leidos}} libros leídos
               </li>
             </ul>
           </div>
@@ -126,7 +118,7 @@
       </div>
     </div>
 
-    <Footer />
+    <Footer></Footer>
   </div>
 </template>
 
@@ -273,8 +265,10 @@ export default {
     // Estadísticas globales
     async cargarTop3UsuariosMes() {
       try {
-        const resp = await axios.get('http://localhost:3000/api/estadisticas/top3');
-        this.top3UsuariosMes = resp.data;
+        const response = await apiClient.get('http://localhost:3000/api/estadisticas/top3');
+        this.top3UsuariosMes = response.data;
+
+        console.log("Estos son los usuarios que más han leído en el mes", this.top3UsuariosMes);
       } catch (error) {
         console.error('Error al cargar top3 usuarios del mes:', error);
       }
@@ -405,22 +399,15 @@ export default {
   color: inherit;
 }
 
-.recommended-card {
-  width: 180px; 
-  cursor: pointer; 
-}
-
 .book-image {
-  width: 100%;
-  height: 150px;
-  object-fit: cover;
-  border-radius: 5px 5px 0 0;
+  width: 100%; 
+  height: 100px; 
+  object-fit: cover; 
+  cursor: pointer;
+  transition: transform 0.3s;
 }
 
-.text-limited-4lines {
-  display: -webkit-box;
-  -webkit-line-clamp: 4; 
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+.book-image:hover {
+  transform: scale(1.05);
 }
 </style>

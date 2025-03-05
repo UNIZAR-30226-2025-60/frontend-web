@@ -13,7 +13,7 @@
 
       <!-- Switch para filtrar preguntas -->
       <div class="form-check form-switch my-3">
-        <input class="form-check-input" type="checkbox" id="filterUserQuestions" v-model="filtrarPorUsuario">
+        <input class="form-check-input" type="checkbox" id="filterUserQuestions" v-model="filtrarPorUsuario" @change="obtenerPreguntas">
         <label class="form-check-label" for="filterUserQuestions">
           Ver mis preguntas:
         </label>
@@ -24,9 +24,6 @@
       <form class="d-flex mb-3 mt-4" @submit.prevent="publicarPregunta">
         <div class="input-group">
           <input class="form-control rounded-pill" type="text" placeholder="Escribe aquí tu pregunta..." v-model="pregunta">
-          <button v-if="pregunta" @click="pregunta = ''" class="btn btn-outline-secondary rounded-pill ms-2" type="button">
-            Limpiar
-          </button>
         </div>
       </form>
 
@@ -108,6 +105,7 @@ export default {
         pregunta: ""
       },
       pregunta: "",
+      preguntas: "",
       filtrarPorUsuario: false, // Estado para el switch de filtrado
       mostrarModal: false,
       user: null, 
@@ -122,7 +120,7 @@ export default {
   computed: {
     preguntasFiltradas() {
       return this.filtrarPorUsuario
-        ? this.foro.filter(p => p.usuario === this.user)
+        ? this.foro.filter(p => p.usuario.trim().toLowerCase() === this.user.correo.trim().toLowerCase())
         : this.foro;
     }
   },
@@ -163,7 +161,7 @@ export default {
         console.log("ID usuario que pregunta:", nuevaPregunta.usuarioCorreo);
         console.log("Pregunta:", nuevaPregunta.pregunta);
 
-        const response = await apiClient.post('/APIforo/preguntas', nuevaPregunta);
+        const response = await apiClient.post('/preguntas', nuevaPregunta);
         console.log('Pregunta añadida con éxito:', response.data);
 
         // Recargar el foro para actualizar las preguntas
@@ -174,6 +172,10 @@ export default {
           usuarioCorreo: "",
           pregunta: ""
         };
+
+        // Limpiar el formulario donde se ha escrito el texto nada más terminar
+        this.pregunta = "";
+
         // Mostrar mensaje de éxito
         alert("Tu pregunta ha sido publicada.");
       } catch (error) {
@@ -246,6 +248,29 @@ export default {
       } catch (error) {
         console.error('Error al enviar la respuesta:', error);
         alert("Hubo un error al enviar tu respuesta. Inténtalo de nuevo.");
+      }
+    },
+    async obtenerPreguntas() {
+      try {
+        const usuarioCorreo = this.filtrarPorUsuario ? this.user.correo : null;
+        console.log("Vamos a ver las preguntas de usuario: ", usuarioCorreo)
+
+        const response = await apiClient.get('/preguntas', {
+          params: { usuarioCorreo }
+        });
+
+        this.foro = response.data.map(p => ({
+          ...p,
+          respuestas: p.respuestas || [],
+          mostrarRespuestas: false
+        }));
+
+        // Recargar el foro para actualizar las respuestas de las preguntas
+        await this.cargarForoCompleto();
+
+        console.log('Preguntas obtenidas correctamente:', response.data);
+      } catch (error) {
+        console.error("Error al obtener preguntas:", error);
       }
     }
   }
