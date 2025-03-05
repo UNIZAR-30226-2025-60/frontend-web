@@ -1,9 +1,9 @@
 <template>
-  <div :class="themeClass">
-    <NavBar :darkMode="darkMode" @toggle-dark-mode="toggleDarkMode"></NavBar>
+  <div v-if="user" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
+    <NavBar :dark-mode="darkMode"></NavBar>
 
     <div class="container py-4">
-      <!-- Botón modo oscuro/claro -->
+      <!-- Botón de cambio de tema -->
       <button @click="toggleDarkMode" class="theme-toggle-btn mb-3">
         {{ darkMode ? 'Modo Claro' : 'Modo Oscuro' }}
       </button>
@@ -58,14 +58,9 @@
               
               <!-- Contenedor para mostrar 3 libros -->
               <div class="row" style="flex: 1;">
-                <div
-                  class="col-4 d-flex justify-content-center mb-4"
-                  v-for="(libro, index) in visibleBooks"
-                  :key="index"
-                >
+                <div class="col-4 d-flex justify-content-center mb-4" v-for="(libro, index) in visibleBooks" :key="index">
                   <div class="card recommended-card shadow-sm" @click="goToDetalles(libro)">
-                    <img :src="libro.portada || libro.imagen_portada || placeholder" class="book-image" alt="Portada"
-                    />
+                    <img :src="libro.portada || libro.imagen_portada || placeholder" class="book-image" alt="Portada"/>
                   </div>
                 </div>
               </div>
@@ -82,6 +77,7 @@
           <div class="mb-4">
             <h6>Top 3 Usuarios (Mes)</h6>
             <ul>
+              <!-- Si hay menos de 3 usuarios que hayan leído algo solo aparecerán los que hayan leído algo -->
               <li v-for="(usuario, i) in top3UsuariosMes" :key="i">
                 {{ usuario.usuario_id }} - {{ usuario.libros_leidos}} libros leídos
               </li>
@@ -92,7 +88,7 @@
             <h6>Top 3 Usuarios (Año)</h6>
             <ul>
               <li v-for="(usuario, i) in top3UsuariosAnio" :key="i">
-                {{ usuario.correo }} - {{ usuario.totalLeidosAnio }} libros leídos
+                {{ usuario.usuario_id }} - {{ usuario.libros_leidos }} libros leídos
               </li>
             </ul>
           </div>
@@ -101,7 +97,7 @@
             <h6>Top 5 Libros (Mes Actual)</h6>
             <ul>
               <li v-for="(libro, idx) in top5LibrosMesActual" :key="idx">
-                {{ libro.nombre }} - {{ libro.contador_lecturas }} lecturas
+                {{ libro.nombre }} - {{ libro.veces_leido }} lecturas
               </li>
             </ul>
           </div>
@@ -110,7 +106,7 @@
             <h6>Top 5 Libros (Año Actual)</h6>
             <ul>
               <li v-for="(libro, idx) in top5LibrosAnioActual" :key="idx">
-                {{ libro.nombre }} - {{ libro.contador_lecturas }} lecturas
+                {{ libro.nombre }} - {{ libro.veces_leido }} lecturas
               </li>
             </ul>
           </div>
@@ -133,7 +129,6 @@ export default {
   components: { NavBar, Footer },
   data() {
     return {
-      darkMode: false,
       user: null,
 
       // Datos del mes => /api/estadisticas/:correo
@@ -158,6 +153,7 @@ export default {
       currentIndex: 0,
       visibleCount: 3,
 
+      darkMode: localStorage.getItem("darkMode") === "true" // Obtener el tema guardado
     };
   },
   computed: {
@@ -199,6 +195,7 @@ export default {
     }
   },
   methods: {
+    // Métodos para el tema oscuro/claro
     toggleDarkMode() {
       this.darkMode = !this.darkMode;
       localStorage.setItem("darkMode", this.darkMode);
@@ -226,7 +223,7 @@ export default {
     async cargarEstadisticasMes() {
       if (!this.user) return;
       try {
-        const resp = await axios.get(`http://localhost:3000/api/estadisticas/${this.user.correo}`);
+        const resp = await apiClient.get(`/estadisticas/${this.user.correo}`);
         console.log("Estadísticas mes:", resp.data);
         this.rawEstadisticasMes = resp.data;
         this.totalLibrosLeidosMes = parseInt(resp.data.totalLibrosLeidos || 0, 10);
@@ -239,13 +236,13 @@ export default {
     async cargarEstadisticasGenerales() {
       if (!this.user) return;
       try {
-        const resp = await axios.get(`http://localhost:3000/api/estadisticas/generales/${this.user.correo}`);
-        console.log("Estadísticas generales:", resp.data);
-        this.rawEstadisticasGenerales = resp.data;
+        const response = await apiClient.get(`/estadisticas/generales/${this.user.correo}`);
+        console.log("Estadísticas generales:", response.data);
+        this.rawEstadisticasGenerales = response.data;
 
-        this.librosEnProgreso = parseInt(resp.data.librosEnProgreso || 0, 10);
-        this.librosTotales = parseInt(resp.data.totalLibrosLeidos || 0, 10);
-        this.tematicasMasLeidas = resp.data.tematicasMasLeidas || [];
+        this.librosEnProgreso = parseInt(response.data.librosEnProgreso || 0, 10);
+        this.librosTotales = parseInt(response.data.totalLibrosLeidos || 0, 10);
+        this.tematicasMasLeidas = response.data.tematicasMasLeidas || [];
       } catch (error) {
         console.error('Error al cargar estadísticas generales:', error);
       }
@@ -255,8 +252,8 @@ export default {
     async cargarLibrosRecomendados() {
       if (!this.user) return;
       try {
-        const resp = await axios.get(`http://localhost:3000/api/estadisticas/librosrecomendados/${this.user.correo}`);
-        this.librosRecomendados = resp.data || [];
+        const response = await apiClient.get(`/estadisticas/librosrecomendados/${this.user.correo}`);
+        this.librosRecomendados = response.data || [];
       } catch (error) {
         console.error('Error al cargar libros recomendados:', error);
       }
@@ -265,18 +262,20 @@ export default {
     // Estadísticas globales
     async cargarTop3UsuariosMes() {
       try {
-        const response = await apiClient.get('http://localhost:3000/api/estadisticas/top3');
+        const response = await apiClient.get('/estadisticas/top3');
         this.top3UsuariosMes = response.data;
 
-        console.log("Estos son los usuarios que más han leído en el mes", this.top3UsuariosMes);
+        console.log("Estos son los 3 usuarios que más han leído en el mes", this.top3UsuariosMes);
       } catch (error) {
         console.error('Error al cargar top3 usuarios del mes:', error);
       }
     },
     async cargarTop3UsuariosAnio() {
       try {
-        const resp = await axios.get('http://localhost:3000/api/estadisticas/top3anuales');
-        this.top3UsuariosAnio = resp.data;
+        const response = await apiClient.get('/estadisticas/top3anuales');
+        this.top3UsuariosAnio = response.data;
+
+        console.log("Estos son los 3 usuarios que más han leído en el año", this.top3UsuariosAnio);
       } catch (error) {
         console.error('Error al cargar top3 usuarios del año:', error);
       }
@@ -286,8 +285,11 @@ export default {
         const fecha = new Date();
         const year = fecha.getFullYear();
         const month = fecha.getMonth() + 1;
-        const resp = await axios.get(`http://localhost:3000/api/estadisticas/top5libros/${month}/${year}`);
-        this.top5LibrosMesActual = resp.data;
+
+        const response = await apiClient.get(`/estadisticas/top5libros/${month}/${year}`);
+        this.top5LibrosMesActual = response.data;
+
+        console.log("Libros que más se han leído en el mes actual", this.top5LibrosMesActual);
       } catch (error) {
         console.error('Error al cargar top5 libros mes actual:', error);
       }
@@ -295,8 +297,11 @@ export default {
     async cargarTop5LibrosAnioActual() {
       try {
         const year = new Date().getFullYear();
-        const resp = await axios.get(`http://localhost:3000/api/estadisticas/top5libros/${year}`);
-        this.top5LibrosAnioActual = resp.data;
+
+        const response = await apiClient.get(`/estadisticas/top5libros/${year}`);
+        this.top5LibrosAnioActual = response.data;
+
+        console.log("Libros que más se han leído en el año actual", this.top5LibrosAnioActual);
       } catch (error) {
         console.error('Error al cargar top5 libros año actual:', error);
       }
@@ -324,14 +329,40 @@ export default {
 }
 
 
-.foro-light {
-  background-color: #ead5a1; 
-  color: #343434;
+/* Colores modo oscuro */
+.dark-mode {
+  background-color: #343434;
+  color: #ffffff;
 }
 
-.foro-dark {
+.dark-mode .container {
   background-color: #343434;
-  color: #e5c578;
+  color: #ffffff;
+}
+
+/* Colores modo claro */
+.light-mode {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.light-mode .container {
+  background-color: #ead5a1;
+  color: #000000;
+}
+
+.page-wrapper {
+  min-height: 100vh;
+}
+
+.page-wrapper.dark-mode {
+  background-color: #343434;
+  color: #ffffff;
+}
+
+.page-wrapper.light-mode {
+  background-color: #ead5a1;
+  color: #000000;
 }
 
 .small-cover {
