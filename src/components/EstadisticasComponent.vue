@@ -8,72 +8,121 @@
         {{ darkMode ? 'Modo Claro' : 'Modo Oscuro' }}
       </button>
 
-      <h4 class="mb-4 text-center">Estadísticas</h4>
+      <!-- Título "Estadísticas" -->
+      <h2 class="mb-4 text-center stats-main-title">Estadísticas</h2>
 
-      <div class="row">
+      <div class="row gap-4">
         <!-- COLUMNA "MIS ESTADÍSTICAS" -->
         <div class="col-md-6 mb-4 border-end pe-4">
-          <h5 class="mb-4 text-center">Mis Estadísticas</h5>
+          <h4 class="mb-4 text-center">Mis Estadísticas</h4>
 
           <!-- Bloque con 3 círculos -> libros en progreso, leídos mes, leídos total -->
           <div class="stats-circles d-flex justify-content-around align-items-center mb-4">
-            <!-- Círculo en progreso -->
             <div class="stat-circle shadow" :class="darkMode ? 'circle-dark' : 'circle-light'">
               <div class="circle-text">{{ librosEnProgreso }}</div>
               <div class="circle-label">En progreso</div>
             </div>
-
-            <!-- Círculo leídos este mes -->
             <div class="stat-circle shadow" :class="darkMode ? 'circle-dark' : 'circle-light'">
               <div class="circle-text">{{ totalLibrosLeidosMes }}</div>
               <div class="circle-label">Leídos mes</div>
             </div>
-
-            <!-- Círculo leídos en total -->
             <div class="stat-circle shadow" :class="darkMode ? 'circle-dark' : 'circle-light'">
               <div class="circle-text">{{ librosTotales }}</div>
               <div class="circle-label">Leídos total</div>
             </div>
           </div>
 
-          <!-- Bloque de temáticas más leídas -->
-          <div
-            class="p-3 tematicas-block mx-auto"
-            :class="darkMode ? 'tematicas-block-dark' : 'tematicas-block-light'"
-          >
-            <h6 class="tematicas-title mb-2">Temáticas más leídas:</h6>
-            <ul class="list-unstyled mt-2">
-              <li v-for="(tema, idx) in tematicasMasLeidas" :key="idx" class="tema-item">
-                {{ tema.tematica }} 
-              </li>
-            </ul>
-          </div>
+          <!-- Si hay libros leídos en total, muestra temáticas y libros recomendados -->
+          <div v-if="librosTotales > 0">
+            <!-- Bloque de temáticas más leídas -->
+            <div class="p-3 tematicas-block mx-auto" :class="darkMode ? 'tematicas-block-dark' : 'tematicas-block-light'">
+              <h6 class="tematicas-title mb-2">Temáticas más leídas:</h6>
+              <ul class="list-unstyled mt-2">
+                <li v-for="(tema, idx) in tematicasMasLeidas" :key="idx" class="tema-item">
+                  {{ tema.tematica }}
+                </li>
+              </ul>
+            </div>
 
-          <!-- Bloque de Libros Recomendados -->
-          <div class="mt-4">
-            <h5>Libros recomendados:</h5>
-            <div class="carousel-container d-flex align-items-center">
-              <!-- Flecha izquierda -->
-              <button class="btn btn-outline-secondary me-3" @click="prevSlide">‹</button>
-              
-              <!-- Contenedor para mostrar 3 libros -->
-              <div class="row" style="flex: 1;">
-                <div class="col-4 d-flex justify-content-center mb-4" v-for="(libro, index) in visibleBooks" :key="index">
-                  <div class="card recommended-card shadow-sm" @click="goToDetalles(libro)">
-                    <img :src="libro.portada || libro.imagen_portada || placeholder" class="book-image" alt="Portada"/>
+            <!-- Bloque de Libros Recomendados -->
+            <div class="mt-4">
+              <h5 class="text-center">Libros recomendados:</h5>
+              <div class="d-flex justify-content-center">
+                <div class="carousel-container d-flex align-items-center">
+                  <!-- Flecha izquierda -->
+                  <button class="arrow-btn me-1" @click="prevSlide">
+                    <span class="arrow-icon">‹</span>
+                  </button>
+                  
+                  <div class="book-list d-flex flex-nowrap align-items-center">
+                    <div
+                      v-for="(libro, index) in visibleBooks"
+                      :key="index"
+                      class="book-item me-1"
+                      @click="goToDetalles(libro)"
+                    >
+                      <img
+                        :src="libro.portada || libro.imagen_portada || placeholder"
+                        class="recommended-book-image"
+                        alt="Portada"
+                      />
+                    </div>
                   </div>
+
+                  <!-- Flecha derecha -->
+                  <button class="arrow-btn ms-1" @click="nextSlide">
+                    <span class="arrow-icon">›</span>
+                  </button>
                 </div>
               </div>
-              
-              <!-- Flecha derecha -->
-              <button class="btn btn-outline-secondary ms-3" @click="nextSlide">›</button>
+            </div>
+          </div>
+
+          <!-- Mensaje cuando no hay libros leídos en total -->
+          <div v-else class="mt-4 text-center no-data-message">
+            <div class="no-data-content">
+              <i class="fas fa-info-circle icono"></i>
+              <p class="mb-0">
+                <strong>¡Ups!</strong> 
+                No hay suficiente información para mostrar las temáticas más leídas o recomendar otros libros.
+              </p>
+            </div>
+          </div>
+
+          <!-- Bloque de libros que más te han gustado (mejor puntuados) -->
+          <div class="mt-4" v-if="librosMasValorados && librosMasValorados.length">
+            <h5 class="text-center">Libros que más te han gustado:</h5>
+            <div class="d-flex flex-wrap liked-books-container justify-content-center">
+              <div
+                v-for="(libro, index) in librosMasValorados"
+                :key="index"
+                class="liked-book-item"
+                @click="goToDetalles(libro)"
+              >
+                <img
+                  :src="libro.imagen_portada || libro.portada || placeholder"
+                  class="small-book-image"
+                  alt="Portada"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Mensaje cuando no hay reseñas -->
+          <div class="mt-4 text-center no-data-message" v-else>
+            <div class="no-data-content">
+              <i class="fas fa-heart icono"></i>
+              <p class="mb-0">
+                <strong>¡Hey!</strong> 
+                Todavía no has valorado ningún libro.
+              </p>
             </div>
           </div>
         </div>
 
         <!-- COLUMNA "ESTADÍSTICAS GENERALES" -->
-        <div class="col-md-6">
-          <h5 class="mb-4">Estadísticas Generales</h5>
+        <div class="col-md-5 text-center">
+          <h4 class="mb-4">Estadísticas Generales</h4>
           <div class="mb-4">
             <h6>Top 3 Usuarios (Mes)</h6>
             <ul>
@@ -138,6 +187,7 @@ export default {
       librosEnProgreso: 0,
       librosTotales: 0,
       tematicasMasLeidas: [],
+      librosMasValorados: [],
 
       // Libros recomendados
       librosRecomendados: [],
@@ -151,8 +201,8 @@ export default {
 
       // Carrusel
       currentIndex: 0,
-      visibleCount: 3,
-
+      visibleCount: 3 ,
+    
       darkMode: localStorage.getItem("darkMode") === "true" // Obtener el tema guardado
     };
   },
@@ -193,6 +243,12 @@ export default {
       console.error("Error al obtener el usuario o estadísticas:", error);
       this.$router.push("/");
     }
+
+    window.addEventListener('resize', this.handleResize);
+    this.handleResize();
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.handleResize);
   },
   methods: {
     // Métodos para el tema oscuro/claro
@@ -218,6 +274,16 @@ export default {
       const total = this.librosRecomendados.length;
       this.currentIndex = (this.currentIndex - 3 + total) % total;
     },
+    handleResize() {
+      const width = window.innerWidth;
+      if (width <= 600) {
+        this.visibleCount = 1;
+      } else if (width <= 1200) {
+        this.visibleCount = 2;
+      } else {
+        this.visibleCount = 3;
+      }
+    },
 
     // /api/estadisticas/:correo
     async cargarEstadisticasMes() {
@@ -231,18 +297,19 @@ export default {
         console.error('Error al cargar estadísticas del mes:', error);
       }
     },
-
+    
     // /api/estadisticas/generales/:correo
     async cargarEstadisticasGenerales() {
       if (!this.user) return;
       try {
-        const response = await apiClient.get(`/estadisticas/generales/${this.user.correo}`);
-        console.log("Estadísticas generales:", response.data);
-        this.rawEstadisticasGenerales = response.data;
+        const resp = await apiClient.get(`/estadisticas/generales/${this.user.correo}`);
+        this.rawEstadisticasGenerales = resp.data;
 
-        this.librosEnProgreso = parseInt(response.data.librosEnProgreso || 0, 10);
-        this.librosTotales = parseInt(response.data.totalLibrosLeidos || 0, 10);
-        this.tematicasMasLeidas = response.data.tematicasMasLeidas || [];
+        this.librosEnProgreso = parseInt(resp.data.librosEnProgreso || 0, 10);
+        this.librosTotales = parseInt(resp.data.totalLibrosLeidos || 0, 10);
+        this.tematicasMasLeidas = resp.data.tematicasMasLeidas || [];
+
+        this.librosMasValorados = resp.data.librosMasValorados || [];
       } catch (error) {
         console.error('Error al cargar estadísticas generales:', error);
       }
@@ -316,6 +383,11 @@ export default {
 
 <style scoped>
 
+.container-fluid {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
 .theme-toggle-btn {
   background-color: #444;
   color: #fff;
@@ -369,18 +441,102 @@ export default {
   object-fit: cover;
 }
 
+/* TÍTULO PRINCIPAL "ESTADÍSTICAS" */
+.stats-main-title {
+  font-size: 2rem;       
+  font-weight: 800;      
+  color: #b35900;        
+  text-transform: uppercase; 
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+}
+
+/* Carroussel */
 .carousel-container {
-  overflow: hidden;
+  gap: 0;
+}
+
+.book-list {
+  gap: 0;
+  flex-nowrap: nowrap;
+}
+
+.book-item {
+  cursor: pointer;
+  margin-right: 0.3rem; 
+}
+
+.recommended-book-image {
+  object-fit: contain;
+  border-radius: 5px;
+  background: none;
+  margin: 0;
+  width: 110px; 
+  height: auto;
+}
+
+@media (max-width: 600px) {
+  .recommended-book-image {
+    width: 120px; 
+  }
+}
+
+/* flechas del carroussel */
+.arrow-btn {
+  background-color: #e5c578; 
+  border: none;
+  border-radius: 50%;
+  width: 45px; 
+  height: 45px; 
+  color: #343434;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px; 
+  transition: transform 0.2s ease;
+  padding: 0;
+  margin: 0;
+}
+.arrow-btn:hover {
+  transform: scale(1.1);
+}
+.arrow-icon {
+  font-weight: bold;
+}
+
+/* Bloque Libros que más te han gustado */
+.liked-books-container {
+  gap: 1rem; 
+  margin: 0;
+  padding: 0;
+  justify-content: center;
+}
+.liked-book-item {
+  margin: 0 !important;
+  padding: 0 !important;
+  cursor: pointer;
+}
+
+.small-book-image {
+  display: block;
+  margin: 0;
+  width: 120px; 
+  height: auto;
+  object-fit: contain;
+  border-radius: 5px;
+  background: none !important;
 }
 
 .border-end {
-  border-right: 1px solid #ccc !important;
+  border-right: 3px solid #555 !important;
 }
 
+/* Bloque de temáticas */
 .tematicas-block {
   border-radius: 8px;
   max-width: 220px;
   margin-bottom: 1.5rem;
+  text-align: center; 
 }
 .tematicas-block-light {
   background-color: #f6e5bb; 
@@ -394,6 +550,7 @@ export default {
   font-weight: bold;
   font-size: 1rem;
 }
+
 
 .stats-circles {
   margin-bottom: 1rem;
@@ -440,4 +597,31 @@ export default {
 .book-image:hover {
   transform: scale(1.05);
 }
+
+/* Mensajes "error" */
+.no-data-message {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+.no-data-content {
+  background-color: rgba(229, 197, 120, 0.1); 
+  border: 1px solid #e5c578; 
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  max-width: 350px;
+  text-align: center;
+  color: inherit;
+}
+.no-data-content .icono {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  display: block;
+  color: #e5c578; 
+}
+.no-data-content p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
 </style>
