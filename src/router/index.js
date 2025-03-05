@@ -12,7 +12,7 @@ import WebViewer from "@/components/WebViewer.vue";
 import EstadisticasComponent from "../components/EstadisticasComponent.vue";
 import MisListasComponent from "../components/MisListasComponent.vue";
 import CrearListaComponent from "../components/CrearListaComponent.vue";
-import FavoritosComponent from "../components/FavoritosComponent.vue";
+import VerListaComponent from "../components/VerListaComponent.vue";
 //import WebViewer from "@/components/WebViewer.vue";
 
 const routes = [
