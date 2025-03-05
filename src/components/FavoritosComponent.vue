@@ -8,9 +8,16 @@
       <button @click="toggleDarkMode" class="theme-toggle-btn mb-3">
         {{ darkMode ? 'Modo Claro' : 'Modo Oscuro' }}
       </button>
-
-      <h4 class="section-title text-center mb-5">Mis Favoritos</h4>
-
+      <!-- Barra de búsqueda -->
+      <form class="d-flex mb-3 mt-4" @submit.prevent="buscarLibros">
+        <div class="input-group">
+          <input class="form-control rounded-pill" type="search" placeholder="Buscar título" aria-label="Buscar" v-model="busqueda">
+        </div>
+      </form>
+      <h4 class="text p-2">
+          {{ busqueda ? 'Resultados de la búsqueda' : 'Mis Favoritos' }}
+        </h4>
+      <h4 class="text p-2">{{ libros.length > 0 ? '' : 'No tienes ningun libro en favoritos' }}</h4>
       <div class="listado">
         <div class="l-container p-2 mx-5">
           <!-- Lista de libros -->
@@ -68,6 +75,38 @@ export default {
       this.$router.push("/");
     }
   },
+  watch: {
+    // Observador para buscar mientras se escribe
+    busqueda(newValue) {
+      if (!newValue) {
+        // Si está vacío, se muestran todos los libros
+        this.libros = this.librosOriginales;
+        return;
+      }
+      
+      // Filtrar libros basado en la búsqueda
+      const busquedaMinuscula = newValue.toLowerCase().trim();
+      this.libros = this.librosOriginales.filter(libro => 
+        libro.nombre.toLowerCase().includes(busquedaMinuscula)
+      );
+    }
+  },
+  watch: {
+    // Observador para buscar mientras se escribe
+    busqueda(newValue) {
+      if (!newValue) {
+        // Si está vacío, se muestran todos los libros
+        this.libros = this.librosOriginales;
+        return;
+      }
+      
+      // Filtrar libros basado en la búsqueda
+      const busquedaMinuscula = newValue.toLowerCase().trim();
+      this.libros = this.librosOriginales.filter(libro => 
+        libro.nombre.toLowerCase().includes(busquedaMinuscula)
+      );
+    }
+  },
   methods: {
     async cargarLibros() {
       try {
@@ -104,6 +143,15 @@ export default {
         console.log("Se han podido mostrar los libros guardados en favoritos con éxito:", this.libros);
       } catch (error) {
         console.error("Error al cargar los libros favoritos:", error);
+      }
+    },
+    async buscarLibros() {
+      try {
+        const response = await apiClient.get(`/libros/obtenerTitulo/${this.busqueda.trim()}`);
+        this.libros = Array.isArray(response.data) ? response.data : [response.data];
+      } catch (error) {
+        console.error("Error al buscar el libro:", error);
+        this.libros = [];
       }
     },
     toggleDarkMode() {
@@ -148,12 +196,6 @@ export default {
   color: #ffffff;
 }
 
-.dark-mode .pregunta {
-  background: #989898;
-  padding: 10px;
-  margin-bottom: 10px;
-}
-
 /* Colores modo claro */
 .light-mode {
   background-color: #ffffff;
@@ -163,12 +205,6 @@ export default {
 .light-mode .container-fluid {
   background-color: #ead5a1;
   color: #000000;
-}
-
-.light-mode .pregunta {
-  background: #dedede;
-  padding: 10px;
-  margin-bottom: 10px;
 }
 
 .page-wrapper {
@@ -183,66 +219,5 @@ export default {
 .page-wrapper.light-mode {
   background-color: #ead5a1;
   color: #000000;
-}
-
-.categorias-container {
-  width: 100%;
-  overflow-x: auto;
-  white-space: nowrap;
-  padding-bottom: 10px;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.categorias-scroll {
-  display: flex;
-  gap: 12px;
-  padding: 5px;
-}
-
-.libros-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.book-card {
-  width: 180px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.3s ease-in-out;
-  cursor: pointer;
-}
-
-.book-card:hover {
-  transform: scale(1.05);
-}
-
-.book-image {
-  width: 100%;
-  height: auto;
-  object-fit: cover;
-  border-radius: 5px;
-}
-
-.book-title {
-  width: 160px; 
-  white-space: normal; 
-  font-size: 0.9rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-  -webkit-box-orient: vertical;
-  text-align: center;
-}
-
-.cabecera {
-  padding: 20px;
-}
-
-.cabecera .container {
-  margin-top: 0 !important; 
 }
 </style>
