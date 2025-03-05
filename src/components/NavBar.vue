@@ -79,7 +79,7 @@ export default {
         this.$router.push('/mislistas');
     },
     goToFavoritos() {
-        this.$router.push('/favoritos');
+        this.$router.push({ name: 'VerLista', params: { id: 'Mis Favoritos'} });
     }
   }
 };

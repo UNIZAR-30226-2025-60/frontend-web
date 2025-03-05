@@ -23,7 +23,7 @@ const routes = [
   { path: "/avisoLegal", name: "AvisoLegal", component: AvisoLegalComponent },
   { path: "/politica", name: "Politica", component: PoliticaComponent },
   { path: "/contacto", name: "Contacto", component: ContactoComponent },
-  { path: "/favoritos", name: "Favoritos", component: FavoritosComponent }, 
+  { path: "/verlista/:id", name: "VerLista", component: VerListaComponent }, 
   { path: "/lector", name: "WebViewer", component: WebViewer }, 
   {
     path: "/visor-pdf",
