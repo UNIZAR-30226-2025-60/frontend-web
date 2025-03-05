@@ -1,8 +1,8 @@
 <template>
   <div v-if="user" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
-    <NavBar :dark-mode="darkMode"></NavBar> 
+    <NavBar :dark-mode="darkMode"></NavBar>
 
-    <div class="container pt-5 min-vh-100">
+    <div class="container py-4">
       <!-- Botón de cambio de tema -->
       <button @click="toggleDarkMode" class="theme-toggle-btn mb-3">
         {{ darkMode ? 'Modo Claro' : 'Modo Oscuro' }}
@@ -327,6 +327,7 @@ export default {
 .theme-toggle-btn:hover {
   background-color: #666;
 }
+
 
 /* Colores modo oscuro */
 .dark-mode {
