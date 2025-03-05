@@ -1,12 +1,15 @@
 <template>
-  <div v-if="user">
+  <div v-if="user" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
     <NavBar :dark-mode="darkMode"></NavBar>
-    <div class="cabecera" style="background-color: #9b885b;">
-      <div class="container mt-2">
-        <h3>Mis Listas</h3>
-      </div>
-    </div>
-    <div class="listado">
+
+    <div class="listado pt-5 min-vh-100">
+      <!-- Botón de cambio de tema -->
+      <button @click="toggleDarkMode" class="theme-toggle-btn mx-5 mb-3">
+        {{ darkMode ? 'Modo Claro' : 'Modo Oscuro' }}
+      </button>
+
+      <h4 class="mb-4 text-center">Mis Listas</h4>
+
       <div class="l-container p-2 mx-5">
         <h4 class="text p-2">{{ listas.length > 0 ? 'Tus listas' : 'No tienes listas aún' }}</h4>
         <div class="row listas-container">
@@ -61,7 +64,7 @@ export default {
     return {
       user: null,
       listas: [],
-      darkMode: localStorage.getItem("darkMode") === "true",
+      darkMode: localStorage.getItem("darkMode") === "true" // Obtener el tema guardado
     };
   },
   async mounted() {
@@ -91,6 +94,12 @@ export default {
     crearLista() {
       this.$router.push({ name: 'CrearLista' });
     },
+    // Métodos para el tema oscuro/claro
+    toggleDarkMode() {
+      this.darkMode = !this.darkMode;
+      localStorage.setItem("darkMode", this.darkMode);
+      this.applyTheme();
+    },
     applyTheme() {
       document.body.classList.toggle("dark-mode", this.darkMode);
       document.body.classList.toggle("light-mode", !this.darkMode);
@@ -115,6 +124,54 @@ export default {
 
 
 <style scoped>
+.theme-toggle-btn {
+  background-color: #444;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+.theme-toggle-btn:hover {
+  background-color: #666;
+}
+
+/* Colores modo oscuro */
+.dark-mode {
+  background-color: #343434;
+  color: #ffffff;
+}
+
+.dark-mode .listado {
+  background-color: #343434;
+  color: #ffffff;
+}
+
+/* Colores modo claro */
+.light-mode {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.light-mode .listado {
+  background-color: #ead5a1;
+  color: #000000;
+}
+
+.page-wrapper {
+  min-height: 100vh;
+}
+
+.page-wrapper.dark-mode {
+  background-color: #343434;
+  color: #ffffff;
+}
+
+.page-wrapper.light-mode {
+  background-color: #ead5a1;
+  color: #000000;
+}
+
 .listas-container {
   display: flex;
   flex-wrap: wrap;
@@ -156,13 +213,6 @@ export default {
 .options-menu {
   position: relative;
   display: inline-block;
-}
-
-.btn {
-  border: none;
-  background: none;
-  font-size: 1.2rem;
-  cursor: pointer;
 }
 
 .menu-dropdown {

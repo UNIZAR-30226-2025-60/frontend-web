@@ -77,9 +77,10 @@ export default {
     },
     goToMisListas() {
         this.$router.push('/mislistas');
+    },
+    goToFavoritos() {
+        this.$router.push('/favoritos');
     }
-
-    
   }
 };
 </script>

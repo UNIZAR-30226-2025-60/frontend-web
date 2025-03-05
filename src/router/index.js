@@ -12,6 +12,7 @@ import WebViewer from "@/components/WebViewer.vue";
 import EstadisticasComponent from "../components/EstadisticasComponent.vue";
 import MisListasComponent from "../components/MisListasComponent.vue";
 import CrearListaComponent from "../components/CrearListaComponent.vue";
+import FavoritosComponent from "../components/FavoritosComponent.vue";
 //import WebViewer from "@/components/WebViewer.vue";
 
 const routes = [
@@ -22,6 +23,7 @@ const routes = [
   { path: "/avisoLegal", name: "AvisoLegal", component: AvisoLegalComponent },
   { path: "/politica", name: "Politica", component: PoliticaComponent },
   { path: "/contacto", name: "Contacto", component: ContactoComponent },
+  { path: "/favoritos", name: "Favoritos", component: FavoritosComponent }, 
   { path: "/lector", name: "WebViewer", component: WebViewer }, 
   {
     path: "/visor-pdf",
