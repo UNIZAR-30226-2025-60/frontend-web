@@ -16,7 +16,7 @@
           <a class="nav-link nav-bold" href="#" @click="goToEstadisticas">Estadísticas</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link nav-bold" href="#" >Listas</a>
+          <a class="nav-link nav-bold" href="#" @click="goToListas">Listas</a>
         </li>
         <li class="nav-item">
           <a class="nav-link nav-bold" href="#" @click="goToMisListas">Mis Listas</a>
@@ -76,7 +76,10 @@ export default {
         this.$router.push('/estadisticas');
     },
     goToMisListas() {
-        this.$router.push('/mislistas');
+        this.$router.push({name: 'Listas', params: { privacidad: 'Mis Listas'}});
+    },
+    goToListas() {
+        this.$router.push({name: 'Listas', params: { privacidad: 'Listas Publicas'}});
     },
     goToFavoritos() {
         this.$router.push({ name: 'VerLista', params: { id: 'Mis Favoritos'} });

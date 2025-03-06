@@ -10,7 +10,7 @@ import PoliticaComponent from "@/components/PoliticaComponent.vue";
 import ContactoComponent from "@/components/ContactoComponent.vue";
 import WebViewer from "@/components/WebViewer.vue";
 import EstadisticasComponent from "../components/EstadisticasComponent.vue";
-import MisListasComponent from "../components/MisListasComponent.vue";
+import ListasComponent from "../components/ListasComponent.vue";
 import CrearListaComponent from "../components/CrearListaComponent.vue";
 import VerListaComponent from "../components/VerListaComponent.vue";
 //import WebViewer from "@/components/WebViewer.vue";
@@ -35,7 +35,7 @@ const routes = [
     meta: { cleanLayout: true }
   },
   { path: "/estadisticas", name: "Estadisticas", component: EstadisticasComponent },
-  { path: "/mislistas", name: "MisListas", component: MisListasComponent },
+  { path: "/listas/:privacidad", name: "Listas", component: ListasComponent },
   { path: "/crearlista", name: "CrearLista", component: CrearListaComponent },
 
 

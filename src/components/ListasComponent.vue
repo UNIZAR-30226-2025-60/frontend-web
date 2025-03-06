@@ -8,13 +8,13 @@
         {{ darkMode ? 'Modo Claro' : 'Modo Oscuro' }}
       </button>
 
-      <h4 class="mb-4 text-center">Mis Listas</h4>
+      <h4 class="mb-4 text-center">{{ privacidad }}</h4>
 
       <div class="l-container p-2 mx-5">
         <h4 class="text p-2">{{ listas.length > 0 ? '' : 'No tienes listas aún' }}</h4>
         <div class="row listas-container">
           <!-- Listado de listas -->
-          <div v-for="lista in listas" :key="lista.id" class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4 d-flex justify-content-center">
+          <div v-for="lista in listas" :key="lista.id" class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4 d-flex justify-content-center" @click="goToVerLista(lista)">
             <div class="lista-card card shadow-sm">
               <img src="https://via.placeholder.com/180" class="lista-image card-img-top" alt="Portada de la lista">
               <div class="lista-header d-flex justify-content-between align-items-center p-2">
@@ -47,31 +47,50 @@
     <Footer></Footer>
   </div>
   <div v-else>
-    <p>Cargando...</p>
+    <Cargando :dark-mode="darkMode"></Cargando>
   </div>
 </template>
 
 
 <script>
 import NavBar from '@/components/NavBar.vue';
+import Cargando from '@/components/Cargando.vue'
 import Footer from '@/components/Footer.vue';
 import { apiClient } from '../config';
 
 export default {
   name: 'ListasComponent',
-  components: { NavBar, Footer },
+  components: { NavBar, Footer, Cargando },
   data() {
     return {
       user: null,
       listas: [],
+      privacidad: "",
       darkMode: localStorage.getItem("darkMode") === "true" // Obtener el tema guardado
     };
+  },
+  watch: {
+    '$route'(to, from) {
+      this.privacidad = to.params.privacidad;
+      
+      if(this.privacidad === "Mis Listas"){
+        this.cargarListasPrivadas();
+      } else {
+        this.cargarListasPublicas();
+      }
+    }
   },
   async mounted() {
     try {
       const response = await apiClient.get("/user");
       this.user = response.data;
-      this.cargarListas();
+      this.privacidad = this.$route.params.privacidad;
+      if(this.privacidad === "Mis Listas"){
+        await this.cargarListasPrivadas();
+      }
+      else{
+        await this.cargarListasPublicas();
+      }
       this.applyTheme();
       document.addEventListener("click", this.closeAllMenus);
     } catch (error) {
@@ -83,16 +102,31 @@ export default {
     document.removeEventListener("click", this.closeAllMenus);
   },
   methods: {
-    async cargarListas() {
+    async cargarListasPrivadas() {
       try {
         const response = await apiClient.get(`/listas/${this.user.correo}`);
-        this.listas = response.data.map(lista => ({ ...lista, mostrarMenu: false }));
+        this.listas = response.data
+          .filter(lista => lista.nombre !== "Mis Favoritos") // Excluir "Mis Favoritos"
+          .map(lista => ({ ...lista, mostrarMenu: false }));
+      } catch (error) {
+        console.error("Error al cargar las listas:", error);
+      }
+    },
+    async cargarListasPublicas() {
+      try {
+        const response = await apiClient.get(`/listas/publicas`);
+        this.listas = response.data
+          .filter(lista => lista.nombre !== "Mis Favoritos") // Excluir "Mis Favoritos"
+          .map(lista => ({ ...lista, mostrarMenu: false }));
       } catch (error) {
         console.error("Error al cargar las listas:", error);
       }
     },
     crearLista() {
       this.$router.push({ name: 'CrearLista' });
+    },
+    goToVerLista(lista) {
+      this.$router.push({ name: 'VerLista', params: { id: lista.nombre } });
     },
     // Métodos para el tema oscuro/claro
     toggleDarkMode() {
@@ -110,7 +144,11 @@ export default {
     async eliminarLista(lista) {
       try {
         await apiClient.delete(`/listas/${this.user.correo}/${encodeURIComponent(lista.nombre)}`);
-        this.cargarListas(); // Recargar listas después de eliminar
+        if(this.privacidad === "Mis Listas"){
+          await this.cargarListasPrivadas();
+        } else {
+          await this.cargarListasPublicas();
+        } // Recargar listas después de eliminar
       } catch (error) {
         alert("Error al eliminar la lista:", error);
       }

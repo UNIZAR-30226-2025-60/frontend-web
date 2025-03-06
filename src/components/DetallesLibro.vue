@@ -154,11 +154,15 @@
       </div> 
     </div>
   </div>
+  <div v-else>
+    <Cargando :dark-mode="darkMode"></Cargando>
+  </div>
 </template>
 
 <script>
 import axios from 'axios';
 import NavBar from '@/components/NavBar.vue'
+import Cargando from '@/components/Cargando.vue'
 import Footer from '@/components/Footer.vue'
 import { apiClient } from '../config';
 
@@ -167,7 +171,8 @@ export default {
   name: 'Detalles',
   components: {
     NavBar,
-    Footer
+    Footer,
+    Cargando
   },
   data() {
     return {
