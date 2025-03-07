@@ -13,15 +13,51 @@
             <input class="form-control rounded-pill" type="search" placeholder="Buscar título" aria-label="Buscar" v-model="busqueda">
           </div>
         </form>
-        <!-- Categorías -->
-        <div class="d-flex mb-3">
-          <h4 class="mb-3">Categorías:</h4>
-          <div class="categorias-container">
-            <div class="categorias-scroll">
-              <button v-for="tema in temas" :key="tema.tematica" @click="filtrarPorCategoria(tema.tematica)" class="btn rounded-pill btn-sm" style="color: darkgoldenrod;" :style="categoriaSeleccionada === tema.tematica ? 'background-color: #e5c578; color: #343434;' : 'background-color: #f6e5bb; color: #9b665b;'">
-                {{ tema.tematica }}
-              </button>
+
+        <!-- Categorías-->
+        <div class="categorias-header">
+          <h4 class="categorias-titulo">Categorías:</h4>
+          
+          <div class="categorias-wrapper">
+            <!-- Flecha Izquierda -->
+            <button
+              class="arrow-btn arrow-left"
+              :class="{ disabled: isAtStart }"
+              @click="scrollLeft"
+            >
+              <span class="arrow-left-icon"></span>
+            </button>
+
+            <!-- Contenedor con scroll horizontal -->
+            <div
+              class="categorias-container"
+              ref="categoriasScroll"
+              @scroll="checkScroll"
+            >
+              <div class="categorias-scroll">
+                <!-- Mostrar todas las categorías -->
+                <button
+                  v-for="tema in temas"
+                  :key="tema.tematica"
+                  @click="filtrarPorCategoria(tema.tematica)"
+                  class="btn rounded-pill btn-sm"
+                  :style="categoriaSeleccionada === tema.tematica 
+                    ? 'background-color: #e5c578; color: #343434;' 
+                    : 'background-color: #f6e5bb; color: #9b665b;'"
+                >
+                  {{ tema.tematica }}
+                </button>
+              </div>
             </div>
+
+            <!-- Flecha Derecha -->
+            <button
+              class="arrow-btn arrow-right"
+              :class="{ disabled: isAtEnd }"
+              @click="scrollRight"
+            >
+              <span class="arrow-right-icon"></span>
+            </button>
           </div>
         </div>
         
@@ -80,7 +116,14 @@ export default {
       libros: [],
       busqueda: "",
       darkMode: localStorage.getItem("darkMode") === "true", // Obtener el tema guardado
+      isAtStart: true,
+      isAtEnd: false,
     };
+  },
+  computed: {
+    visibleTemas() {
+      return this.temas.slice(0, this.visibleCategories);
+    }
   },
   async mounted() {
     try {
@@ -89,7 +132,6 @@ export default {
       this.cargarLibros();
       this.cargarTematicas();
       this.applyTheme();
-
     } catch (error) {
       console.error("Error al obtener los datos del usuario:", error);
       this.$router.push("/");
@@ -155,9 +197,9 @@ export default {
       }
     },
     toggleDarkMode() {
-      this.darkMode = !this.darkMode; // Cambiar el estado
-      localStorage.setItem("darkMode", this.darkMode); // Guardar la elección
-      this.applyTheme(); // Aplicar el nuevo tema
+      this.darkMode = !this.darkMode; 
+      localStorage.setItem("darkMode", this.darkMode); 
+      this.applyTheme(); 
     },
     applyTheme() {
       document.body.classList.toggle("dark-mode", this.darkMode);
@@ -167,16 +209,30 @@ export default {
       this.busqueda = "";
       this.libros = this.librosOriginales;
     },
-    
     goToDetalles(libro) {
       this.$router.push({ name: 'Detalles', params: { id: libro.nombre } });
+    },
+    scrollLeft() {
+      const container = this.$refs.categoriasScroll;
+      container.scrollBy({ left: -150, behavior: 'smooth' });
+      this.checkScroll();
+    },
+    scrollRight() {
+      const container = this.$refs.categoriasScroll;
+      container.scrollBy({ left: 150, behavior: 'smooth' });
+      this.checkScroll();
+    },
+    checkScroll() {
+      const container = this.$refs.categoriasScroll;
+      this.isAtStart = container.scrollLeft <= 0;
+      this.isAtEnd =
+        container.scrollWidth - container.clientWidth - container.scrollLeft <= 0;
     }
   }
 };
 </script>
 
 <style scoped>
-/* Estilos del botón */
 .theme-toggle-btn {
   background-color: #444;
   color: #fff;
@@ -207,19 +263,73 @@ export default {
   color: #000000;
 }
 
+.categorias-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1rem; 
+}
+
+.categorias-wrapper {
+  position: relative;
+  width: 85%; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
 .categorias-container {
-  width: 100%;
+  width: 100%; 
   overflow-x: auto;
   white-space: nowrap;
-  padding-bottom: 10px;
-  -ms-overflow-style: none;
+  -ms-overflow-style: none; 
   scrollbar-width: none;
+}
+.categorias-container::-webkit-scrollbar {
+  display: none;
 }
 
 .categorias-scroll {
-  display: flex;
-  gap: 12px;
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
   padding: 5px;
+}
+
+/* Flechas */
+.arrow-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.arrow-btn.disabled {
+  cursor: not-allowed;
+  color: darkgray;
+}
+
+.arrow-left-icon,
+.arrow-right-icon {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+}
+
+.arrow-left-icon {
+  border-right: 10px solid black;
+}
+.arrow-right-icon {
+  border-left: 10px solid black;
+}
+.arrow-btn.disabled .arrow-left-icon {
+  border-right-color: darkgray;
+}
+.arrow-btn.disabled .arrow-right-icon {
+  border-left-color: darkgray;
 }
 
 .libros-container {
