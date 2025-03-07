@@ -14,8 +14,8 @@
                    alt="Foto lista" 
                    class="rounded-2 mx-auto d-block" 
                    width="100">
-              <h4 class="mt-2">Crear Lista</h4>
-              <p class="text-secondary text-justify">Crea una lista para tus temáticas especiales. ¿Quieres compartir tus recomendaciones o prefieres mantener tu lista solo para ti? ¡Tú decides! Pública para inspirar a otros, privada para disfrutar en solitario.</p>
+              <h4 class="mt-2">{{ hacer === 'Editar' ? 'Editar Lista' : 'Crear Lista' }}</h4>
+              <p class="text-secondary text-justify">Crea o edita tu lista de temáticas especiales. ¿Quieres compartir tus recomendaciones o prefieres mantener tu lista solo para ti? ¡Tú decides! Pública para inspirar a otros, privada para disfrutar en solitario.</p>
               <button type="button" class="btn btn-warning" @click="showModal">
                 Editar foto de perfil
               </button>
@@ -38,7 +38,7 @@
                   <option :value="false">Privada</option>
                 </select>
               </div>
-              <button class="btn btn-warning w-100" @click="crearLista">Crear Lista</button>
+              <button class="btn btn-warning w-100" @click="guardarLista">{{ hacer === 'Editar' ? 'Guardar Cambios' : 'Crear Lista' }}</button>
             </div>
           </div>
         </div>
@@ -86,6 +86,7 @@ import { apiClient } from '../config';
 import * as bootstrap from 'bootstrap';
 
 export default {
+  name: "CrearEditarLista",
   components: {
     NavBar,
     Footer
@@ -101,13 +102,21 @@ export default {
       imagenSeleccionada: null,
       busqueda: "",
       darkMode: localStorage.getItem("darkMode") === "true",
-      defaultProfileImage: 'https://via.placeholder.com/100' // Placeholder image
+      defaultProfileImage: 'https://via.placeholder.com/100',
+      hacer:"",
+      listaNombre: null
     };
   },
   async mounted() {
     try {
       const response = await apiClient.get("/user");
       this.user = response.data;
+      this.hacer = this.$route.params.hacer;
+      this.listaNombre = this.$route.params.nombre; 
+
+      if (this.hacer === "Editar" && this.listaNombre) {
+        await this.cargarLista();
+      }
     } catch (error) {
       console.error("Error al obtener los datos del usuario:", error);
       this.$router.push("/");
@@ -117,14 +126,12 @@ export default {
       await this.cargarImagenes();
     } catch (error) {
       console.error("Error al cargar fotos", error);
-      this.$router.push("/");
     }
-    
+      
     try {
       this.applyTheme();
     } catch (error) {
       console.error("Error al aplicar tema", error);
-      this.$router.push("/");
     }
   
     const modalElement = document.getElementById('profileModal');
@@ -133,6 +140,18 @@ export default {
     }
   },
   methods: {
+    async cargarLista() {
+      try {
+        const response = await apiClient.get(`/listas/${this.user.correo}/${this.listaNombre}`);;
+        const lista = response.data;
+        this.nombre = lista.nombre;
+        this.descripcion = lista.descripcion;
+        this.publica = lista.publica;
+        this.imagenSeleccionada = { foto: lista.portada };
+      } catch (error) {
+        console.error("Error al cargar la lista para editar:", error);
+      }
+    },
     async cargarImagenes() {
       try {
         const response = await apiClient.get("/listas/portadas-temas");
@@ -147,24 +166,34 @@ export default {
     guardarSeleccion() {
       this.hideModal();
     },
-    async crearLista() {
+    async guardarLista() {
       if (!this.nombre.trim()) {
         alert("El nombre de la lista no puede estar vacío.");
         return;
       }
       try {
-        await apiClient.post('/listas', {
-          nombre: this.nombre,
-          usuario_id: this.user.correo,
-          descripcion: this.descripcion,
-          publica: this.publica,
-          portada: this.imagenSeleccionada ? this.imagenSeleccionada.foto : this.defaultProfileImage
-        });
-        alert('Lista creada con éxito');
-        this.$router.push('/mislistas');
+        if (this.hacer === "Crear") {
+          await apiClient.post('/listas', {
+            nombre: this.nombre,
+            usuario_id: this.user.correo,
+            descripcion: this.descripcion,
+            publica: this.publica,
+            portada: this.imagenSeleccionada ? this.imagenSeleccionada.foto : this.defaultProfileImage
+          });
+          alert('Lista creada con éxito');
+        } else if (this.hacer === "Editar" && this.listaNOmbre) {
+          await apiClient.patch(`/listas/${this.user.correo}/${this.nombre}`, {
+            descripcion: this.descripcion,
+            publica: this.publica,
+            portada: this.imagenSeleccionada ? this.imagenSeleccionada.foto : this.defaultProfileImage,
+            nuevoNombre: this.nombre // En caso de que quiera cambiar el nombre
+          });
+          alert('Lista actualizada con éxito');
+        }
+        this.$router.push({ name: 'Listas', params: { privacidad: 'Mis Listas' }});
       } catch (error) {
-        console.error('Error al crear la lista:', error);
-        alert('No se pudo crear la lista');
+        console.error('Error al guardar la lista:', error);
+        alert('No se pudo guardar la lista');
       }
     },
     showModal() {
