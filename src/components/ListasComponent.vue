@@ -24,8 +24,8 @@
                     <button class="btn btn-light btn-sm" @click.stop="lista.mostrarMenu = !lista.mostrarMenu">⋮</button>
                     <div v-if="lista.mostrarMenu" class="menu-dropdown">
                       <ul>
-                        <li @click="editarLista(lista)">Editar</li>
-                        <li @click="eliminarLista(lista)">Eliminar</li>
+                        <li @click.stop="editarLista(lista)">Editar</li>
+                        <li @click.stop="eliminarLista(lista)">Eliminar</li>
                       </ul>
                     </div>
                   </div>
@@ -123,7 +123,7 @@ export default {
       }
     },
     crearLista() {
-      this.$router.push({ name: 'CrearLista' });
+      this.$router.push({ name: 'CrearEditarLista', params: { hacer: 'Crear' } });
     },
     goToVerLista(lista) {
       this.$router.push({ name: 'VerLista', params: { id: lista.nombre } });
@@ -140,22 +140,28 @@ export default {
     },
     editarLista(lista) {
       console.log("Editando lista:", lista.nombre);
+      // Navegar a la ruta de edición pasando 'Editar' y el nombre de la lista
+      this.$router.push({ name: 'CrearEditarLista', params: { hacer: 'Editar', nombre: lista.nombre } });
     },
     async eliminarLista(lista) {
       try {
         await apiClient.delete(`/listas/${this.user.correo}/${encodeURIComponent(lista.nombre)}`);
         if(this.privacidad === "Mis Listas"){
-          await this.cargarListasPrivadas();
+          this.$router.push({name: 'Listas', params: { privacidad: 'Mis Listas'}});
         } else {
-          await this.cargarListasPublicas();
+          this.$router.push({name: 'Listas', params: { privacidad: 'Listas Publicas'}});
         } // Recargar listas después de eliminar
+        this.cargarListasPrivadas();
       } catch (error) {
         alert("Error al eliminar la lista:", error);
       }
     },
-    closeAllMenus() {
-      this.listas.forEach(lista => (lista.mostrarMenu = false));
-    },
+    closeAllMenus(event) {
+      this.listas.forEach(lista => {
+        if (event && event.target.closest('.options-menu')) return;
+        lista.mostrarMenu = false;
+      });
+    }
   },
 };
 </script>

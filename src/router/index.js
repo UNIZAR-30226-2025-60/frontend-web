@@ -11,7 +11,7 @@ import ContactoComponent from "@/components/ContactoComponent.vue";
 import WebViewer from "@/components/WebViewer.vue";
 import EstadisticasComponent from "../components/EstadisticasComponent.vue";
 import ListasComponent from "../components/ListasComponent.vue";
-import CrearListaComponent from "../components/CrearListaComponent.vue";
+import CrearEditarListaComponent from "../components/CrearEditarListaComponent.vue";
 import VerListaComponent from "../components/VerListaComponent.vue";
 //import WebViewer from "@/components/WebViewer.vue";
 
@@ -36,7 +36,7 @@ const routes = [
   },
   { path: "/estadisticas", name: "Estadisticas", component: EstadisticasComponent },
   { path: "/listas/:privacidad", name: "Listas", component: ListasComponent },
-  { path: "/crearlista", name: "CrearLista", component: CrearListaComponent },
+  { path: "/lista/:hacer/:nombre?", name: "CrearEditarLista", component: CrearEditarListaComponent },
 
 
   //{ path: "/webviewer", name: "WebViewer", component: WebViewer }, 
