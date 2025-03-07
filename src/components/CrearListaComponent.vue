@@ -161,7 +161,7 @@ export default {
           portada: this.imagenSeleccionada ? this.imagenSeleccionada.foto : this.defaultProfileImage
         });
         alert('Lista creada con éxito');
-        this.$router.push('/mislistas');
+        this.$router.push({name: 'Listas', params: { privacidad: 'Mis Listas'}});
       } catch (error) {
         console.error('Error al crear la lista:', error);
         alert('No se pudo crear la lista');
