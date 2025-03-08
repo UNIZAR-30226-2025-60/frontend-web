@@ -38,7 +38,7 @@ const routes = [
   },
   { path: "/estadisticas", name: "Estadisticas", component: EstadisticasComponent },
   { path: "/listas/:privacidad", name: "Listas", component: ListasComponent },
-  { path: "/crearlista", name: "CrearLista", component: CrearListaComponent },
+  { path: "/crearlista", name: "CrearEditarLista", component: CrearEditarListaComponent },
   { path: "/perfil", name: "Perfil", component: PerfilComponent },
   //{ path: "/webviewer", name: "WebViewer", component: WebViewer }, 
 ];

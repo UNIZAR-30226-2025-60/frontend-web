@@ -11,18 +11,23 @@
       <div class="row">
         <div class="col-md-4 d-flex flex-column align-items-center">
           <img :src="libro.imagen_portada" class="img-fluid" alt="Portada del libro">
-          <p class="mb-3 text-center">{{ libro.nombre }}</p>
-          <button class="btn btn-primary" @click="leerLibro">📖 Leer</button>
+          <p class="mb-3 text-center cursiva">{{ libro.nombre }}</p>
+          <button class="btn btn-primary" @click="leerLibro">
+            <font-awesome-icon :icon="['fas', 'book-open']" /> Leer
+          </button>
         </div>
         <div class="col-md-8">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h4>{{ libro.nombre }}</h4>
+              <h4 class="titulo">{{ libro.nombre }}</h4>
               <h4>de: {{ libro.autor }}</h4>
             </div>
             <div>
-              <font-awesome-icon :icon="['far', 'heart']" /> <!-- Vue no consigue procesarlo, pero no da error de compilación -->
-              <button class="btn me-3" @click="aniadirAFavoritos(libro)">Añadir a favoritos</button>
+              <font-awesome-icon 
+                :icon="[ isFavorito ? 'fas' : 'far', 'heart' ]"
+                class="heart-icon"
+                @click="toggleFavorito"
+              />
               <button class="btn" @click="aniadirALista">Añadir a lista</button>
             </div>
           </div>
@@ -66,17 +71,40 @@
           <div class="col-md-8">
             <h5>Valoraciones del libro:</h5>
             <div class="d-flex justify-content-between align-items-center">
-              <div class=" pe-3 border-end">
+              <div class="text-center">
                 <p class="mb-1"> Valoración general</p>
+                <span v-for="(icon, idx) in getStarIcons(libro.puntuacion_media)" :key="idx">
+                    <font-awesome-icon :icon="['fas', icon]" />
+                </span>
                 <p> {{ libro.puntuacion_media.toFixed(2) }} de 5</p>
                 <button class="btn" @click="aniadirValoracion(libro)">Añadir Valoración</button>
               </div>
               <div>
-                <p class="mb-1"> 5 ESTRELLAS   {{ conteoValoraciones[5] }}</p>
-                <p class="mb-1"> 4 ESTRELLAS   {{ conteoValoraciones[4] }}</p>
-                <p class="mb-1"> 3 ESTRELLAS   {{ conteoValoraciones[3] }}</p>
-                <p class="mb-1"> 2 ESTRELLAS   {{ conteoValoraciones[2] }}</p>
-                <p class="mb-1"> 1 ESTRELLAS   {{ conteoValoraciones[1] }}</p>
+                <p class="mb-1"> 
+                  <span v-for="(icon, idx) in getStarIcons(5)" :key="idx">
+                    <font-awesome-icon :icon="['fas', icon]" />
+                  </span>
+                  {{ conteoValoraciones[5] }}</p>
+                <p class="mb-1"> 
+                  <span v-for="(icon, idx) in getStarIcons(4)" :key="idx">
+                    <font-awesome-icon :icon="['fas', icon]" />
+                  </span>
+                  {{ conteoValoraciones[4] }}</p>
+                <p class="mb-1"> 
+                  <span v-for="(icon, idx) in getStarIcons(3)" :key="idx">
+                    <font-awesome-icon :icon="['fas', icon]" />
+                  </span>
+                  {{ conteoValoraciones[3] }}</p>
+                <p class="mb-1"> 
+                  <span v-for="(icon, idx) in getStarIcons(2)" :key="idx">
+                    <font-awesome-icon :icon="['fas', icon]" />
+                  </span>
+                  {{ conteoValoraciones[2] }}</p>
+                <p class="mb-1"> 
+                  <span v-for="(icon, idx) in getStarIcons(1)" :key="idx">
+                    <font-awesome-icon :icon="['fas', icon]" />
+                  </span>
+                  {{ conteoValoraciones[1] }}</p>
               </div>
             </div>
           </div>
@@ -104,7 +132,13 @@
 
           <div v-if="valoracionesOrdenadas.length > 0">
             <div v-for="valoracion in valoracionesOrdenadas" :key="valoracion.id" class="valoracion">
-              <p class="mb-1">{{ valoracion.valor }} estrellas <strong>{{ valoracion.titulo_resena }}</strong></p>
+              <p class="mb-1">
+                <strong>{{ valoracion.titulo_resena }}</strong>
+                <span v-for="(icon, i) in getStarIcons(valoracion.valor)" :key="i">
+                  <font-awesome-icon :icon="['fas', icon]" />
+                </span>
+                <!--<p class="mb-1">{{ valoracion.valor }} estrellas <strong>{{ valoracion.titulo_resena }}</strong></p>-->
+              </p>
               <p class="mb-1">{{ valoracion.mensaje }}</p>
               <p>Por {{valoracion.usuario_id}} en {{ new Date(valoracion.fecha).toLocaleDateString() }}</p>
               <hr>
@@ -189,12 +223,9 @@ export default {
         mensaje: "", 
         valor: null
       },
-      favoritos: {
-        usuario_id: "",
-        enlace_libro: ""
-      },
       conteoValoraciones: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
-      darkMode: localStorage.getItem("darkMode") === "true" // Obtener el tema guardado
+      darkMode: localStorage.getItem("darkMode") === "true", // Obtener el tema guardado
+      isFavorito: false
     };
   },
   computed: {
@@ -234,6 +265,7 @@ export default {
 
     // Si se obtiene el libro, obtener libros relacionados y valoraciones
     if (this.libro) {
+      await this.comprobarFavorito();
       await this.obtenerLibrosDelMismoAutor();
       await this.obtenerConteoValoraciones();
       await this.obtenerValoraciones();
@@ -254,29 +286,70 @@ export default {
   methods: {
     aniadirALista() {
     },
-    async aniadirAFavoritos(libro) {
+    getStarIcons(rating) {
+      const icons = [];
+      const fullStars = Math.floor(rating);           // Entero de la puntuación
+      const fraction = rating - fullStars;            // Parte decimal
+
+      for (let i = 0; i < fullStars; i++) {
+        icons.push('star'); 
+      }
+      if (fraction >= 0.25 && fraction <= 0.75) {
+        icons.push('star-half');
+      } else if (fraction > 0.75) {
+        icons.push('star');
+      }
+
+      return icons;
+    },
+    async comprobarFavorito() {
       try {
-        const favoritos = {
-          usuario_id: this.user.correo,
-          enlace_libro: this.libro.enlace
-        };
-
-        console.log("Usuario ID:", favoritos.usuario_id);
-        console.log("Libro ID:", favoritos.enlace_libro);
-
-        const response = await apiClient.post('/listas/favoritos', favoritos);
-        alert(response.data.mensaje);
-
-        // Limpiar los parámetros después de añadir a favoritos
-        this.nuevaValoracion = {
-          usuario_id: "", 
-          libro_id: "" 
-        };
+        const response = await apiClient.get(`/listas/favoritos/${this.user.correo}`);
+        const librosFavoritos = response.data;
+        this.isFavorito = librosFavoritos.some(item => item.enlace_libro === this.libro.enlace);
       } catch (error) {
-        if (error.response) {
-          alert(error.response.data);
-        } else {
-          alert("Hubo un error al guardar tu libro en favoritos. Inténtalo de nuevo.");
+        console.error("Error al comprobar favoritos:", error);
+        this.isFavorito = false;
+      }
+    },
+    async toggleFavorito() {
+      if (!this.isFavorito) {
+        try {
+          const favoritos = {
+            usuario_id: this.user.correo,
+            enlace_libro: this.libro.enlace
+          };
+
+          console.log("Usuario ID:", favoritos.usuario_id);
+          console.log("Libro ID:", favoritos.enlace_libro);
+
+          const response = await apiClient.post('/listas/favoritos', favoritos);
+          alert(response.data.mensaje);
+          this.isFavorito = true; // Cambia el ícono a sólido
+
+          this.nuevaValoracion = {
+            usuario_id: "", 
+            libro_id: "" 
+          };
+        } catch (error) {
+          if (error.response) {
+            console.error("Error al añadir a favoritos:", error);
+            alert("Hubo un error al guardar tu libro en favoritos.");
+          }
+        }
+      } else {
+        try {
+          const data = {
+            usuario_id: this.user.correo,
+            enlace_libro: this.libro.enlace
+          };
+
+          const response = await apiClient.delete("/listas/favoritos", { data });
+          alert(response.data.mensaje);
+          this.isFavorito = false; // Cambia el ícono a regular
+        } catch (error) {
+          console.error("Error al eliminar de favoritos:", error);
+          alert("Hubo un error al eliminar tu libro de favoritos.");
         }
       }
     },
@@ -328,6 +401,9 @@ export default {
 
         // Recargar el conteo de valoraciones
         await this.obtenerConteoValoraciones();
+
+        // Recargar las reseñas publicadas
+        await this.obtenerValoraciones();
 
         // Limpiar el formulario después de enviar la reseña
         this.nuevaValoracion = {
@@ -573,4 +649,31 @@ export default {
   background-color: #ead5a1;
   color: #000000;
 }
+
+.heart-icon {
+  cursor: pointer;
+  font-size: 1.4rem;
+  margin-right: 10px;
+}
+
+.light-mode .titulo {
+  text-align: left;        
+  font-weight: bold;         
+  font-size: 2rem;         
+  color: #343434;            
+  margin: 30px 0;     
+}
+
+.dark-mode .titulo {
+  text-align: left;      
+  font-weight: bold;        
+  font-size: 2rem;        
+  color: #e3c377;        
+  margin: 30px 0;         
+}
+
+.cursiva {
+  font-style: italic;
+}
+
 </style>

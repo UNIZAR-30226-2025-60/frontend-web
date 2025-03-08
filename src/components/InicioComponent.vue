@@ -63,7 +63,7 @@
         
         <!-- Información del usuario -->
         <div class="text-center">
-          <h3>Bienvenido, {{ user.nombre }}</h3>
+          <h3>Bienvenid@, {{ user.nombre }}</h3>
           <p>Correo: {{ user.correo }}</p>
         </div>
       </div>
@@ -71,8 +71,8 @@
     <div class="listado">
       <div class="l-container p-2 mx-5">
         <!-- Lista de libros -->
-        <h4 class="text p-2">
-          {{ busqueda ? 'Resultados de la búsqueda' : 'Libros disponibles' }}
+        <h4 class="libros-disponibles">
+          {{ busqueda ? 'Resultados de la búsqueda' : 'LIBROS DISPONIBLES' }}
         </h4>
         <div class="row libros-container">
           <div v-for="libro in libros" :key="libro.enlace" class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4 d-flex justify-content-center" @click="goToDetalles(libro)">
@@ -87,6 +87,10 @@
       </div>
     </div>
     <Footer></Footer>
+    <button class="back-to-top" @click="scrollTop">
+      <font-awesome-icon :icon="['fas', 'chevron-up']" />
+    </button>
+
   </div>
   <div v-else>
     <Cargando :dark-mode="darkMode"></Cargando>
@@ -227,6 +231,9 @@ export default {
       this.isAtStart = container.scrollLeft <= 0;
       this.isAtEnd =
         container.scrollWidth - container.clientWidth - container.scrollLeft <= 0;
+    },
+    scrollTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 };
@@ -376,5 +383,65 @@ export default {
 
 .cabecera .container {
   margin-top: 0 !important; 
+}
+
+.light-mode .back-to-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #48402e; 
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 9999;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  color: #ffffff; 
+}
+
+.light-mode .back-to-top:hover {
+  background-color: #343026; 
+}
+
+.dark-mode .back-to-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #e3c377; 
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 9999;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  color: #ffffff; 
+}
+
+.dark-mode .back-to-top:hover {
+  background-color: #bca369;
+}
+
+.light-mode .libros-disponibles {
+  text-align: center;         
+  font-weight: bold;        
+  font-size: 2rem;          
+  color: #343434;           
+  margin: 30px 0;           
+}
+
+.dark-mode .libros-disponibles {
+  text-align: center;       
+  font-weight: bold;        
+  font-size: 2rem;          
+  color: #e3c377;           
+  margin: 30px 0;         
 }
 </style>

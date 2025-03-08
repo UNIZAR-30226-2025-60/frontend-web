@@ -9,15 +9,7 @@
         {{ darkMode ? 'Modo Claro' : 'Modo Oscuro' }}
       </button>
 
-      <h4 class="section-title text-center mb-5">Foro</h4>
-
-      <!-- Switch para filtrar preguntas -->
-      <div class="form-check form-switch my-3">
-        <input class="form-check-input" type="checkbox" id="filterUserQuestions" v-model="filtrarPorUsuario" @change="obtenerPreguntas">
-        <label class="form-check-label" for="filterUserQuestions">
-          Ver mis preguntas:
-        </label>
-      </div>
+      <h4 class="titulo">FORO</h4>
 
       <h5 class="text-center" >¿Quieres preguntar algo?</h5>
 
@@ -27,39 +19,57 @@
         </div>
       </form>
 
-      <div v-for="pregunta in preguntasFiltradas" :key="pregunta.id" class="pregunta">
-        <div>
-          <div class="align-items-center ms-auto d-flex">
-            <div>
-              <h5>{{ pregunta.cuestion }}</h5>
-              <p><strong>Por:</strong> {{ pregunta.usuario }} <strong>Fecha:</strong> {{ pregunta.fecha }}</p>
-              <p v-if="!pregunta.mostrarRespuestas" class="respuestas-contador">
-                {{ pregunta.respuestas.length }} respuestas
-              </p> 
-            </div>
-            <div>
-              <!-- Botón para añadir respuesta -->
-              <button class="btn me-3" @click="aniadirRespuesta(pregunta.id)">Añadir Respuesta</button>
+      <!-- Switch para filtrar preguntas -->
+      <div class="form-check form-switch my-3">
+        <input class="form-check-input" type="checkbox" id="filterUserQuestions" v-model="filtrarPorUsuario" @change="obtenerPreguntas">
+        <label class="form-check-label" for="filterUserQuestions">
+          Ver mis preguntas
+        </label>
+      </div>
 
-              <!-- Botón para ver respuestas (solo si hay respuestas) -->
-              <button v-if="pregunta.respuestas.length > 0" @click="toggleVerRespuestas(pregunta.id)" class="btn">
-                {{ pregunta.mostrarRespuestas ? 'Ocultar respuestas' : 'Ver respuestas' }}
-              </button>
-            </div>
-          </div>
+      <div v-for="pregunta in preguntasFiltradas" :key="pregunta.id" class="pregunta mb-3 p-3">
+        <h5>{{ pregunta.cuestion }}</h5>
+        <p class="mb-1"><strong>Por:</strong> {{ pregunta.usuario }} <strong>Fecha:</strong> {{ pregunta.fecha }}</p>
+        <p v-if="!pregunta.mostrarRespuestas" class="mb-2 text-muted">
+          <font-awesome-icon :icon="['fas', 'comment']" />
+          {{ pregunta.respuestas.length }} respuestas
+        </p> 
+
+        <div class="d-flex gap-3 align-items-center">
+          <!-- Botón para añadir respuesta -->
+          <button class="btn btn-sm btn-outline-secondary" @click="aniadirRespuesta(pregunta.id)"> 
+            <font-awesome-icon :icon="['fas', 'reply']" />
+            Responder
+          </button>
+
+          <!-- Botón para ver respuestas (solo si hay respuestas) -->
+          <button v-if="pregunta.respuestas.length > 0" @click="toggleVerRespuestas(pregunta.id)" class="btn btn-sm btn-outline-secondary">
+            <font-awesome-icon :icon="['fas', 'comment']" />
+            {{ pregunta.mostrarRespuestas ? 'Ocultar respuestas' : 'Ver respuestas' }}
+            <font-awesome-icon
+              v-if="!pregunta.mostrarRespuestas"
+              :icon="['fas', 'caret-down']"
+            />
+            <font-awesome-icon
+              v-else
+              :icon="['fas', 'caret-down']"
+              style="transform: rotate(180deg);"
+            />
+          </button>
         </div>
 
         <!-- Sección de respuestas, solo se muestra si el usuario ha presionado "Ver respuestas" -->
-        <div v-if="pregunta.mostrarRespuestas" class="respuestas">
-          <h5>Respuestas:</h5>
-          <div v-for="respuesta in pregunta.respuestas" :key="respuesta.id" class="respuesta">
+        <div v-if="pregunta.mostrarRespuestas" class="respuestas mt-3">
+          <h6 class="mb-2">Respuestas:</h6>
+          <div v-for="respuesta in pregunta.respuestas" :key="respuesta.id" class="respuesta border-top pt-2 mt-2">
             <p>{{ respuesta.mensaje }}</p>
-            <p><strong>Por:</strong> {{ respuesta.usuario }} <strong>Fecha:</strong> {{ respuesta.fecha }}</p>
+            <p class="text-muted"><strong>Por:</strong> {{ respuesta.usuario }} &nbsp; <strong>Fecha:</strong> {{ respuesta.fecha }}</p>
           </div>
         </div>
       </div>
     </div>
     <Footer></Footer>
+    
     <!-- MODAL personalizado -->
     <div v-if="mostrarModal" class="modal-background">
       <div class="modal-dialog modal-dialog-centered"> 
@@ -408,5 +418,21 @@ export default {
 .page-wrapper.light-mode {
   background-color: #ead5a1;
   color: #000000;
+}
+
+.light-mode .titulo {
+  text-align: center;         
+  font-weight: bold;        
+  font-size: 2rem;        
+  color: #343434;             
+  margin: 30px 0;           
+}
+
+.dark-mode .titulo {
+  text-align: center;       
+  font-weight: bold;    
+  font-size: 2rem;        
+  color: #e3c377;           
+  margin: 30px 0;        
 }
 </style>

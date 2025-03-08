@@ -9,7 +9,7 @@
       </button>
 
       <!-- Título "Estadísticas" -->
-      <h2 class="mb-4 text-center stats-main-title">Estadísticas</h2>
+      <h2 class="titulo">ESTADÍSTICAS</h2>
 
       <div class="row gap-4">
         <!-- COLUMNA "MIS ESTADÍSTICAS" -->
@@ -624,4 +624,19 @@ export default {
   font-size: 0.95rem;
 }
 
+.light-mode .titulo {
+  text-align: center;        
+  font-weight: bold;         
+  font-size: 2rem;         
+  color: #343434;            
+  margin: 30px 0;     
+}
+
+.dark-mode .titulo {
+  text-align: center;      
+  font-weight: bold;        
+  font-size: 2rem;        
+  color: #e3c377;        
+  margin: 30px 0;         
+}
 </style>
