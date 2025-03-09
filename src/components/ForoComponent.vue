@@ -69,6 +69,9 @@
       </div>
     </div>
     <Footer></Footer>
+    <button class="back-to-top" @click="scrollTop">
+      <font-awesome-icon :icon="['fas', 'chevron-up']" />
+    </button>
     
     <!-- MODAL personalizado -->
     <div v-if="mostrarModal" class="modal-background">
@@ -282,6 +285,9 @@ export default {
       } catch (error) {
         console.error("Error al obtener preguntas:", error);
       }
+    },
+    scrollTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 };
@@ -434,5 +440,49 @@ export default {
   font-size: 2rem;        
   color: #e3c377;           
   margin: 30px 0;        
+}
+
+.light-mode .back-to-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #48402e; 
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 9999;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  color: #ffffff; 
+}
+
+.light-mode .back-to-top:hover {
+  background-color: #343026; 
+}
+
+.dark-mode .back-to-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #e3c377; 
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 9999;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  color: #ffffff; 
+}
+
+.dark-mode .back-to-top:hover {
+  background-color: #bca369;
 }
 </style>

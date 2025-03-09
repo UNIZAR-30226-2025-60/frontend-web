@@ -23,12 +23,8 @@
               <h4>de: {{ libro.autor }}</h4>
             </div>
             <div>
-              <font-awesome-icon 
-                :icon="[ isFavorito ? 'fas' : 'far', 'heart' ]"
-                class="heart-icon"
-                @click="toggleFavorito"
-              />
-              <button class="btn" @click="aniadirALista">Añadir a lista</button>
+              <font-awesome-icon :icon="[ isFavorito ? 'fas' : 'far', 'heart' ]" class="heart-icon" @click="toggleFavorito"/>
+              <button class="btn" @click="abrirModalListas(libro)">Añadir a lista</button>
             </div>
           </div>
 
@@ -71,13 +67,18 @@
           <div class="col-md-8">
             <h5>Valoraciones del libro:</h5>
             <div class="d-flex justify-content-between align-items-center">
-              <div class="text-center">
+              <div>
                 <p class="mb-1"> Valoración general</p>
-                <span v-for="(icon, idx) in getStarIcons(libro.puntuacion_media)" :key="idx">
-                    <font-awesome-icon :icon="['fas', icon]" />
-                </span>
                 <p> {{ libro.puntuacion_media.toFixed(2) }} de 5</p>
-                <button class="btn" @click="aniadirValoracion(libro)">Añadir Valoración</button>
+                <div class="d-flex">
+                  <span v-for="(icon, idx) in getStarIcons(libro.puntuacion_media)" :key="idx">
+                      <font-awesome-icon :icon="['fas', icon]"/> 
+                  </span>
+                  <p>({{conteoValoraciones.total}})</p>
+                </div>
+                <div class="pt-2">
+                  <button class="btn" @click="aniadirValoracion(libro)">Añadir Valoración</button>
+                </div>
               </div>
               <div>
                 <p class="mb-1"> 
@@ -137,7 +138,6 @@
                 <span v-for="(icon, i) in getStarIcons(valoracion.valor)" :key="i">
                   <font-awesome-icon :icon="['fas', icon]" />
                 </span>
-                <!--<p class="mb-1">{{ valoracion.valor }} estrellas <strong>{{ valoracion.titulo_resena }}</strong></p>-->
               </p>
               <p class="mb-1">{{ valoracion.mensaje }}</p>
               <p>Por {{valoracion.usuario_id}} en {{ new Date(valoracion.fecha).toLocaleDateString() }}</p>
@@ -158,6 +158,7 @@
     <Footer></Footer>
 
     <!-- MODAL personalizado -->
+     <!-- Modal de valoración -->
     <div v-if="mostrarModal" class="modal-background">
       <div class="modal-dialog modal-dialog-centered"> 
         <div class="modal-content bg-dark text-white rounded-3 shadow-lg">
@@ -187,6 +188,50 @@
         </div>
       </div> 
     </div>
+
+    <!-- MODAL personalizado -->
+    <!-- Modal de selección de lista -->
+    <div v-if="modalListasAbierto" class="modal-background">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white rounded-3 shadow-lg">
+          <div class="modal-header">
+            <h4 class="modal-title fw-bold mb-4">Selecciona una lista</h4>
+          </div>
+          <div class="modal-body">
+            <ul class="list-group">
+              <li v-for="lista in listas" :key="lista.id" class="list-group-item bg-dark text-white border-light mb-2">
+                <button class="btn w-100 text-start" @click="aniadirALista(lista.id)">{{ lista.nombre }}</button>
+              </li>
+            </ul>
+
+            <div class="mt-3">
+              <button class="btn btn-enviar me-2" @click="abrirModalNuevaLista">Crear nueva lista</button>
+              <button class="btn btn-cancelar" @click="cerrarModalListas">Cerrar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de creación de nueva lista -->
+    <div v-if="modalNuevaListaAbierto" class="modal-background">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white rounded-3 shadow-lg">
+          <div class="modal-header">
+            <h4 class="modal-title fw-bold mb-4">Crear nueva lista</h4>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <input class="form-control" v-model="nuevaLista" placeholder="Nombre de nueva lista" />
+            </div>
+            <div class="mt-3">
+              <button class="btn btn-enviar me-2" @click="crearYAgregar">Crear y añadir</button>
+              <button class="btn btn-cancelar" @click="cerrarModalNuevaLista">Cancelar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
   <div v-else>
     <Cargando :dark-mode="darkMode"></Cargando>
@@ -214,6 +259,15 @@ export default {
       libro: null,
       librosRelacionados: [],
       mostrarModal: false,
+      modalListasAbierto: false,
+      modalNuevaListaAbierto: false,
+      listas: {
+        usuario_id: "",
+        libro_id: "",
+        nombreLista: ""
+      },
+      nuevaLista: "",
+      libroSeleccionado: null,
       valoraciones: [], 
       filtroSeleccionado: "reciente",
       nuevaValoracion: {
@@ -223,7 +277,7 @@ export default {
         mensaje: "", 
         valor: null
       },
-      conteoValoraciones: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+      conteoValoraciones: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, total: 0 },
       darkMode: localStorage.getItem("darkMode") === "true", // Obtener el tema guardado
       isFavorito: false
     };
@@ -284,7 +338,25 @@ export default {
     }
   },
   methods: {
-    aniadirALista() {
+    async aniadirALista(lista) {
+      try {
+        const listas = {
+          usuario_id: this.user.correo,
+          libro_id: this.libro.enlace,
+          nombreLista: lista,
+        };
+
+        console.log(`Añadiendo libro ${this.libro.enlace} a la lista ${lista}`);
+
+        const response = await apiClient.post(`/listas/${lista}`, listas);
+        console.log("Respuesta:", response.data);
+
+        alert(`Libro añadido a la lista ${lista} correctamente`);
+        this.cerrarModalListas();
+      } catch (error) {
+        console.error("Error al añadir libro a la lista:", error);
+        alert("Hubo un error al añadir el libro a la lista.");
+      }
     },
     getStarIcons(rating) {
       const icons = [];
@@ -424,7 +496,7 @@ export default {
     async obtenerConteoValoraciones() {
       try {
         // Reiniciamos el contador para cada nueva consulta
-        this.conteoValoraciones = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+        this.conteoValoraciones = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, total: 0 };
         for (let valor = 5; valor >= 1; valor--) {
           const response = await apiClient.get(`/opiniones/valoracion/${encodeURIComponent(this.libro.enlace)}/${valor}`);
           const valoraciones = response.data;
@@ -432,9 +504,10 @@ export default {
           // Contamos las valoraciones por cada valor
           valoraciones.forEach((valoracion) => {
             // Aseguramos que el valor es un número
-            const valor = parseInt(valoracion.valor);
-            if (this.conteoValoraciones[valor] !== undefined) {
-              this.conteoValoraciones[valor]++;
+            const valorNumerico = parseInt(valoracion.valor);
+            if (this.conteoValoraciones[valorNumerico] !== undefined) {
+              this.conteoValoraciones[valorNumerico]++;
+              this.conteoValoraciones.total++;
             }
           });
         }
@@ -514,9 +587,32 @@ export default {
       } else {
         alert("❌ Este libro no tiene un PDF disponible.");
       }
+    },
+    async abrirModalListas(libro) {
+      this.libroSeleccionado = libro;
+      const response = await apiClient.get(`/listas/${(this.user.correo)}`);
+      console.log("Listas del usuario", response.data);
+      this.listasUsuario = response.data;
+      this.modalListasAbierto = true;
+    },
+    abrirModalNuevaLista() {
+      this.modalNuevaListaAbierto = true;
+    },
+    async crearYAgregar() {
+      if (!this.nuevaLista.trim()) return;
+      const nuevaListaId = Date.now();
+      this.listas.push({ id: nuevaListaId, nombre: this.nuevaLista });
+      await this.añadirALista(nuevaListaId);
+      this.nuevaLista = "";
+      this.cerrarModalNuevaLista();
+    },
+    cerrarModalListas() {
+      this.modalListasAbierto = false;
+    },
+    cerrarModalNuevaLista() {
+      this.modalNuevaListaAbierto = false;
     }
-  },
-
+  }
 }
 ;
 </script>

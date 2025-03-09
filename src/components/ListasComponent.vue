@@ -224,6 +224,27 @@ export default {
 
 .lista-card {
   width: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease-in-out;
+  cursor: pointer;
+}
+
+.lista-card:hover {
+  transform: scale(1.05);
+}
+
+.lista-image {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.lista-card {
+  width: 180px;
   cursor: pointer;
   transition: transform 0.3s ease-in-out;
   display: flex;
