@@ -106,7 +106,7 @@ export default {
       try {
         const response = await apiClient.get(`/listas/${this.user.correo}`);
         this.listas = response.data
-          .filter(lista => lista.nombre !== "Mis Favoritos") // Excluir "Mis Favoritos"
+          .filter(lista => lista.nombre !== "Mis Favoritos" && lista.nombre !== "Leídos" && lista.nombre !== "En proceso") // Excluir "Mis Favoritos"
           .map(lista => ({ ...lista, mostrarMenu: false }));
       } catch (error) {
         console.error("Error al cargar las listas:", error);

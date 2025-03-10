@@ -53,13 +53,13 @@
             <h5 class="modal-title" id="profileModalLabel">Seleccione una foto de perfil</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body">
+          <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
             <div class="row">
               <div v-for="(imagen, index) in imagenes" :key="index" class="col-md-4 mb-3">
                 <div class="card" 
                     :style="imagenSeleccionada && imagenSeleccionada.foto === imagen.foto ? 'border: 3px solid #ffc107' : ''"
                     @click="seleccionarImagen(imagen)">
-                  <img :src="imagen.foto" class="card-img-top" alt="Imagen" style="height: 100px; object-fit: cover;">
+                  <img :src=imagen.foto class="card-img-top" alt="Imagen" style="height: 100px; object-fit: cover;">
                 </div>
               </div>
             </div>
@@ -102,19 +102,16 @@ export default {
       imagenSeleccionada: null,
       busqueda: "",
       darkMode: localStorage.getItem("darkMode") === "true",
-      defaultProfileImage: 'https://via.placeholder.com/100',
-      hacer:"",
-      listaNombre: null
+      defaultProfileImage: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
+      hacer: this.$route.params.hacer, // 'Crear' o 'Editar'
+      nombre: this.$route.params.nombre || "", // Nombre de la lista si es edición
     };
   },
   async mounted() {
     try {
       const response = await apiClient.get("/user");
       this.user = response.data;
-      this.hacer = this.$route.params.hacer;
-      this.listaNombre = this.$route.params.nombre; 
-
-      if (this.hacer === "Editar" && this.listaNombre) {
+      if (this.hacer === "Editar" && this.nombre) {
         await this.cargarLista();
       }
     } catch (error) {
@@ -181,7 +178,7 @@ export default {
             portada: this.imagenSeleccionada ? this.imagenSeleccionada.foto : this.defaultProfileImage
           });
           alert('Lista creada con éxito');
-        } else if (this.hacer === "Editar" && this.listaNOmbre) {
+        } else if (this.hacer === "Editar" && this.listaNombre) {
           await apiClient.patch(`/listas/${this.user.correo}/${this.nombre}`, {
             descripcion: this.descripcion,
             publica: this.publica,
