@@ -156,6 +156,9 @@
       </div>
     </div>
     <Footer></Footer>
+    <button class="back-to-top" @click="scrollTop">
+      <font-awesome-icon :icon="['fas', 'chevron-up']" />
+    </button>
 
     <!-- MODAL personalizado -->
      <!-- Modal de valoración -->
@@ -199,34 +202,14 @@
           </div>
           <div class="modal-body">
             <ul class="list-group">
-              <li v-for="lista in listas" :key="lista.id" class="list-group-item bg-dark text-white border-light mb-2">
-                <button class="btn w-100 text-start" @click="aniadirALista(lista.id)">{{ lista.nombre }}</button>
+              <li v-for="lista in listasUsuario" :key="lista.id" class="list-group-li bg-dark mb-2">
+                <button class="btn w-100 text-start" @click="aniadirALista(lista.nombre)">{{ lista.nombre }}</button>
               </li>
             </ul>
 
             <div class="mt-3">
               <button class="btn btn-enviar me-2" @click="abrirModalNuevaLista">Crear nueva lista</button>
               <button class="btn btn-cancelar" @click="cerrarModalListas">Cerrar</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal de creación de nueva lista -->
-    <div v-if="modalNuevaListaAbierto" class="modal-background">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content bg-dark text-white rounded-3 shadow-lg">
-          <div class="modal-header">
-            <h4 class="modal-title fw-bold mb-4">Crear nueva lista</h4>
-          </div>
-          <div class="modal-body">
-            <div class="mb-3">
-              <input class="form-control" v-model="nuevaLista" placeholder="Nombre de nueva lista" />
-            </div>
-            <div class="mt-3">
-              <button class="btn btn-enviar me-2" @click="crearYAgregar">Crear y añadir</button>
-              <button class="btn btn-cancelar" @click="cerrarModalNuevaLista">Cancelar</button>
             </div>
           </div>
         </div>
@@ -260,13 +243,11 @@ export default {
       librosRelacionados: [],
       mostrarModal: false,
       modalListasAbierto: false,
-      modalNuevaListaAbierto: false,
       listas: {
         usuario_id: "",
         libro_id: "",
         nombreLista: ""
       },
-      nuevaLista: "",
       libroSeleccionado: null,
       valoraciones: [], 
       filtroSeleccionado: "reciente",
@@ -352,6 +333,7 @@ export default {
         console.log("Respuesta:", response.data);
 
         alert(`Libro añadido a la lista ${lista} correctamente`);
+        await this.comprobarFavorito();
         this.cerrarModalListas();
       } catch (error) {
         console.error("Error al añadir libro a la lista:", error);
@@ -595,22 +577,11 @@ export default {
       this.listasUsuario = response.data;
       this.modalListasAbierto = true;
     },
-    abrirModalNuevaLista() {
-      this.modalNuevaListaAbierto = true;
-    },
-    async crearYAgregar() {
-      if (!this.nuevaLista.trim()) return;
-      const nuevaListaId = Date.now();
-      this.listas.push({ id: nuevaListaId, nombre: this.nuevaLista });
-      await this.añadirALista(nuevaListaId);
-      this.nuevaLista = "";
-      this.cerrarModalNuevaLista();
-    },
     cerrarModalListas() {
       this.modalListasAbierto = false;
     },
-    cerrarModalNuevaLista() {
-      this.modalNuevaListaAbierto = false;
+    scrollTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 }
@@ -772,4 +743,59 @@ export default {
   font-style: italic;
 }
 
+.list-group {
+  list-style: none; 
+  padding: 0; /* Elimina el padding por defecto */
+}
+
+.list-group-li {
+  background: #444; /* Color de fondo similar al de tu diseño */
+  border-radius: 15px;
+  text-align: center;
+  color: white;
+}
+
+.light-mode .back-to-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #48402e; 
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 9999;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  color: #ffffff; 
+}
+
+.light-mode .back-to-top:hover {
+  background-color: #343026; 
+}
+
+.dark-mode .back-to-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #e3c377; 
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 9999;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  color: #ffffff; 
+}
+
+.dark-mode .back-to-top:hover {
+  background-color: #bca369;
+}
 </style>
