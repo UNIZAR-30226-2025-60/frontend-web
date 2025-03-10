@@ -25,10 +25,10 @@
           <a class="nav-link nav-bold" href="#" @click="goToFavoritos">Mis Favoritos</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link nav-bold" href="#">Leídos</a>
+          <a class="nav-link nav-bold" href="#" @click="goToLeidos">Leídos</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link nav-bold" href="#">En proceso</a>
+          <a class="nav-link nav-bold" href="#" @click="goToEnProceso">En proceso</a>
         </li>
         <li class="nav-item">
           <a class="nav-link nav-bold" href="#" @click="goToPerfil">
@@ -104,7 +104,13 @@ export default {
         this.$router.push({name: 'Listas', params: { privacidad: 'Listas Publicas'}});
     },
     goToFavoritos() {
-        this.$router.push({ name: 'VerLista', params: { id: 'Mis Favoritos'} });
+        this.$router.push({ name: 'VerLista', params: { id: 'Mis Favoritos'}});
+    },
+    goToLeidos(){
+      this.$router.push({ name: 'VerLista', params: { id: 'Leídos'}});
+    },
+    goToEnProceso(){
+      this.$router.push({ name: 'VerLista', params: { id: 'En proceso'}});
     },
     goToPerfil() {
         this.$router.push({ name: 'Perfil' });
