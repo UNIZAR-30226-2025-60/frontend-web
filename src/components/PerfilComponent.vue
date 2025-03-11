@@ -13,8 +13,8 @@
     </div>
     
     <div class="profile-container text-center">
-      <!-- Foto de perfil -->
-      <img :src="user.profilePicture" alt="Foto de perfil" class="profile-picture" />
+      <!-- Foto de perfil - Modificado para manejar el caso cuando no hay foto -->
+      <img v-if="processedProfileImage" :src="processedProfileImage" alt="Foto de perfil" class="profile-image">
     
       <!-- Mensaje de bienvenida -->
       <h4><strong>Bienvenido</strong></h4>
@@ -69,7 +69,6 @@
         </form>
       </div>
     </div>
-    <Footer></Footer>
   </div>
   <div v-else>
     <Cargando :dark-mode="darkMode"></Cargando>
@@ -77,123 +76,147 @@
 </template>
     
 <script>
-  import axios from 'axios';
-  import Cargando from '@/components/Cargando.vue';
-  import Footer from '@/components/Footer.vue';
-  import { apiClient } from '../config';
+import axios from 'axios';
+import Cargando from '@/components/Cargando.vue';
+import { apiClient } from '../config';
     
-  export default {
-    name: 'Perfil',
-    data() {
-      return {
-        user: null,
-        darkMode: localStorage.getItem("darkMode") === "true", // Obtener el tema guardado
+export default {
+  name: 'Perfil',
+  components: {
+    Cargando
+  },
+  data() {
+    return {
+      user: null,
+      darkMode: localStorage.getItem("darkMode") === "true", // Obtener el tema guardado
+      processedProfileImage: null, // Nueva propiedad para la imagen procesada
           
-        // Para modal de cambio de contraseña
-        showPasswordModal: false,
-        passwordForm: {
-          correo: "",
-          oldPassword: "",
-          newPassword: ""
-        },
-          confirmPassword: "",
-          passwordLoading: false,
-          passwordMessage: "",
-          passwordStatus: false
-        };
-    },
-    async mounted() {
-      try {
-        console.log("Componente montado.");
-        // Obtener información del usuario
-        const response1 = await apiClient.get("/user");
-        this.user = response1.data;
-          
-        // Asignar el correo del usuario al formulario
-        if (this.user && this.user.correo) {
-          this.passwordForm.correo = this.user.correo;
-        }
-    
-        // Aplicar el tema guardado al cargar la página
-        this.applyTheme();
-      } catch (error) {
-        console.error('Error al cargar el perfil del usuario:', error);
-      }
-    },
-    methods: {
-      editPassword() {
-        this.showPasswordModal = true;
+      // Para modal de cambio de contraseña
+      showPasswordModal: false,
+      passwordForm: {
+        correo: "",
+        oldPassword: "",
+        newPassword: ""
       },
-      closePasswordModal() {
-        this.showPasswordModal = false;
-        this.passwordForm.oldPassword = '';
-        this.passwordForm.newPassword = '';
-        this.confirmPassword = '';
-        this.passwordMessage = '';
-      },        
-      async cambiarContraseña() {
-        // Resetear mensaje
-        this.passwordMessage = '';
+      confirmPassword: "",
+      passwordLoading: false,
+      passwordMessage: "",
+      passwordStatus: false
+    };
+  },
+  async mounted() {
+    try {
+      // Obtener información del usuario
+      const response = await apiClient.get("/user");
+      this.user = response.data;
 
-        console.log("Correo:", this.passwordForm.correo);
-        console.log("Contraseña actual:", this.passwordForm.oldPassword);
-        console.log("Nueva contraseña:", this.passwordForm.newPassword);
-        console.log("Confirmación:", this.confirmPassword)
+      console.log("Este es el usuario", this.user);
+      
+      // Si el usuario tiene foto de perfil, procesarla
+      if (this.user && this.user.foto_perfil) {
+        console.log("Esta es su foto de perfil", this.user.foto_perfil);
+        this.processedProfileImage = this.transformarURLGoogleDrive(this.user.foto_perfil);
+      } else {
+        console.log("El usuario no tiene foto de perfil");
+        this.processedProfileImage = null;
+      }
+      
+      console.log("He pasado la condición de la foto de perfil");
           
-        // Validar que las contraseñas coincidan
-        if (this.passwordForm.newPassword !== this.confirmPassword) {
-          this.passwordMessage = 'Las contraseñas no coinciden';
-          this.passwordStatus = false;
-          return;
+      // Asignar el correo del usuario al formulario
+      if (this.user && this.user.correo) {
+        this.passwordForm.correo = this.user.correo;
+      }
+    
+      // Aplicar el tema guardado al cargar la página
+      this.applyTheme();
+    } catch (error) {
+      console.error('Error al cargar el perfil del usuario:', error);
+    }
+  },
+  methods: {
+    // Función para transformar URLs de Google Drive
+    transformarURLGoogleDrive(url) {
+      if (!url) return null;
+
+      try {
+        // Extraer el ID del archivo de Google Drive
+        const match = url.match(/\/d\/([a-zA-Z0-9_-]+)\//) || url.match(/id=([a-zA-Z0-9_-]+)/);
+        if (match) {
+          const id = match[1];
+          return `https://drive.google.com/uc?export=view&id=${id}`;
         }
-        try {
-          this.passwordLoading = true;
- 
-          const response = await apiClient.post("/usuarios/usuario/cambiar-contrasena", {
-            correo: this.user.correo,
-            oldPassword: this.passwordForm.oldPassword,
-            newPassword: this.passwordForm.newPassword
-          });
-            
-          // Manejar la respuesta del servidor
-          if (response.data.success) {
-            this.passwordMessage = 'Contraseña actualizada correctamente';
-            this.passwordStatus = true;
-              
-            // Limpiar formulario después de 2 segundos y cerrar modal
-            setTimeout(() => {
-              this.closePasswordModal();
-              }, 2000);
-          } else {
-            this.passwordMessage = response.data.mensaje || 'Error al actualizar la contraseña';
-            this.passwordStatus = false;
-          }
-        } catch (error) {
-          console.error('Error al cambiar contraseña:', error);
-          this.passwordMessage = error.response?.data?.mensaje || 'Error al conectar con el servidor';
-          this.passwordStatus = false;
-        } finally {
-          this.passwordLoading = false;
-        }
-      },
-      changeName() {
-        console.log("Cambiar Nombre");
-      },
-      toggleDarkMode() {
-        this.darkMode = !this.darkMode;
-        localStorage.setItem("darkMode", this.darkMode);
-        this.applyTheme();
-      },
-      applyTheme() {
-        document.body.classList.toggle("dark-mode", this.darkMode);
-        document.body.classList.toggle("light-mode", !this.darkMode);
-      },
-      cerrarSesion() {
-        localStorage.removeItem("userToken");
-        this.$router.push({ name: 'Login' });
+        return url;
+      } catch (error) {
+        console.error("Error al transformar URL:", error);
+        return null;
       }
     },
-  };
+    editPassword() {
+      this.showPasswordModal = true;
+    },
+    closePasswordModal() {
+      this.showPasswordModal = false;
+      this.passwordForm.oldPassword = '';
+      this.passwordForm.newPassword = '';
+      this.confirmPassword = '';
+      this.passwordMessage = '';
+    },        
+    async cambiarContraseña() {
+      // Resetear mensaje
+      this.passwordMessage = '';
+          
+      // Validar que las contraseñas coincidan
+      if (this.passwordForm.newPassword !== this.confirmPassword) {
+        this.passwordMessage = 'Las contraseñas no coinciden';
+        this.passwordStatus = false;
+        return;
+      }
+      
+      try {
+        this.passwordLoading = true;
+ 
+        const response = await apiClient.post("/usuarios/usuario/cambiar-contrasena", {
+          correo: this.user.correo,
+          oldPassword: this.passwordForm.oldPassword,
+          newPassword: this.passwordForm.newPassword
+        });
+            
+        // Mostrar mensaje de éxito
+        this.passwordMessage = response.data.mensaje || 'Contraseña actualizada correctamente';
+        this.passwordStatus = true;
+              
+        // Limpiar formulario después de 2 segundos y cerrar modal
+        setTimeout(() => {
+          this.closePasswordModal();
+        }, 2000);
+        
+      } catch (error) {
+        console.error('Error al cambiar contraseña:', error);
+        this.passwordMessage = error.response?.data?.mensaje || 'Error al conectar con el servidor';
+        this.passwordStatus = false;
+      } finally {
+        this.passwordLoading = false;
+      }
+    },
+    changeName() {
+      console.log("Cambiar Nombre");
+    },
+    toggleDarkMode() {
+      this.darkMode = !this.darkMode;
+      localStorage.setItem("darkMode", this.darkMode);
+      this.applyTheme();
+    },
+    applyTheme() {
+      document.body.classList.toggle("dark-mode", this.darkMode);
+      document.body.classList.toggle("light-mode", !this.darkMode);
+    },
+    cerrarSesion() {
+      localStorage.removeItem("userToken");
+      this.$router.push({ name: 'Login' });
+    }
+  }
+};
 </script>
     
 <style scoped>
@@ -236,10 +259,11 @@
   padding: 20px;
 }
     
-.profile-picture {
-  border-radius: 50%;
+.profile-image {
   width: 150px;
   height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
 }
     
 .profile-buttons {
