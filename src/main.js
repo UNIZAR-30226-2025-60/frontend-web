@@ -6,7 +6,7 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faHeart } from '@fortawesome/free-regular-svg-icons';
-import { faHeart as faHeartSolid, faUser, faChevronUp, faReply, faComment, faCaretDown, faBookOpen, faStar, faStarHalf } from '@fortawesome/free-solid-svg-icons';
+import { faHeart as faHeartSolid, faUser, faChevronUp, faReply, faComment, faCaretDown, faBookOpen, faStar, faStarHalf, faPencil, faRightFromBracket, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 
 library.add(
@@ -19,7 +19,10 @@ library.add(
     faCaretDown,
     faBookOpen,
     faStar,
-    faStarHalf
+    faStarHalf,
+    faPencil,
+    faRightFromBracket,
+    faArrowLeft
 );
 
 import { API_URL, AUTH_URL, GOOGLE_REDIRECT_URI } from "./config"; // Asegurar que está importado

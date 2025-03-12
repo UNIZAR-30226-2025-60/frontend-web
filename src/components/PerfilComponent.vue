@@ -2,34 +2,47 @@
   <div v-if="user" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
     <!-- Franja de perfil -->
     <div class="profile-header">
-      <h5 class="titulo py-3 ms-4">Perfil</h5>
+      <div class="d-flex align-items-center py-3 ms-3">
+        <font-awesome-icon :icon="['fas', 'arrow-left']" class="me-3 clickable" @click="$router.go(-1)"/>
+        <h5 class="titulo m-0">Perfil</h5>
+      </div>
     </div>
   
     <div class="py-3 ms-4">
       <!-- Botón de cambio de tema -->
-      <button @click="toggleDarkMode" class="theme-toggle-btn mb-3">
+      <button @click="toggleDarkMode" class="theme-toggle-btn">
         {{ darkMode ? 'Modo Claro' : 'Modo Oscuro' }}
       </button>
     </div>
     
     <div class="profile-container text-center">
       <!-- Foto de perfil - Modificado para manejar el caso cuando no hay foto -->
-      <img v-if="processedProfileImage" :src="processedProfileImage" alt="Foto de perfil" class="profile-image">
+      <img v-if="user.foto_perfil" :src="user.foto_perfil" :key="user.foto_perfil" alt="Foto de perfil" class="profile-image mb-2">
+
     
       <!-- Mensaje de bienvenida -->
       <h4><strong>Bienvenido</strong></h4>
-      <p>{{ user.nombre }}</p>
+      <p class="mb-1">{{ user.nombre }}</p>
       <p class="mb-4">{{ user.correo }}</p>
     
       <!-- Botones -->
       <div>
-        <button class="btn mb-2" @click="editPassword">Editar Contraseña</button>
+        <button class="btn mb-2" @click="editPassword"> 
+          <font-awesome-icon :icon="['fas', 'pencil']" />
+          Editar Contraseña
+        </button>
       </div>
       <div>
-        <button class="btn mb-2" @click="changeName">Cambiar Nombre</button>
+        <button class="btn mb-2" @click="changeName">
+          <font-awesome-icon :icon="['fas', 'pencil']" />
+          Cambiar Nombre
+        </button>
       </div>
       <div>
-        <button class="btn" @click="cerrarSesion">Cerrar Sesión</button>
+        <button class="btn" @click="cerrarSesion">
+          <font-awesome-icon :icon="['fas', 'right-from-bracket']" />
+          Cerrar Sesión
+        </button>
       </div>
     </div>
   
@@ -69,6 +82,38 @@
         </form>
       </div>
     </div>
+
+    <!-- Modal para cambiar nombre -->
+    <div v-if="showNameModal" class="modal-overlay" @click.self="closeNameModal">
+      <div class="modal-content" :class="darkMode ? 'modal-dark' : 'modal-light'">
+        <h3 class="mb-3">Cambiar Nombre</h3>
+        
+        <form @submit.prevent="guardarNuevoNombre">
+          <div class="form-group">
+            <label for="currentName">Nombre Actual</label>
+            <input type="text" id="currentName" :value="user.nombre" class="form-input" disabled />
+          </div>
+          
+          <div class="form-group">
+            <label for="newName">Nuevo Nombre</label>
+            <input type="text" id="newName" v-model="nameForm.newName" class="form-input" required />
+          </div>
+          
+          <div v-if="nameMessage" :class="['message', nameStatus ? 'success-message' : 'error-message']">
+            {{ nameMessage }}
+          </div>
+          
+          <div class="button-group">
+            <button type="submit" class="btn btn-save" :disabled="nameLoading">
+              {{ nameLoading ? 'Guardando...' : 'Guardar' }}
+            </button>
+            <button type="button" class="btn btn-cancel" @click="closeNameModal">
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
   <div v-else>
     <Cargando :dark-mode="darkMode"></Cargando>
@@ -89,7 +134,6 @@ export default {
     return {
       user: null,
       darkMode: localStorage.getItem("darkMode") === "true", // Obtener el tema guardado
-      processedProfileImage: null, // Nueva propiedad para la imagen procesada
           
       // Para modal de cambio de contraseña
       showPasswordModal: false,
@@ -101,7 +145,16 @@ export default {
       confirmPassword: "",
       passwordLoading: false,
       passwordMessage: "",
-      passwordStatus: false
+      passwordStatus: false,
+
+      // Para modal de cambio de nombre
+      showNameModal: false,
+      nameForm: {
+        newName: ""
+      },
+      nameLoading: false,
+      nameMessage: "",
+      nameStatus: false
     };
   },
   async mounted() {
@@ -110,21 +163,20 @@ export default {
       const response = await apiClient.get("/user");
       this.user = response.data;
 
-      console.log("Este es el usuario", this.user);
+      const response1 = await apiClient.get(`/usuario/${this.user.correo}`)
+      this.user = response1.data;
       
       // Si el usuario tiene foto de perfil, procesarla
-      if (this.user && this.user.foto_perfil) {
+      if (this.user.foto_perfil) {
         console.log("Esta es su foto de perfil", this.user.foto_perfil);
-        this.processedProfileImage = this.transformarURLGoogleDrive(this.user.foto_perfil);
+        this.user.foto_perfil = this.transformarURLGoogleDrive(this.user.foto_perfil);
       } else {
         console.log("El usuario no tiene foto de perfil");
-        this.processedProfileImage = null;
+        this.user.foto_perfil = null;
       }
-      
-      console.log("He pasado la condición de la foto de perfil");
           
       // Asignar el correo del usuario al formulario
-      if (this.user && this.user.correo) {
+      if (this.user.correo) {
         this.passwordForm.correo = this.user.correo;
       }
     
@@ -141,12 +193,15 @@ export default {
 
       try {
         // Extraer el ID del archivo de Google Drive
-        const match = url.match(/\/d\/([a-zA-Z0-9_-]+)\//) || url.match(/id=([a-zA-Z0-9_-]+)/);
+        const match = url.match(/id=([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)\//);
+        
         if (match) {
           const id = match[1];
-          return `https://drive.google.com/uc?export=view&id=${id}`;
+          // Nueva URL usando lh3.googleusercontent.com
+          return `https://lh3.googleusercontent.com/d/${id}=w500`;
         }
-        return url;
+        
+        return url; // Si no es de Drive, devolver tal cual
       } catch (error) {
         console.error("Error al transformar URL:", error);
         return null;
@@ -200,7 +255,54 @@ export default {
       }
     },
     changeName() {
-      console.log("Cambiar Nombre");
+      // Inicializar con el nombre actual
+      this.nameForm.newName = this.user.nombre;
+      this.showNameModal = true;
+    },
+    closeNameModal() {
+      this.showNameModal = false;
+      this.nameForm.newName = "";
+      this.nameMessage = "";
+    },
+    async guardarNuevoNombre() {
+      // Resetear mensaje
+      this.nameMessage = '';
+      
+      // Validar que el nombre no esté vacío
+      if (!this.nameForm.newName.trim()) {
+        this.nameMessage = 'El nombre no puede estar vacío';
+        this.nameStatus = false;
+        return;
+      }
+      
+      try {
+        this.nameLoading = true;
+        
+        // Enviar petición al servidor para actualizar el nombre (ESPERAR A QUE ESTÉ LA CONSULTA)
+        const response = await apiClient.put("/usuarios/usuario/actualizar-nombre", {
+          correo: this.user.correo,
+          nombre: this.nameForm.newName
+        });
+        
+        // Actualizar el nombre en el objeto de usuario
+        this.user.nombre = this.nameForm.newName;
+        
+        // Mostrar mensaje de éxito
+        this.nameMessage = response.data.mensaje || 'Nombre actualizado correctamente';
+        this.nameStatus = true;
+        
+        // Cerrar modal después de 2 segundos
+        setTimeout(() => {
+          this.closeNameModal();
+        }, 2000);
+        
+      } catch (error) {
+        console.error('Error al cambiar nombre:', error);
+        this.nameMessage = error.response?.data?.mensaje || 'Error al conectar con el servidor';
+        this.nameStatus = false;
+      } finally {
+        this.nameLoading = false;
+      }
     },
     toggleDarkMode() {
       this.darkMode = !this.darkMode;
@@ -420,5 +522,10 @@ export default {
 .error-message {
   background-color: #f2dede;
   color: #a94442;
+}
+
+.clickable {
+  cursor: pointer;
+  pointer-events: auto; /* Asegura que el clic sea detectado */
 }
 </style>
