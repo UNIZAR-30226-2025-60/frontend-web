@@ -574,7 +574,9 @@ export default {
       this.libroSeleccionado = libro;
       const response = await apiClient.get(`/listas/${(this.user.correo)}`);
       console.log("Listas del usuario", response.data);
-      this.listasUsuario = response.data;
+      this.listasUsuario = response.data
+        .filter(lista => lista.nombre !== "Mis Favoritos" && lista.nombre !== "Leídos" && lista.nombre !== "En proceso") // Excluir "Mis Favoritos", "Leídos" y "En proceso"
+        .map(lista => ({ ...lista, mostrarMenu: false }));
       this.modalListasAbierto = true;
     },
     cerrarModalListas() {

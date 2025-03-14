@@ -10,54 +10,32 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
         <li class="nav-item">
-          <a class="nav-link nav-bold" href="#" @click="goToForo">Foro</a>
+          <a class="nav-link nav-bold clickable" @click="goToForo">Foro</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link nav-bold" href="#" @click="goToEstadisticas">Estadísticas</a>
+          <a class="nav-link nav-bold clickable" @click="goToEstadisticas">Estadísticas</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link nav-bold" href="#" @click="goToListas">Listas</a>
+          <a class="nav-link nav-bold clickable" @click="goToListas">Listas</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link nav-bold" href="#" @click="goToMisListas">Mis Listas</a>
+          <a class="nav-link nav-bold clickable" @click="goToMisListas">Mis Listas</a>
         </li>
         <li class="nav-item" >
-          <a class="nav-link nav-bold" href="#" @click="goToFavoritos">Mis Favoritos</a>
+          <a class="nav-link nav-bold clickable" @click="goToFavoritos">Mis Favoritos</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link nav-bold" href="#" @click="goToLeidos">Leídos</a>
+          <a class="nav-link nav-bold clickable" @click="goToLeidos">Leídos</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link nav-bold" href="#" @click="goToEnProceso">En proceso</a>
+          <a class="nav-link nav-bold clickable" @click="goToEnProceso">En proceso</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link nav-bold" href="#" @click="goToPerfil">
+          <a class="nav-link nav-bold clickable" @click="goToPerfil">
             <font-awesome-icon :icon="['fas', 'user']" /> Perfil
           </a>
         </li>
       </ul>
-      <!-- <ul class="navbar-nav">
-        <li class="nav-item dropdown">
-          <a
-            class="nav-link nav-bold dropdown-toggle"
-            href="#"
-            role="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            Perfil
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end">
-            <li>
-              <a class="nav-link nav-bold" href="#" @click="goToPerfil">Ver perfil</a>
-            </li>
-            <li><hr class="dropdown-divider"></li>
-            <li>
-              <a class="nav-link nav-bold" href="#" @click="cerrarSesion">Cerrar Sesión</a>
-            </li>
-          </ul>
-        </li>
-      </ul> -->
     </div>
   </div>
 </nav>
@@ -89,35 +67,49 @@ export default {
   },
   methods: {
     goToForo() {
-        this.$router.push('/foro');
+      this.$router.push('/foro').then(() => {
+        this.$router.go(0); // Recarga la página
+      });
     },
     goToInicio() {
-        this.$router.push('/inicio');
+      this.$router.push('/inicio').then(() => {
+        this.$router.go(0); // Recarga la página
+      });
     },
     goToEstadisticas() {
-        this.$router.push('/estadisticas');
+      this.$router.push('/estadisticas').then(() => {
+        this.$router.go(0); // Recarga la página
+      });
     },
     goToMisListas() {
-        this.$router.push({name: 'Listas', params: { privacidad: 'Mis Listas'}});
+      this.$router.push({name: 'Listas', params: { privacidad: 'Mis Listas'}}).then(() => {
+        this.$router.go(0); // Recarga la página
+      });
     },
     goToListas() {
-        this.$router.push({name: 'Listas', params: { privacidad: 'Listas Publicas'}});
+      this.$router.push({name: 'Listas', params: { privacidad: 'Listas Publicas'}}).then(() => {
+        this.$router.go(0); // Recarga la página
+      });
     },
     goToFavoritos() {
-        this.$router.push({ name: 'VerLista', params: { id: 'Mis Favoritos'}});
+      this.$router.push({ name: 'VerLista', params: { id: 'Mis Favoritos'}}).then(() => {
+        this.$router.go(0); // Recarga la página
+      });
     },
     goToLeidos(){
-      this.$router.push({ name: 'VerLista', params: { id: 'Leídos'}});
+      this.$router.push({ name: 'VerLista', params: { id: 'Leídos'}}).then(() => {
+        this.$router.go(0); // Recarga la página
+      });
     },
     goToEnProceso(){
-      this.$router.push({ name: 'VerLista', params: { id: 'En proceso'}});
+      this.$router.push({ name: 'VerLista', params: { id: 'En proceso'}}).then(() => {
+        this.$router.go(0); // Recarga la página
+      });
     },
     goToPerfil() {
-        this.$router.push({ name: 'Perfil' });
-    },
-    cerrarSesion() {
-      localStorage.removeItem("userToken");
-      this.$router.push({ name: 'Login' });
+      this.$router.push({ name: 'Perfil' }).then(() => {
+        this.$router.go(0); // Recarga la página
+      });
     }
   }
 };
@@ -161,5 +153,10 @@ export default {
 .dropdown-menu-end {
   right: 0;
   left: auto;
+}
+
+.clickable {
+  cursor: pointer;
+  pointer-events: auto; /* Asegura que el clic sea detectado */
 }
 </style>

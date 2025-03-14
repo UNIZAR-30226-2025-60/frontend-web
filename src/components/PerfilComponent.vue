@@ -3,7 +3,7 @@
     <!-- Franja de perfil -->
     <div class="profile-header">
       <div class="d-flex align-items-center py-3 ms-3">
-        <font-awesome-icon :icon="['fas', 'arrow-left']" class="me-3 clickable" @click="$router.go(-1)"/>
+        <font-awesome-icon :icon="['fas', 'arrow-left']" class="me-3 clickable" @click="$router.back()"/>
         <h5 class="titulo m-0">Perfil</h5>
       </div>
     </div>
@@ -278,8 +278,8 @@ export default {
       try {
         this.nameLoading = true;
         
-        // Enviar petición al servidor para actualizar el nombre (ESPERAR A QUE ESTÉ LA CONSULTA)
-        const response = await apiClient.put("/usuarios/usuario/actualizar-nombre", {
+        // Enviar petición al servidor para actualizar el nombre
+        const response = await apiClient.post("/usuarios/usuario/cambiar-nombre", {
           correo: this.user.correo,
           nombre: this.nameForm.newName
         });
@@ -291,10 +291,10 @@ export default {
         this.nameMessage = response.data.mensaje || 'Nombre actualizado correctamente';
         this.nameStatus = true;
         
-        // Cerrar modal después de 2 segundos
+        // Cerrar modal después de 1 segundo y medio
         setTimeout(() => {
           this.closeNameModal();
-        }, 2000);
+        }, 1500);
         
       } catch (error) {
         console.error('Error al cambiar nombre:', error);
