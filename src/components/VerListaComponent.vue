@@ -1,5 +1,5 @@
 <template>
-  <div v-if="user && lista && libros" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
+  <div v-if="lista && libros" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
     <NavBar :dark-mode="darkMode"></NavBar>
 
     <div class="container-fluid pt-5 p-5 min-vh-100">
@@ -18,7 +18,7 @@
       <!-- Banner con imagen a la izquierda y texto a la derecha -->
       <div class="lista-banner">
         <div class="banner-image">
-          <img :src="lista.portada || 'https://via.placeholder.com/150x150.png?text=Imagen+de+Lista'" alt="Imagen de la lista">
+          <img :src="transformarURLGoogleDrive(lista.portada) || 'https://via.placeholder.com/150x150.png?text=Imagen+de+Lista'" alt="Imagen de la lista">
         </div>
         <div class="lista-info">
           <h2 class="lista-titulo">{{ lista.nombre }}</h2>
@@ -166,6 +166,26 @@ export default {
         console.log("Se han podido mostrar los libros guardados en favoritos con éxito:", this.libros);
       } catch (error) {
         console.error("Error al cargar los libros favoritos:", error);
+      }
+    },
+    // Función para transformar URLs de Google Drive
+    transformarURLGoogleDrive(url) {
+      if (!url) return null;
+
+      try {
+        // Extraer el ID del archivo de Google Drive
+        const match = url.match(/id=([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)\//);
+        
+        if (match) {
+          const id = match[1];
+          // Nueva URL usando lh3.googleusercontent.com
+          return `https://lh3.googleusercontent.com/d/${id}=w500`;
+        }
+        
+        return url; // Si no es de Drive, devolver tal cual
+      } catch (error) {
+        console.error("Error al transformar URL:", error);
+        return null;
       }
     },
     async buscarLibros() {

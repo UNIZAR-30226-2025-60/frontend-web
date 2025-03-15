@@ -16,29 +16,27 @@
           <!-- Listado de listas -->
           <div v-for="lista in listas" :key="lista.id" class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4 d-flex justify-content-center" @click="goToVerLista(lista)">
             <div class="lista-card card shadow-sm">
-              <img src="https://via.placeholder.com/180" class="lista-image card-img-top" alt="Portada de la lista">
-              <div class="lista-header d-flex justify-content-between align-items-center p-2">
-                <div class="card-body text-center p-2">
+              <img :src=transformarURLGoogleDrive(lista.portada) class="lista-image card-img-top" alt="Portada de la lista">
+              <div class="lista-header p-2">
+                <div class="lista-title-container">
                   <h6 class="lista-title">{{ lista.nombre }}</h6>
-                  <div class="options-menu">
-                    <button class="btn btn-light btn-sm" @click.stop="lista.mostrarMenu = !lista.mostrarMenu">⋮</button>
-                    <div v-if="lista.mostrarMenu" class="menu-dropdown">
-                      <ul>
-                        <li @click.stop="editarLista(lista)">Editar</li>
-                        <li @click.stop="eliminarLista(lista)">Eliminar</li>
-                      </ul>
-                    </div>
+                </div>
+                <div class="options-menu" v-if="listaDelUsuario(lista)">
+                  <button class="btn btn-light btn-sm" @click.stop="lista.mostrarMenu = !lista.mostrarMenu">⋮</button>
+                  <div v-if="lista.mostrarMenu" class="menu-dropdown">
+                    <ul>
+                      <li @click.stop="editarLista(lista)">Editar</li>
+                      <li @click.stop="eliminarLista(lista)">Eliminar</li>
+                    </ul>
                   </div>
                 </div>
               </div>
             </div>
           </div>
           <!-- Botón para crear lista -->
-          <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4 d-flex justify-content-center">
-            <div class="lista-card card shadow-sm create-list" @click="crearLista">
-              <div class="card-body text-center p-2">
-                <h6 class="lista-title">+ Crear Lista</h6>
-              </div>
+          <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4 d-flex justify-content-center" v-if="this.privacidad == 'Mis Listas'">
+            <div class="create-list-btn" @click="crearLista">
+              <span class="create-list-icon">+</span>
             </div>
           </div>
         </div>
@@ -110,6 +108,36 @@ export default {
           .map(lista => ({ ...lista, mostrarMenu: false }));
       } catch (error) {
         console.error("Error al cargar las listas:", error);
+      }
+    },
+    // Método para verificar si la lista pertenece al usuario actual
+    listaDelUsuario(lista) {
+      // Si la privacidad es "Mis Listas", siempre es del usuario actual
+      if (this.privacidad === "Mis Listas") {
+        return true;
+      }
+
+      // En el caso de las listas públicas, solo debe mostrar las opciones si es el usuario creador
+      return lista.usuario_id === this.user.correo;
+    },
+    // Función para transformar URLs de Google Drive
+    transformarURLGoogleDrive(url) {
+      if (!url) return null;
+
+      try {
+        // Extraer el ID del archivo de Google Drive
+        const match = url.match(/id=([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)\//);
+        
+        if (match) {
+          const id = match[1];
+          // Nueva URL usando lh3.googleusercontent.com
+          return `https://lh3.googleusercontent.com/d/${id}=w500`;
+        }
+        
+        return url; // Si no es de Drive, devolver tal cual
+      } catch (error) {
+        console.error("Error al transformar URL:", error);
+        return null;
       }
     },
     async cargarListasPublicas() {
@@ -216,12 +244,6 @@ export default {
   color: #000000;
 }
 
-.listas-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
 .lista-card {
   width: 180px;
   display: flex;
@@ -276,8 +298,10 @@ export default {
 }
 
 .options-menu {
-  position: relative;
-  display: inline-block;
+  position: absolute;
+  right: 10px; /* Pegado al borde derecho */
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .menu-dropdown {
@@ -306,4 +330,84 @@ export default {
 .menu-dropdown li:hover {
   background-color: #f0f0f0;
 }
+
+/* Cambios para la disposición de los elementos en la lista */
+.lista-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Centra el contenido */
+  width: 100%;
+}
+
+.lista-title-container {
+  flex-grow: 1; /* Hace que el título ocupe el espacio necesario */
+  text-align: center; /* Centra el texto */
+}
+
+/* Estilo del botón circular de crear lista */
+.create-list-btn {
+  width: 90px; /* Ancho del botón */
+  height: 90px; /* Alto del botón */
+  border-radius: 50%; /* Hace que el botón sea circular */
+  background-color: #ffbf47; /* Color de fondo más vivo (amarillo vibrante) */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.3s ease-in-out;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  margin-top: 20px; /* Añadido para darle espacio vertical */
+}
+
+/* Efecto de hover para el botón */
+.create-list-btn:hover {
+  transform: scale(1.1); /* Efecto de hover */
+}
+
+/* Estilo del icono "+" */
+.create-list-icon {
+  font-size: 3rem; /* Tamaño grande del icono */
+  color: #444; /* Color del icono */
+  font-weight: bold;
+  line-height: 1; /* Asegura que el + esté centrado verticalmente */
+  text-align: center; /* Asegura que el texto esté centrado */
+  position: relative; /* Asegura un mejor control de la posición */
+  top: -1px; /* Ajuste fino para alinear verticalmente */
+}
+
+/* Ajustes para centrar el botón con las tarjetas de las listas */
+.listas-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center; /* Esto asegura que los elementos se alineen verticalmente */
+}
+
+/* Para asegurar que el espacio alrededor del botón es consistente */
+.create-list-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: auto; /* Ajusta la posición para que esté alineado con las tarjetas */
+}
+
+/* Colores modo oscuro */
+.dark-mode .create-list-btn {
+  background-color: #ead5a1; /* Fondo oscuro para el botón */
+}
+
+.dark-mode .create-list-icon {
+  color: #343434; /* Icono blanco para el modo oscuro */
+}
+
+/* Colores modo claro */
+.light-mode .create-list-btn {
+  background-color: #343434; /* Fondo amarillo brillante para el modo claro */
+}
+
+.light-mode .create-list-icon {
+  color: #ead5a1; /* Icono oscuro para el modo claro */
+}
+
 </style>

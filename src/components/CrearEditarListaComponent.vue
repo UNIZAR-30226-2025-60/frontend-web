@@ -1,5 +1,5 @@
 <template>
-  <div v-if="user" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
+  <div v-if="imagenes" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
     <NavBar :dark-mode="darkMode"></NavBar>
     <div class="container-fluid pt-5 p-5 min-vh-100">
       <!-- Theme toggle button -->
@@ -10,7 +10,7 @@
         <div class="row w-100">
           <div class="col-md-4">
             <div class="card text-center p-3">
-              <img :src="imagenSeleccionada ? imagenSeleccionada.foto : defaultProfileImage" 
+              <img :src="imagenSeleccionada ? transformarURLGoogleDrive(imagenSeleccionada.foto) : defaultProfileImage" 
                    alt="Foto lista" 
                    class="rounded-2 mx-auto d-block" 
                    width="100">
@@ -59,7 +59,7 @@
                 <div class="card" 
                     :style="imagenSeleccionada && imagenSeleccionada.foto === imagen.foto ? 'border: 3px solid #ffc107' : ''"
                     @click="seleccionarImagen(imagen)">
-                  <img :src=imagen.foto class="card-img-top" alt="Imagen" style="height: 100px; object-fit: cover;">
+                  <img :src=transformarURLGoogleDrive(imagen.foto) class="card-img-top" alt="Imagen" style="height: 100px; object-fit: cover;">
                 </div>
               </div>
             </div>
@@ -73,7 +73,7 @@
     </div>
   </div>
   <div v-else>
-    <p>Cargando...</p>
+    <Cargando></Cargando>
   </div>
   
   <Footer></Footer>
@@ -81,6 +81,7 @@
 
 <script>
 import NavBar from '@/components/NavBar.vue'
+import Cargando from '@/components/Cargando.vue'
 import Footer from '@/components/Footer.vue'
 import { apiClient } from '../config';
 import * as bootstrap from 'bootstrap';
@@ -89,12 +90,13 @@ export default {
   name: "CrearEditarLista",
   components: {
     NavBar,
+    Cargando,
     Footer
   },
   data() {
     return {
       user: null,
-      nombre: '',
+      nombreOriginal: this.$route.params.nombre || "",
       descripcion: '',
       publica: true,
       modal: null,
@@ -111,7 +113,7 @@ export default {
     try {
       const response = await apiClient.get("/user");
       this.user = response.data;
-      if (this.hacer === "Editar" && this.nombre) {
+      if (this.hacer === "Editar") {
         await this.cargarLista();
       }
     } catch (error) {
@@ -139,14 +141,33 @@ export default {
   methods: {
     async cargarLista() {
       try {
-        const response = await apiClient.get(`/listas/${this.user.correo}/${this.listaNombre}`);;
+        const response = await apiClient.get(`/listas/${this.user.correo}/${this.nombre}`);;
         const lista = response.data;
-        this.nombre = lista.nombre;
         this.descripcion = lista.descripcion;
         this.publica = lista.publica;
         this.imagenSeleccionada = { foto: lista.portada };
       } catch (error) {
         console.error("Error al cargar la lista para editar:", error);
+      }
+    },
+    // Función para transformar URLs de Google Drive
+    transformarURLGoogleDrive(url) {
+      if (!url) return null;
+
+      try {
+        // Extraer el ID del archivo de Google Drive
+        const match = url.match(/id=([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)\//);
+        
+        if (match) {
+          const id = match[1];
+          // Nueva URL usando lh3.googleusercontent.com
+          return `https://lh3.googleusercontent.com/d/${id}=w500`;
+        }
+        
+        return url; // Si no es de Drive, devolver tal cual
+      } catch (error) {
+        console.error("Error al transformar URL:", error);
+        return null;
       }
     },
     async cargarImagenes() {
@@ -178,11 +199,11 @@ export default {
             portada: this.imagenSeleccionada ? this.imagenSeleccionada.foto : this.defaultProfileImage
           });
           alert('Lista creada con éxito');
-        } else if (this.hacer === "Editar" && this.listaNombre) {
-          await apiClient.patch(`/listas/${this.user.correo}/${this.nombre}`, {
+        } else if (this.hacer === "Editar") {
+          await apiClient.patch(`/listas/${this.user.correo}/${this.nombreOriginal}`, {
             descripcion: this.descripcion,
             publica: this.publica,
-            portada: this.imagenSeleccionada ? this.imagenSeleccionada.foto : this.defaultProfileImage,
+            portada: this.imagenSeleccionada.foto,
             nuevoNombre: this.nombre // En caso de que quiera cambiar el nombre
           });
           alert('Lista actualizada con éxito');
