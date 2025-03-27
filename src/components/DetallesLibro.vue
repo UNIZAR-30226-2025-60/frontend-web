@@ -54,12 +54,6 @@
           <hr class="my-3">
 
           <h5>Acerca de este libro</h5>
-          <!-- Faltará poner los iconos que correspondan cuando sepa hacerlo -->
-          <div  class="d-flex  align-items-center">
-              <p class="mb-3 pe-3">{{ libro.num_paginas }} Páginas</p>
-              <p class="mb-3 px-3 border-start border-end">{{ libro.horas_lectura }} Horas de lectura</p>
-              <p class="mb-3 px-3">{{ libro.num_palabras }} Total de palabras</p>
-          </div>
 
           <!-- Línea horizontal antes de valoraciones del libro -->
           <hr class="my-3">
@@ -113,19 +107,16 @@
           <!-- Línea horizontal antes del título todas las reseñas del libro -->
           <hr class="my-3">
 
-          <div class="d-flex justify-content-between align-items-center"> 
-            <h5>Todas las reseñas del libro:</h5>
-            <div class="dropdown">
-              <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Ordena por: 
-              </button>
-              <ul class="dropdown-menu">
-                <li><a class="dropdown-item" @click="filtroSeleccionado = 'alta'">Valoración más alta</a></li>
-                <li><a class="dropdown-item" @click="filtroSeleccionado = 'baja'">Valoración más baja</a></li>
-                <li><a class="dropdown-item" @click="filtroSeleccionado = 'antigua'">Valoración más antigua</a></li>
-                <li><a class="dropdown-item" @click="filtroSeleccionado = 'reciente'">Valoración más reciente</a></li>
-              </ul>
-            </div>
+          <div class="dropdown d-flex justify-content-end">
+            <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Ordena por:
+            </button>
+            <ul class="dropdown-menu" style="position: absolute; top: 100%; left: 0; margin-top: 0.125rem;">
+              <li><a href="#" class="dropdown-item" @click.prevent="cambiarFiltro('alta')"> Valoración más alta</a></li>
+              <li><a href="#" class="dropdown-item" @click.prevent="cambiarFiltro('baja')"> Valoración más baja</a></li>
+              <li><a href="#" class="dropdown-item" @click.prevent="cambiarFiltro('antigua')"> Valoración más antigua</a></li>
+              <li><a href="#" class="dropdown-item" @click.prevent="cambiarFiltro('reciente')"> Valoración más reciente</a></li>
+            </ul>
           </div>
 
           <!-- Línea horizontal antes de todas las reseñas del libro -->
@@ -207,8 +198,7 @@
               </li>
             </ul>
 
-            <div class="mt-3">
-              <button class="btn btn-enviar me-2" @click="abrirModalNuevaLista">Crear nueva lista</button>
+            <div class="mt-3 text-end">
               <button class="btn btn-cancelar" @click="cerrarModalListas">Cerrar</button>
             </div>
           </div>
@@ -243,6 +233,7 @@ export default {
       librosRelacionados: [],
       mostrarModal: false,
       modalListasAbierto: false,
+      dropdownAbierto: false,
       listas: {
         usuario_id: "",
         libro_id: "",
@@ -358,7 +349,7 @@ export default {
     },
     async comprobarFavorito() {
       try {
-        const response = await apiClient.get(`/listas/favoritos/${this.user.correo}`);
+        const response = await apiClient.get(`/listas/favoritos/${encodeURIComponent(this.user.correo)}`);
         const librosFavoritos = response.data;
         this.isFavorito = librosFavoritos.some(item => item.enlace_libro === this.libro.enlace);
       } catch (error) {
@@ -584,10 +575,35 @@ export default {
     },
     scrollTop() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    },
+    toggleDropdown() {
+      this.dropdownAbierto = !this.dropdownAbierto;
+    },
+    cambiarFiltro(filtro) {
+      console.log("Cambiando filtro a:", filtro);
+      this.filtroSeleccionado = filtro;
+      
+      const dropdownToggle = this.$el.querySelector('.dropdown-toggle');
+      if (dropdownToggle) {
+        dropdownToggle.setAttribute('aria-expanded', 'false');
+        const dropdownMenu = dropdownToggle.nextElementSibling;
+        if (dropdownMenu) {
+          dropdownMenu.classList.remove('show');
+          dropdownToggle.closest('.dropdown').classList.remove('show');
+        }
+      }
+    },
+    getSelectedFilterLabel() {
+      const filterLabels = {
+        'alta': 'Valoración más alta',
+        'baja': 'Valoración más baja',
+        'antigua': 'Valoración más antigua',
+        'reciente': 'Valoración más reciente'
+      };
+      return filterLabels[this.filtroSeleccionado] || 'Ordenar';
     }
   }
-}
-;
+};
 </script>
 
 <style scoped>
@@ -799,5 +815,21 @@ export default {
 
 .dark-mode .back-to-top:hover {
   background-color: #bca369;
+}
+
+.dropdown {
+  position: relative;
+}
+
+.dropdown-item {
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background-color: rgba(0,0,0,0.1);
+}
+
+.dropdown:focus-within .dropdown-menu {
+  display: block;
 }
 </style>

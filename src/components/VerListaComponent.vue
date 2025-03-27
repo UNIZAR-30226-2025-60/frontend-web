@@ -82,16 +82,24 @@ export default {
       lista: null,
       busqueda: "",
       darkMode: localStorage.getItem("darkMode") === "true", // Obtener el tema guardado
+      usuario: null, 
     };
   },
   async mounted() {
     try {
       const response1 = await apiClient.get("/user"); // Llamada a usuario
       this.user = response1.data;
-
+      this.usuario = this.$route.params.usuario == this.user.correo;
       const listaID = encodeURIComponent(this.$route.params.id);
-      const response = await apiClient.get(`/listas/${this.user.correo}/${listaID}`);
-      this.lista = response.data;
+      if(this.usuario){
+        const response = await apiClient.get(`/listas/${this.user.correo}/${listaID}`);
+        this.lista = response.data;
+        console.log("Lista obtenida (usuario dueño):", this.lista);
+      } else {
+        const response = await apiClient.get(`/listas/publicas/${listaID}`);
+        this.lista = response.data;
+        console.log("Lista obtenida (pública):", this.lista);
+      }
       this.cargarLibros();
       this.applyTheme();        
     } catch (error) {

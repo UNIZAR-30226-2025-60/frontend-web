@@ -154,7 +154,7 @@ export default {
       this.$router.push({ name: 'CrearEditarLista', params: { hacer: 'Crear' } });
     },
     goToVerLista(lista) {
-      this.$router.push({ name: 'VerLista', params: { id: lista.nombre } });
+      this.$router.push({ name: 'VerLista', params: { id: lista.nombre, usuario: lista.usuario_id } });
     },
     // Métodos para el tema oscuro/claro
     toggleDarkMode() {
