@@ -14,6 +14,7 @@ import ListasComponent from "../components/ListasComponent.vue";
 import CrearEditarListaComponent from "../components/CrearEditarListaComponent.vue";
 import VerListaComponent from "../components/VerListaComponent.vue";
 import PerfilComponent from "../components/PerfilComponent.vue";
+import ChatbotComponent from "@/components/Chatbot.vue";  // Importa tu componente Chatbot
 
 //import WebViewer from "@/components/WebViewer.vue";
 
@@ -41,6 +42,11 @@ const routes = [
   { path: "/crearlista/:hacer/:nombre?", name: "CrearEditarLista", component: CrearEditarListaComponent },
   { path: "/perfil", name: "Perfil", component: PerfilComponent },
   //{ path: "/webviewer", name: "WebViewer", component: WebViewer }, 
+  {
+    path: "/chatbot",
+    name: "Chatbot",
+    component: ChatbotComponent,  // Agrega el Chatbot como componente
+  },
 ];
 
 const router = createRouter({
