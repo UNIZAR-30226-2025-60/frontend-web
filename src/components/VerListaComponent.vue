@@ -81,17 +81,22 @@ export default {
       libros: [],
       lista: null,
       busqueda: "",
+      donde: "",
       darkMode: localStorage.getItem("darkMode") === "true", // Obtener el tema guardado
-      usuario: null, 
     };
   },
   async mounted() {
     try {
       const response1 = await apiClient.get("/user"); // Llamada a usuario
       this.user = response1.data;
-      this.usuario = this.$route.params.usuario == this.user.correo;
-      const listaID = encodeURIComponent(this.$route.params.id);
-      if(this.usuario){
+    } catch (error) {
+      console.error("Error al obtener los datos del usuario:", error);
+      this.$router.push("/");
+    }
+    try{
+      this.donde = this.$route.params.donde;
+      const listaID = this.$route.params.id;
+      if(this.donde == "MisListas"){
         const response = await apiClient.get(`/listas/${this.user.correo}/${listaID}`);
         this.lista = response.data;
         console.log("Lista obtenida (usuario dueño):", this.lista);
@@ -102,9 +107,9 @@ export default {
       }
       this.cargarLibros();
       this.applyTheme();        
-    } catch (error) {
-      console.error("Error al obtener los datos del usuario:", error);
-      this.$router.push("/");
+    }catch(error){
+      console.error("Error al cargar la lista:", error);
+      this.$router.push("/inicio");
     }
   },
   watch: {

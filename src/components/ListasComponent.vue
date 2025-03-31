@@ -34,7 +34,7 @@
             </div>
           </div>
           <!-- Botón para crear lista -->
-          <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4 d-flex justify-content-center" v-if="this.privacidad == 'Mis Listas'">
+          <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4 d-flex justify-content-center" v-if="this.privacidad == 'MisListas'">
             <div class="create-list-btn" @click="crearLista">
               <span class="create-list-icon">+</span>
             </div>
@@ -64,14 +64,14 @@ export default {
       user: null,
       listas: [],
       privacidad: "",
+      donde: "",
       darkMode: localStorage.getItem("darkMode") === "true" // Obtener el tema guardado
     };
   },
   watch: {
     '$route'(to, from) {
       this.privacidad = to.params.privacidad;
-      
-      if(this.privacidad === "Mis Listas"){
+      if(this.privacidad === "MisListas"){
         this.cargarListasPrivadas();
       } else {
         this.cargarListasPublicas();
@@ -83,7 +83,8 @@ export default {
       const response = await apiClient.get("/user");
       this.user = response.data;
       this.privacidad = this.$route.params.privacidad;
-      if(this.privacidad === "Mis Listas"){
+      this.donde = this.privacidad;
+      if(this.privacidad === "MisListas"){
         await this.cargarListasPrivadas();
       }
       else{
@@ -113,7 +114,7 @@ export default {
     // Método para verificar si la lista pertenece al usuario actual
     listaDelUsuario(lista) {
       // Si la privacidad es "Mis Listas", siempre es del usuario actual
-      if (this.privacidad === "Mis Listas") {
+      if (this.privacidad === "MisListas") {
         return true;
       }
 
@@ -154,7 +155,7 @@ export default {
       this.$router.push({ name: 'CrearEditarLista', params: { hacer: 'Crear' } });
     },
     goToVerLista(lista) {
-      this.$router.push({ name: 'VerLista', params: { id: lista.nombre, usuario: lista.usuario_id } });
+      this.$router.push({ name: 'VerLista', params: {donde: this.donde, id: lista.nombre} });
     },
     // Métodos para el tema oscuro/claro
     toggleDarkMode() {
@@ -174,12 +175,11 @@ export default {
     async eliminarLista(lista) {
       try {
         await apiClient.delete(`/listas/${this.user.correo}/${encodeURIComponent(lista.nombre)}`);
-        if(this.privacidad === "Mis Listas"){
-          this.$router.push({name: 'Listas', params: { privacidad: 'Mis Listas'}});
+        if(this.privacidad === "MisListas"){
+          this.$router.push({name: 'Listas', params: { privacidad: 'MisListas'}});
         } else {
-          this.$router.push({name: 'Listas', params: { privacidad: 'Listas Publicas'}});
+          this.$router.push({name: 'Listas', params: { privacidad: 'ListasPublicas'}});
         } // Recargar listas después de eliminar
-        this.cargarListasPrivadas();
       } catch (error) {
         alert("Error al eliminar la lista:", error);
       }
