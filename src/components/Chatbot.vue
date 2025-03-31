@@ -1,51 +1,69 @@
 <template>
-  <div class="card-container">
-    <div class="card-header">
-      <div class="img-avatar"></div>
-      <div class="text-chat">Chatbot</div>
-    </div>
-    <div class="card-body">
-      <div class="messages-container">
-        <!-- Mostrar mensajes del historial -->
-        <div v-for="(message, index) in messages" :key="index" :class="['message-box', message.sender]">
-          <p>{{ message.text }}</p>
+  <div :class="darkMode ? 'dark-mode' : 'light-mode'" class="chatbot-wrapper">
+    <!-- NavBar -->
+    <NavBar :darkMode="darkMode" @toggle-dark-mode="toggleDarkMode" />
+
+    <!-- Contenedor del Chatbot -->
+    <div class="chat-container">
+      <div class="card-container">
+        <div class="card-header">
+          <div class="img-avatar"></div>
+          <div class="text-chat">Chatbot</div>
+        </div>
+        <div class="card-body">
+          <div class="messages-container">
+            <!-- Mostrar mensajes del historial -->
+            <div v-for="(message, index) in messages" :key="index" :class="['message-box', message.sender]">
+              <p>{{ message.text }}</p>
+            </div>
+          </div>
+          <div v-if="messages.length === 0" class="message-box bot">
+            <p>Hola, soy tu asistente virtual. ¿En qué puedo ayudarte?</p>
+          </div>
+          <!-- Botones de ejemplo -->
+          <div v-if="messages.length === 0" class="example-buttons">
+            <button @click="addExampleMessage('¡Hola, Chatbot! ¿Puedes recomendarme libros de ciencia ficción?')">¡Hola, Chatbot! ¿Puedes recomendarme libros de ciencia ficción?</button>
+            <button @click="addExampleMessage('¿Tienes algún dato interesante sobre mi última lectura?')">¿Tienes alguna recomendación de libros de historia?</button>
+            <button @click="addExampleMessage('¿Me podrías contar más sobre Moby Dick?')">¿Me podrías contar más sobre Moby Dick?</button>
+            <button @click="addExampleMessage('Cuentame un chiste de lectura')">Cuentame un chiste de lectura</button>
+          </div>
+          <div class="message-input">
+            <form @submit.prevent="sendMessage">
+              <textarea 
+                v-model="userInput" 
+                placeholder="Escribe tu mensaje..." 
+                class="message-send"
+              ></textarea>
+              <button type="submit" class="button-send">Enviar</button>
+            </form>
+          </div>
         </div>
       </div>
-      <div v-if="messages.length === 0" class="message-box bot">
-        <p>Hola, soy tu asistente virtual. ¿En qué puedo ayudarte?</p>
-      </div>
-      <!-- Botones de ejemplo -->
-      <div v-if="messages.length === 0" class="example-buttons">
-        <button @click="addExampleMessage('¡Hola, Chatbot! ¿Puedes recomendarme libros de ciencia ficción?')">¡Hola, Chatbot! ¿Puedes recomendarme libros de ciencia ficción?</button>
-        <button @click="addExampleMessage('¿Tienes algún dato interesante sobre mi última lectura?')">¿Tienes alguna recomendación de libros de historia?</button>
-        <button @click="addExampleMessage('¿Me podrías contar más sobre Moby Dick?')">¿Me podrías contar más sobre Moby Dick?</button>
-        <button @click="addExampleMessage('Cuentame un chiste de lectura')">Cuentame un chiste de lectura</button>
-      </div>
-      <div class="message-input">
-        <form @submit.prevent="sendMessage">
-          <textarea 
-            v-model="userInput" 
-            placeholder="Escribe tu mensaje..." 
-            class="message-send"
-          ></textarea>
-          <button type="submit" class="button-send">Enviar</button>
-        </form>
-      </div>
     </div>
+
+    <!-- Footer -->
+    <Footer :darkMode="darkMode" />
   </div>
 </template>
 
 <script>
 import axios from 'axios';
+import NavBar from '@/components/NavBar.vue';
+import Footer from '@/components/Footer.vue';
 import { apiClient } from '../config';
 
 export default {
+  components: {
+    NavBar,
+    Footer
+  },
   data() {
     return {
       userInput: '',
       messages: [],
       userEmail: '',  // Aquí el correo del usuario que se obtendrá dinámicamente
       user: null,  // Aquí almacenamos los datos del usuario
+      darkMode: localStorage.getItem("darkMode") === "true", // Obtener el tema guardado
     };
   },
   async mounted() {
@@ -85,27 +103,53 @@ export default {
       // Limpiar el campo de entrada
       this.userInput = '';
     },
-  },
+    toggleDarkMode() {
+      this.darkMode = !this.darkMode;
+      localStorage.setItem("darkMode", this.darkMode);
+      this.applyTheme();
+    },
+    applyTheme() {
+      document.body.classList.toggle("dark-mode", this.darkMode);
+      document.body.classList.toggle("light-mode", !this.darkMode);
+    }
+  }
 };
 </script>
 
 <style scoped>
+.chatbot-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  justify-content: space-between;
+}
+
+/* Contenedor principal del chat */
+.chat-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  padding: 20px;
+}
+
+/* Estilos del chatbot */
 .card-container {
-  background-color: var(--background-card); /* Colores dinámicos según el modo */
-  border-radius: 10px;
-  padding: 15px;
+  background-color: #f8f1cc;
+  border-radius: 12px;
+  padding: 20px;
   margin: 20px;
   display: flex;
   flex-direction: column;
-  width: 400px;
-  border: 1px solid #ccc;
+  width: 450px;
+  border: 1px solid #a9a392;
 }
 
 .card-header {
   display: flex;
   align-items: center;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #ccc;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #a9a392;
 }
 
 .card-header .img-avatar {
@@ -113,24 +157,20 @@ export default {
   height: 50px;
   border-radius: 50%;
   margin-right: 20px;
-  background-color: #333;
-  /* Si quieres agregar una imagen, descomenta estas líneas y coloca tu imagen */
-  /* background-image: url('/ruta/a/tu/imagen.jpg');
-  background-size: cover;
-  background-position: center; */
+  background-color: #6a6553;
 }
 
 .card-header .text-chat {
-  color: var(--text-color); /* Color dinámico según el modo */
+  color: #4b4737;
   margin: 0;
-  font-size: 20px;
+  font-size: 22px;
 }
 
 .card-body {
   flex: 1;
   overflow-y: auto;
-  max-height: 400px;
-  padding-bottom: 15px;
+  max-height: 450px;
+  padding-bottom: 20px;
 }
 
 .messages-container {
@@ -141,46 +181,47 @@ export default {
 }
 
 .message-box {
-  padding: 10px;
-  margin-bottom: 5px;
-  border-radius: 10px;
-  font-size: 13px;
-  max-width: 80%;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 12px;
+  font-size: 14px;
+  max-width: 85%;
   word-wrap: break-word;
 }
 
 .message-box.user {
-  background-color: #046f2a; /* Verde del usuario */
-  color: white;
+  background-color: #f7d547;
+  color: #4b4737;
   align-self: flex-end;
-  border-radius: 10px 10px 0 10px; /* Esquinas redondeadas para el mensaje del usuario */
+  border-radius: 12px 12px 0 12px;
   margin-left: auto;
 }
 
 .message-box.bot {
-  background-color: #444; /* Color oscuro para el bot */
-  color: white;
+  background-color: #d6d2bd;
+  color: #4b4737;
   align-self: flex-start;
-  border-radius: 10px 10px 10px 0; /* Esquinas redondeadas para el mensaje del bot */
+  border-radius: 12px 12px 12px 0;
 }
+
 .example-buttons {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* Dos columnas */
-  gap: 10px; /* Espacio entre botones */
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
   margin-top: 10px;
 }
 
 .example-buttons button {
-  background: #fbca1f;
+  background-color: #f9dd61;
   font-family: inherit;
-  padding: 0.4em 0.9em; /* Haciendo los botones más pequeños */
+  padding: 0.4em 1em;
   font-weight: 900;
-  font-size: 12px; /* Reducir el tamaño de la fuente */
-  border: 3px solid black;
-  border-radius: 0.4em;
+  font-size: 14px;
+  border: 2px solid #4b4737;
+  border-radius: 12px;
   box-shadow: 0.1em 0.1em;
   cursor: pointer;
-  width: 100%; /* Asegura que los botones ocupen todo el ancho de su celda */
+  width: 100%;
 }
 
 .example-buttons button:hover {
@@ -194,85 +235,80 @@ export default {
 }
 
 .message-input {
-  padding: 5px;
-  border-top: 1px solid #ccc;
+  padding: 10px;
+  border-top: 1px solid #a9a392;
 }
 
 .message-input .message-send {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   border: none;
   border-radius: 10px;
   resize: none;
-  background-color: var(--background-input); /* Fondo dinámico según el modo */
-  color: var(--text-input); /* Color dinámico del texto */
+  background-color: #f1f1f1;
+  color: #4b4737;
 }
 
 .message-input .button-send {
-  background-color: #046f2a;
-  color: #fff;
+  background-color: #f7d547;
+  color: #4b4737;
   padding: 10px 20px;
   border: none;
   cursor: pointer;
   margin-left: 10px;
   border-radius: 10px;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .message-input .button-send:hover {
-  background-color: #046f2a;
-  color: #fff;
+  background-color: #f7d547;
+  color: #4b4737;
 }
 
+/* Modo oscuro */
 .dark-mode .card-container {
-  background-color: #444;
+  background-color: #343434;
 }
 
 .dark-mode .card-header .text-chat {
-  color: #e3c377; /* Color del texto del header en modo oscuro */
+  color: #f8f1cc;
 }
 
 .dark-mode .message-box.user {
-  background-color: #046f2a; /* Verde del usuario */
+  background-color: #f7d547;
 }
 
 .dark-mode .message-box.bot {
-  background-color: #333;
+  background-color: #bdbaba;
 }
 
 .dark-mode .message-input .message-send {
-  background-color: #333;
+  background-color: #bdbaba;
   color: white;
 }
 
 .light-mode .card-container {
-  background-color: #fff;
+  background-color: #ead5a1;
 }
 
 .light-mode .message-box.user {
-  background-color: #046f2a; /* Verde del usuario */
+  background-color: #f7d547;
 }
 
 .light-mode .message-box.bot {
-  background-color: #444;
+  background-color: #d6d2bd;
 }
 
 .light-mode .message-input .message-send {
   background-color: #f1f1f1;
-  color: #333;
+  color: #4b4737;
 }
 
-:root {
-  --background-card: #fff;
-  --text-color: #333;
-  --background-input: #f1f1f1;
-  --text-input: #333;
+.light-mode .chat-container {
+  background-color: #f8f1cc;
 }
 
-.dark-mode {
-  --background-card: #333;
-  --text-color: #e3c377;
-  --background-input: #444;
-  --text-input: white;
+.dark-mode .chat-container {
+  background-color: #333;
 }
 </style>

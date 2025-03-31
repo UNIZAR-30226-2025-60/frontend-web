@@ -10,6 +10,9 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
         <li class="nav-item">
+          <a class="nav-link nav-bold clickable" @click="goToChatBot">ChatBot</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link nav-bold clickable" @click="goToForo">Foro</a>
         </li>
         <li class="nav-item">
@@ -66,6 +69,11 @@ export default {
     });
   },
   methods: {
+    goToChatBot() {
+      this.$router.push('/chatbot').then(() => {
+        this.$router.go(0); // Recarga la página
+      });
+    },
     goToForo() {
       this.$router.push('/foro').then(() => {
         this.$router.go(0); // Recarga la página

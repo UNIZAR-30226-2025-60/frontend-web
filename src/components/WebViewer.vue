@@ -3,17 +3,7 @@
 
   <Cargando v-if="isLoading" />
 
-
-   <!-- Botón para ir al chat -->
-   <div class="text-center mt-4">
-    <button @click="$router.push('/chatbot')" class="btn btn-primary">
-      Ir al Chat
-    </button>
-   </div>
-
-
-
-
+  
   <div id="pdf-container">
     <div id="nav-controls">
       <template v-if="!isLoading && isFullScreen">
