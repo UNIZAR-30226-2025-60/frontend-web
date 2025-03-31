@@ -90,27 +90,27 @@ export default {
       });
     },
     goToMisListas() {
-      this.$router.push({name: 'Listas', params: { privacidad: 'Mis Listas'}}).then(() => {
+      this.$router.push({name: 'Listas', params: { privacidad: 'MisListas'}}).then(() => {
         this.$router.go(0); // Recarga la página
       });
     },
     goToListas() {
-      this.$router.push({name: 'Listas', params: { privacidad: 'Listas Publicas'}}).then(() => {
+      this.$router.push({name: 'Listas', params: { privacidad: 'ListasPublicas'}}).then(() => {
         this.$router.go(0); // Recarga la página
       });
     },
     goToFavoritos() {
-      this.$router.push({ name: 'VerLista', params: { id: 'Mis Favoritos'}}).then(() => {
+      this.$router.push({ name: 'VerLista', params: { donde: 'MisListas', id: 'Mis Favoritos'}}).then(() => {
         this.$router.go(0); // Recarga la página
       });
     },
     goToLeidos(){
-      this.$router.push({ name: 'VerLista', params: { id: 'Leídos'}}).then(() => {
+      this.$router.push({ name: 'VerLista', params: { donde: 'MisListas',id: 'Leídos'}}).then(() => {
         this.$router.go(0); // Recarga la página
-      });
+      }); 
     },
     goToEnProceso(){
-      this.$router.push({ name: 'VerLista', params: { id: 'En proceso'}}).then(() => {
+      this.$router.push({ name: 'VerLista', params: { donde: 'MisListas', id: 'En proceso'}}).then(() => {
         this.$router.go(0); // Recarga la página
       });
     },
