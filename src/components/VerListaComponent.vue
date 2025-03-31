@@ -86,27 +86,51 @@ export default {
     };
   },
   async mounted() {
-    try {
-      const response1 = await apiClient.get("/user"); // Llamada a usuario
-      this.user = response1.data;
-      this.usuario = this.$route.params.usuario == this.user.correo;
-      const listaID = encodeURIComponent(this.$route.params.id);
-      if(this.usuario){
-        const response = await apiClient.get(`/listas/${this.user.correo}/${listaID}`);
-        this.lista = response.data;
-        console.log("Lista obtenida (usuario dueño):", this.lista);
-      } else {
-        const response = await apiClient.get(`/listas/publicas/${listaID}`);
-        this.lista = response.data;
-        console.log("Lista obtenida (pública):", this.lista);
-      }
-      this.cargarLibros();
-      this.applyTheme();        
-    } catch (error) {
-      console.error("Error al obtener los datos del usuario:", error);
+  try {
+    this.user = await this.obtenerUsuario();
+    if (!this.user) {
+      console.warn("No se encontró usuario logueado");
       this.$router.push("/");
+      return;
     }
-  },
+
+    const listaID = encodeURIComponent(this.$route.params.id);
+    let endpoint = this.user 
+      ? `listas/${this.user.correo}/${listaID}/librosW`
+      : `/listas/publicas/${listaID}`;
+
+    const response = await apiClient.get(endpoint);
+    const data = response.data;
+
+    // Validar que la respuesta contenga los datos esperados
+    if (!data || !data.nombre) {
+      console.error("La respuesta de la API no contiene los datos esperados:", data);
+      throw new Error("Datos de la lista inválidos");
+    }
+
+    // Asignar metadatos de la lista
+    this.lista = {
+      nombre: data.nombre,
+      descripcion: data.descripcion,
+      publica: data.publica,
+      portada: data.portada
+    };
+
+    // Asignar libros de la lista
+    this.libros = data.libros.map(libro => ({
+      ...libro,
+      imagen_portada: libro.imagen_portada || 'https://via.placeholder.com/150x225?text=Sin+Portada'
+    }));
+
+    // Guardar copia original
+    this.librosOriginales = [...this.libros];
+    console.log("Lista y libros cargados correctamente:", this.lista, this.libros);
+    this.applyTheme();
+  } catch (error) {
+    console.error("Error al cargar la vista de lista:", error);
+    this.$router.push("/");
+  }
+},
   watch: {
     // Observador para buscar mientras se escribe
     busqueda(newValue) {
@@ -140,62 +164,87 @@ export default {
     }
   },
   methods: {
-    async cargarLibros() {
+    async obtenerUsuario() {
       try {
-        if (!this.user) return;
-      
-        // En primer lugar obtenemos todos los libros de la base de datos
-        const response = await apiClient.get("/libros");
-        const todosLosLibros = response.data;
-        // En segundo lugar obtenemos los libros favoritos del usuario
-        const response1 = await apiClient.get(`/listas/${this.user.correo}/${this.lista.nombre}/libros`);
-        const librosLista = response1.data;
-      
-        console.log("Vamos a cargar los libros favoritos de:", this.user.correo);
-        console.log("los libros favoritos de usuario son:", librosLista);
-        
-        // Después filtramos los libros
-        this.libros = librosLista.map(libroL => {
-          // Nos quedamos únicamente con los que coinciden los enlaces, es decir, los favoritos del usuario
-          const libroEncontrado = todosLosLibros.find(libro => 
-            libro.enlace === libroL.enlace_libro
-          );
-          
-          // Nos guardamos todos los atributos que no sabíamos de los libros favoritos y que ahora conocemos
-          return libroEncontrado ? {
-            ...libroEncontrado,
-            imagen_portada: libroEncontrado.imagen_portada || 'https://via.placeholder.com/150x225?text=Sin+Portada'
-          } : null;
-        }).filter(libro => libro !== null); // Remove any null entries
-        
-        // Guardar una copia de todos los libros favoritos
-        this.librosOriginales = [...this.libros];
-        
-        console.log("Se han podido mostrar los libros guardados en favoritos con éxito:", this.libros);
+        const response = await apiClient.get("/user");
+        return response.data || null;
       } catch (error) {
-        console.error("Error al cargar los libros favoritos:", error);
-      }
-    },
-    // Función para transformar URLs de Google Drive
-    transformarURLGoogleDrive(url) {
-      if (!url) return null;
-
-      try {
-        // Extraer el ID del archivo de Google Drive
-        const match = url.match(/id=([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)\//);
-        
-        if (match) {
-          const id = match[1];
-          // Nueva URL usando lh3.googleusercontent.com
-          return `https://lh3.googleusercontent.com/d/${id}=w500`;
-        }
-        
-        return url; // Si no es de Drive, devolver tal cual
-      } catch (error) {
-        console.error("Error al transformar URL:", error);
+        console.error("Error al obtener el usuario:", error);
         return null;
       }
     },
+    async cargarLibros() {
+  try {
+    if (!this.user) {
+      console.warn("No hay usuario logueado.");
+      return;
+    }
+
+    // Validar que la lista tenga un nombre
+    if (!this.lista || !this.lista.nombre) {
+      console.error("El nombre de la lista no está definido:", this.lista);
+      return;
+    }
+
+    // Obtener todos los libros disponibles
+    console.log("Obteniendo todos los libros desde /libros...");
+    const response = await apiClient.get("/libros");
+    const todosLosLibros = response.data;
+
+    console.log("Todos los libros obtenidos:", todosLosLibros);
+
+    // Obtener libros de la lista específica
+    console.log(`Obteniendo libros de la lista ${this.lista.nombre}...`);
+    const response1 = await apiClient.get(`/listas/${this.user.correo}/${encodeURIComponent(this.lista.nombre)}/libros`);
+    const librosLista = response1.data.libros; // Nota: libros está dentro de data.libros
+
+    console.log("Libros de la lista obtenidos:", librosLista);
+
+    // Filtrar libros
+    console.log("Combinando libros de la lista con todos los libros...");
+    this.libros = librosLista.map(libroL => {
+      const libroEncontrado = todosLosLibros.find(libro => libro.enlace === libroL.enlace_libro);
+
+      if (!libroEncontrado) {
+        console.warn("Libro no encontrado en /libros:", libroL);
+        return null;
+      }
+
+      console.log("Libro combinado:", {
+        ...libroEncontrado,
+        imagen_portada: libroEncontrado.imagen_portada || 'https://via.placeholder.com/150x225?text=Sin+Portada'
+      });
+
+      return {
+        ...libroEncontrado,
+        imagen_portada: libroEncontrado.imagen_portada || 'https://via.placeholder.com/150x225?text=Sin+Portada'
+      };
+    }).filter(libro => libro !== null);
+
+    // Guardar copia original
+    this.librosOriginales = [...this.libros];
+    console.log("Libros cargados correctamente:", this.libros);
+  } catch (error) {
+    console.error("Error al cargar los libros favoritos:", error);
+  }
+},
+    // Función para transformar URLs de Google Drive
+    transformarURLGoogleDrive(url) {
+  if (!url) return null;
+  try {
+    // Extraer el ID del archivo de Google Drive
+    const match = url.match(/id=([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)\//);
+    if (match) {
+      const id = match[1];
+      // Nueva URL usando lh3.googleusercontent.com
+      return `https://lh3.googleusercontent.com/d/${id}=w500`;
+    }
+    return url; // Si no es de Drive, devolver tal cual
+  } catch (error) {
+    console.error("Error al transformar URL:", error);
+    return null;
+  }
+},
     async buscarLibros() {
       try {
         const response = await apiClient.get(`/libros/obtenerTitulo/${this.busqueda.trim()}`);
@@ -215,6 +264,11 @@ export default {
       document.body.classList.toggle("light-mode", !this.darkMode);
     },
     goToDetalles(libro) {
+      if (!libro || !libro.nombre) {
+        console.error("El libro no tiene nombre definido:", libro);
+        return;
+      }
+      console.log("Redirigiendo a detalles del libro:", libro.nombre);
       this.$router.push({ name: 'Detalles', params: { id: libro.nombre } });
     }
   }
@@ -339,12 +393,12 @@ export default {
   font-size: 2rem;
   font-weight: bold;
   margin-bottom: 10px;
-  color: #333;
+  color: #aa952f;
 }
 
 .lista-descripcion {
   font-size: 1.1rem;
-  color: #555;
+  color: #b1b0b0;
   opacity: 0.9;
 }
 

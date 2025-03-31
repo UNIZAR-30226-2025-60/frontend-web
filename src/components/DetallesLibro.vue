@@ -327,8 +327,12 @@ export default {
         await this.comprobarFavorito();
         this.cerrarModalListas();
       } catch (error) {
-        console.error("Error al añadir libro a la lista:", error);
-        alert("Hubo un error al añadir el libro a la lista.");
+          if (error.response && error.response.status === 409) {
+            alert(`El libro ya está en la lista "${lista}".`);
+          } else {
+            console.error("Error al añadir libro a la lista:", error);
+            alert("Hubo un error al añadir el libro a la lista.");
+          }
       }
     },
     getStarIcons(rating) {

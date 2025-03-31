@@ -42,11 +42,7 @@ const routes = [
   { path: "/crearlista/:hacer/:nombre?", name: "CrearEditarLista", component: CrearEditarListaComponent },
   { path: "/perfil", name: "Perfil", component: PerfilComponent },
   //{ path: "/webviewer", name: "WebViewer", component: WebViewer }, 
-  {
-    path: "/chatbot",
-    name: "Chatbot",
-    component: ChatbotComponent,  // Agrega el Chatbot como componente
-  },
+  { path: "/chatbot", name: "Chatbot", component: ChatbotComponent },
 ];
 
 const router = createRouter({
