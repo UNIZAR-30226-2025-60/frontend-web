@@ -13,7 +13,7 @@
 
       <div class="row gap-4">
         <!-- COLUMNA "MIS ESTADÍSTICAS" -->
-        <div class="col-md-6 mb-4 border-end pe-4">
+        <div class="col-md-6 mb-4 pe-4" style="border-right: 2px solid #000;">
           <h4 class="mb-4 text-center">Mis Estadísticas</h4>
 
           <!-- Bloque con 3 círculos -> libros en progreso, leídos mes, leídos total -->
@@ -46,7 +46,7 @@
 
             <!-- Bloque de Libros Recomendados -->
             <div class="mt-4">
-              <h5 class="text-center">Libros recomendados:</h5>
+              <h6 class="text-center">Libros recomendados:</h6>
               <div class="d-flex justify-content-center">
                 <div class="carousel-container d-flex align-items-center">
                   <!-- Flecha izquierda -->
@@ -91,19 +91,11 @@
 
           <!-- Bloque de libros que más te han gustado (mejor puntuados) -->
           <div class="mt-4" v-if="librosMasValorados && librosMasValorados.length">
-            <h5 class="text-center">Libros que más te han gustado:</h5>
+            <h6 class="text-center">Libros que más te han gustado:</h6>
             <div class="d-flex flex-wrap liked-books-container justify-content-center">
               <div
-                v-for="(libro, index) in librosMasValorados"
-                :key="index"
-                class="liked-book-item"
-                @click="goToDetalles(libro)"
-              >
-                <img
-                  :src="libro.imagen_portada || libro.portada || placeholder"
-                  class="small-book-image"
-                  alt="Portada"
-                />
+                v-for="(libro, index) in librosMasValorados" :key="index" class="liked-book-item" @click="goToDetalles(libro)">
+                <img :src="libro.imagen_portada || libro.portada || placeholder" class="small-book-image" alt="Portada"/>
               </div>
             </div>
           </div>
@@ -120,44 +112,85 @@
           </div>
         </div>
 
+
+
         <!-- COLUMNA "ESTADÍSTICAS GENERALES" -->
         <div class="col-md-5 text-center">
           <h4 class="mb-4">Estadísticas Generales</h4>
           <div class="mb-4">
-            <h6>Top 3 Usuarios (Mes)</h6>
-            <ul>
-              <!-- Si hay menos de 3 usuarios que hayan leído algo solo aparecerán los que hayan leído algo -->
-              <li v-for="(usuario, i) in top3UsuariosMes" :key="i">
-                {{ usuario.usuario_id }} - {{ usuario.libros_leidos}} libros leídos
-              </li>
-            </ul>
+            <h6>Top 3 Usuarios del Mes</h6>
+
+            <!-- Recuadro para cada usuario con su puesto -->
+            <div v-for="(usuario, i) in top3UsuariosMes" :key="i" 
+                :class="{
+                  'card mb-2': true,
+                  'bg-gold': i === 0,  /* Primer puesto (dorado) */
+                  'bg-silver': i === 1, /* Segundo puesto (plateado) */
+                  'bg-bronce': i === 2, /* Tercer puesto (bronce/marrón anaranjado) */
+                }">
+              <div class="card-body">
+                <strong>{{ usuario.usuario_id }}</strong> - Libros leídos: {{ usuario.libros_leidos }}
+              </div>
+            </div>
           </div>
 
           <div class="mb-4">
-            <h6>Top 3 Usuarios (Año)</h6>
-            <ul>
-              <li v-for="(usuario, i) in top3UsuariosAnio" :key="i">
-                {{ usuario.usuario_id }} - {{ usuario.libros_leidos }} libros leídos
-              </li>
-            </ul>
+            <h6>Top 3 Usuarios del Año</h6>
+
+            <!-- Cada recuadro individual para los usuarios -->
+            <div v-for="(usuario, i) in top3UsuariosAnio" :key="i" class="card mb-1">
+              <div class="card-body">
+                <strong>{{ usuario.usuario_id }}</strong> - Libros leídos: {{ usuario.libros_leidos }}
+              </div>
+            </div>
           </div>
 
-          <div class="mb-4">
-            <h6>Top 5 Libros (Mes Actual)</h6>
-            <ul>
-              <li v-for="(libro, idx) in top5LibrosMesActual" :key="idx">
-                {{ libro.nombre }} - {{ libro.veces_leido }} lecturas
-              </li>
-            </ul>
+          <div class="d-flex align-items-center justify-content-center"> 
+            <h6 class="mb-0">Libros más populares de</h6> 
+
+            <!-- Selector para el mes -->
+            <select v-model="selectedMonth" @change="actualizarDatos" class="form-select mx-2" style="width: auto"> 
+              <option value="1">Enero</option>
+              <option value="2">Febrero</option>
+              <option value="3">Marzo</option>
+              <option value="4">Abril</option>
+              <option value="5">Mayo</option>
+              <option value="6">Junio</option>
+              <option value="7">Julio</option>
+              <option value="8">Agosto</option>
+              <option value="9">Septiembre</option>
+              <option value="10">Octubre</option>
+              <option value="11">Noviembre</option>
+              <option value="12">Diciembre</option>
+            </select>
+
+            <h6 class="mb-0 mx-2">de</h6> 
+            
+            <!-- Selector para el año -->
+            <select v-model="selectedYear" @change="actualizarDatos" class="form-select mx-2" style="width: auto"> <!-- Ancho automático -->
+              <option v-for="year in years" :key="year" :value="year">{{ year }}</option>
+            </select>
           </div>
 
-          <div class="mb-4">
-            <h6>Top 5 Libros (Año Actual)</h6>
-            <ul>
-              <li v-for="(libro, idx) in top5LibrosAnioActual" :key="idx">
-                {{ libro.nombre }} - {{ libro.veces_leido }} lecturas
-              </li>
+          <!-- Mostrar los libros más populares según la selección -->
+          <div v-if="top5Libros && top5Libros.length" class="mt-3"> 
+            <ul class="list-unstyled"> 
+              <div class="d-flex flex-wrap liked-books-container justify-content-center">
+                <div
+                  v-for="(libro, index) in top5Libros" :key="libro.id" class="liked-book-item" @click="goToDetalles(libro)">
+                  <img :src="libro.imagen_portada || libro.portada || placeholder" class="small-book-image" alt="Portada"/>
+                </div>
+              </div>
             </ul>
+          </div>
+          <div v-else class="mt-3 text-center no-data-message">
+            <div class="no-data-content">
+              <i class="fas fa-book icono"></i>
+              <p class="mb-0">
+                <strong>¡Info!</strong> 
+                No hay libros registrados para este período.
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -198,19 +231,35 @@ export default {
       top3UsuariosAnio: [],
       top5LibrosMesActual: [],
       top5LibrosAnioActual: [],
+      selectedMonth: new Date().getMonth() + 1,  // Mes actual por defecto
+      selectedYear: new Date().getFullYear(),    // Año actual por defecto
+      years: [],  // Se generará en created()
+      top5Libros: [],
+      selectedMonthName: '',  // Nombre del mes seleccionado para mostrarlo en el título
 
       // Carrusel
       currentIndex: 0,
-      visibleCount: 3 ,
+      visibleCount: 3,
     
       darkMode: localStorage.getItem("darkMode") === "true" // Obtener el tema guardado
     };
+  },
+  created() {
+    // Generar el rango de años desde 2020 hasta el año actual
+    const currentYear = new Date().getFullYear();
+    this.years = this.generateYearRange(2020, currentYear);
+    // Inicializar el nombre del mes seleccionado
+    this.selectedMonthName = this.getMonthName(this.selectedMonth);
   },
   computed: {
     themeClass() {
       return this.darkMode ? 'foro-dark' : 'foro-light';
     },
     visibleBooks() {
+      if (!this.librosRecomendados || this.librosRecomendados.length === 0) {
+        return [];
+      }
+      
       const start = this.currentIndex;
       const end = this.currentIndex + this.visibleCount;
       if (end <= this.librosRecomendados.length) {
@@ -226,24 +275,35 @@ export default {
   },
   async mounted() {
     try {
+      // Cargar datos del usuario actual
       const response = await apiClient.get("/user");
       this.user = response.data;
 
+      // Cargar datos estadísticos
       await this.cargarEstadisticasMes();
       await this.cargarEstadisticasGenerales();
       await this.cargarLibrosRecomendados();
 
+      // Cargar rankings
       await this.cargarTop3UsuariosMes();
       await this.cargarTop3UsuariosAnio();
       await this.cargarTop5LibrosMesActual();
       await this.cargarTop5LibrosAnioActual();
 
+      // Aplicar tema
       this.applyTheme();
+      
+      // Cargar los datos de libros más populares inicialmente
+      await this.cargarTop5Libros(this.selectedMonth, this.selectedYear);
     } catch (error) {
       console.error("Error al obtener el usuario o estadísticas:", error);
-      this.$router.push("/");
+      // Solo redirigir si hay un error de autenticación
+      if (error.response && error.response.status === 401) {
+        this.$router.push("/");
+      }
     }
 
+    // Evento de redimensionamiento para el carrusel
     window.addEventListener('resize', this.handleResize);
     this.handleResize();
   },
@@ -267,12 +327,14 @@ export default {
       return texto.substring(0, maxLength) + '...';
     },
     nextSlide() {
+      if (!this.librosRecomendados || this.librosRecomendados.length === 0) return;
       const total = this.librosRecomendados.length;
-      this.currentIndex = (this.currentIndex + 3) % total;
+      this.currentIndex = (this.currentIndex + 1) % total;
     },
     prevSlide() {
+      if (!this.librosRecomendados || this.librosRecomendados.length === 0) return;
       const total = this.librosRecomendados.length;
-      this.currentIndex = (this.currentIndex - 3 + total) % total;
+      this.currentIndex = (this.currentIndex - 1 + total) % total;
     },
     handleResize() {
       const width = window.innerWidth;
@@ -331,58 +393,94 @@ export default {
       try {
         const response = await apiClient.get('/estadisticas/top3');
         this.top3UsuariosMes = response.data;
-
-        console.log("Estos son los 3 usuarios que más han leído en el mes", this.top3UsuariosMes);
       } catch (error) {
         console.error('Error al cargar top3 usuarios del mes:', error);
+        this.top3UsuariosMes = [];
       }
     },
+    
     async cargarTop3UsuariosAnio() {
       try {
         const response = await apiClient.get('/estadisticas/top3anuales');
         this.top3UsuariosAnio = response.data;
-
-        console.log("Estos son los 3 usuarios que más han leído en el año", this.top3UsuariosAnio);
       } catch (error) {
         console.error('Error al cargar top3 usuarios del año:', error);
+        this.top3UsuariosAnio = [];
       }
     },
+    
     async cargarTop5LibrosMesActual() {
       try {
-        const fecha = new Date();
-        const year = fecha.getFullYear();
-        const month = fecha.getMonth() + 1;
-
+        const month = new Date().getMonth() + 1;
+        const year = new Date().getFullYear();
         const response = await apiClient.get(`/estadisticas/top5libros/${month}/${year}`);
         this.top5LibrosMesActual = response.data;
-
-        console.log("Libros que más se han leído en el mes actual", this.top5LibrosMesActual);
       } catch (error) {
-        console.error('Error al cargar top5 libros mes actual:', error);
+        console.error('Error al cargar top5 libros del mes actual:', error);
+        this.top5LibrosMesActual = [];
       }
     },
+    
     async cargarTop5LibrosAnioActual() {
       try {
         const year = new Date().getFullYear();
-
-        const response = await apiClient.get(`/estadisticas/top5libros/${year}`);
+        const response = await apiClient.get(`/estadisticas/top5librosanuales/${year}`);
         this.top5LibrosAnioActual = response.data;
-
-        console.log("Libros que más se han leído en el año actual", this.top5LibrosAnioActual);
       } catch (error) {
-        console.error('Error al cargar top5 libros año actual:', error);
+        console.error('Error al cargar top5 libros del año actual:', error);
+        this.top5LibrosAnioActual = [];
       }
     },
-
+    
+    async cargarTop5Libros(month, year) {
+      try {
+        this.top5Libros = []; // Limpiar datos anteriores
+        const response = await apiClient.get(`/estadisticas/top5libros/${month}/${year}`);
+        this.top5Libros = response.data || [];
+      } catch (error) {
+        console.error(`Error al cargar libros más populares de ${month}/${year}:`, error);
+        this.top5Libros = [];
+      }
+    },
+    
     goToDetalles(libro) {
-      this.$router.push({ name: 'Detalles', params: { id: libro.nombre } });
+      if (libro && libro.nombre) {
+        this.$router.push({ name: 'Detalles', params: { id: libro.nombre } });
+      }
+    },
+    
+    // Función para generar un rango de años
+    generateYearRange(start, end) {
+      const years = [];
+      for (let year = start; year <= end; year++) {
+        years.push(year);
+      }
+      return years;
+    },
+    
+    // Esta función se llama cuando el usuario cambia el mes o el año
+    async actualizarDatos() {
+      this.selectedMonthName = this.getMonthName(this.selectedMonth);
+      try {
+        await this.cargarTop5Libros(this.selectedMonth, this.selectedYear);
+      } catch (error) {
+        console.error('Error al actualizar datos:', error);
+      }
+    },
+    
+    // Función para obtener el nombre del mes basado en el valor numérico
+    getMonthName(month) {
+      const months = [
+        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+      ];
+      return months[month - 1] || "";
     }
   }
 };
 </script>
 
 <style scoped>
-
 .container-fluid {
   padding-left: 0 !important;
   padding-right: 0 !important;
@@ -638,5 +736,47 @@ export default {
   font-size: 2rem;        
   color: #e3c377;        
   margin: 30px 0;         
+}
+
+/* Estilo para los selectores */
+.form-select {
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0.375rem 2.25rem 0.375rem 0.75rem;
+  font-size: 0.9rem;
+}
+
+.dark-mode .form-select {
+  background-color: #444;
+  color: #e5c578;
+  border-color: #666;
+}
+
+.border-end {
+  border-right: none !important;
+  border-bottom: 2px solid #555 !important;
+  padding-bottom: 2rem;
+  margin-bottom: 2rem;
+}
+  
+.stats-circles {
+  flex-wrap: wrap;
+}
+  
+.stat-circle {
+  margin-bottom: 1rem;
+}
+
+.bg-gold {
+  background-color: #edd502; 
+}
+
+.bg-silver {
+  background-color: #bab8b8; 
+}
+
+.bg-bronce {
+  background-color: #e1974e;
 }
 </style>
