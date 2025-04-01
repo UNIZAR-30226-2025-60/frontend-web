@@ -1,5 +1,5 @@
 <template>
-  <NavBar />
+  <NavBar/>
 
   <Cargando v-if="isLoading" />
 
@@ -7,12 +7,9 @@
   <div id="pdf-container">
     <div id="nav-controls">
       <template v-if="!isLoading && isFullScreen">
-        <button id="prev-button" @click="prevPage">⬅</button>
-        <span id="contPagina">Página {{ pageNum }} de {{ pageCount }}</span>
-        <button id="next-button" @click="nextPage">➡</button>
-        <button id="marcador" @click="toggleFavorita"> 
-          <font-awesome-icon :icon="[esFavorita ? 'fas' : 'far', 'bookmark']" />
-        </button>
+        <!-- <button id="prev-button" @click="prevPage">⬅</button> -->
+        <!-- <span id="contPagina">Página {{ pageNum }} de {{ pageCount }}</span> -->
+        <!-- <button id="next-button" @click="nextPage">➡</button> -->
         <div id="zoom-controls">
           <button @click="zoomOut">
             <font-awesome-icon :icon="['fas', 'minus']" />
@@ -24,12 +21,40 @@
         </div>
       </template>
 
-      <button v-if="!isLoading && !isFullScreen" id="pantCompleta" @click="toggleFullScreen">⛶ Pantalla Completa</button>
 
-      <canvas ref="canvas"></canvas>
+      <div class="canvas-wrapper">
+        <button v-if="!isLoading && !isFullScreen" id="pantCompleta" @click="toggleFullScreen">⛶ Pantalla Completa</button>
+        <canvas ref="canvas" @click="handlerCanvasClick"></canvas>
+        <div v-if="!isLoading && isFullScreen" id="contPagina">Página {{ pageNum }} de {{ pageCount }}</div>
+        <button id="marcador" @click="toggleFavorita" :style="estiloMarcador"> 
+          <font-awesome-icon :icon="[esFavorita ? 'fas' : 'far', 'bookmark']" />
+        </button>
+        <!-- Flecha izquierda -->
+        <button v-if="!isLoading && isFullScreen" class="flecha-button flecha-izquierda" @click="prevPage">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+            stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75" />
+          </svg>
+          <div class="text">Anterior</div>
+        </button>
+        
+        <!-- Flecha derecha -->
+        <button v-if="!isLoading && isFullScreen" class="flecha-button flecha-derecha" @click="nextPage">
+          <div class="text">Siguiente</div>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+            stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" />
+          </svg>
+        </button>
+
+      </div>
 
     </div>
   </div>
+
+  <Footer></Footer>
 </template>
 
 
@@ -42,10 +67,12 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { faPlus, faMinus } from '@fortawesome/free-solid-svg-icons';
 import { faBookmark as regularBookmark } from '@fortawesome/free-regular-svg-icons'; // Icono vacío
 import { faBookmark as solidBookmark } from '@fortawesome/free-solid-svg-icons'; // Icono relleno
+import { computed } from 'vue';
 library.add(regularBookmark, solidBookmark, faPlus, faMinus);
 import { useRoute } from "vue-router";
 import { apiClient } from "../config";
 import NavBar from "./NavBar.vue";
+import Footer from "./Footer.vue";
 import Cargando from "./Cargando.vue";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc =
@@ -55,6 +82,7 @@ export default {
   name: "WebViewer",
   components: {
     NavBar,
+    Footer,
     Cargando,
     FontAwesomeIcon,
   },
@@ -62,7 +90,7 @@ export default {
     const canvas = ref(null);
     const pageNum = ref(1);
     const pageCount = ref(0);
-    const zoomLevel = ref(0.8);
+    const zoomLevel = ref(0.7);
     const isRendering = ref(false);
     const isLoading = ref(true);
     const isFullScreen = ref(false);
@@ -100,6 +128,29 @@ export default {
         console.error("⚠️ No se pudo verificar si la página es favorita:", error);
       }
     };
+
+    const estiloMarcador = computed(() => {
+      const escala = zoomLevel.value;
+      return{
+        transform: `scale(${escala})`,
+        transformOrigin: "top right",
+      }
+    })
+
+    // Función para manejar el paso de páginas
+    const handlerCanvasClick = (event) => {
+      const rect = canvas.value.getBoundingClientRect();
+      const clickX = event.clientX - rect.left;
+
+      // Si el clic es en el tercio izquierdo => página anterior
+      if (clickX < rect.width / 3) {
+        prevPage();
+      } 
+      // Si el clic es en el tercio derecho => página siguiente
+      else if (clickX > (2 * rect.width) / 3) {
+        nextPage();
+      }
+    } 
 
      // ✅ Renderizar página
      const renderPage = async (num) => {
@@ -213,7 +264,7 @@ export default {
     };
 
     const zoomOut = () => {
-      if (zoomLevel.value <= 0.6) return;
+      if (zoomLevel.value <= 1.1) return;
       zoomLevel.value -= 0.2;
       renderPage(pageNum.value);
     };
@@ -225,7 +276,7 @@ export default {
         elem.requestFullscreen()
           .then(() => {
             isFullScreen.value = true;
-            zoomLevel.value = 1.1; // ✅ Ajustar zoom a 1.1 en pantalla completa
+            zoomLevel.value = 1.1; // Ajustamos el zoom a 1.1 en pantalla completa
             renderPage(pageNum.value);
           })
           .catch((err) => {
@@ -239,7 +290,7 @@ export default {
     document.addEventListener("fullscreenchange", () => {
       if (!document.fullscreenElement) {
         isFullScreen.value = false;
-        zoomLevel.value = 0.8; // ✅ Restablecer zoom a 0.7 cuando se salga de pantalla completa
+        zoomLevel.value = 0.8; // Restablecemos el zoom a 0.8 cuando se salga de pantalla completa
         renderPage(pageNum.value);
       }
     });
@@ -327,7 +378,7 @@ export default {
     };
    
 
-    return { canvas, isLoading, isFullScreen, esFavorita, pageNum, pageCount, prevPage, nextPage, zoomIn, zoomOut, zoomLevel, toggleFullScreen, toggleFavorita};
+    return { canvas, isLoading, handlerCanvasClick, estiloMarcador, isFullScreen, esFavorita, pageNum, pageCount, prevPage, nextPage, zoomIn, zoomOut, zoomLevel, toggleFullScreen, toggleFavorita};
   },
 };
 </script>
@@ -338,6 +389,8 @@ export default {
     margin-top: 10px;
     text-align: center;
     overflow: auto;
+    background-color:#eebf48cc;
+    position: relative;
   }
   
   #nav-controls {
@@ -368,33 +421,44 @@ export default {
   z-index: 10; /* 📌 Asegurar que esté sobre el PDF */
 }
 
-  #pantCompleta {
+.canvas-wrapper {
+  position: relative;
+  display: inline-block; /* para que se ajuste al tamaño del canvas */
+}
+
+#pantCompleta {
   position: absolute;
-  top: 110px; /* 📌 Ajustar distancia desde la parte superior */
-  right: 550px; /* 📌 Ajustar distancia desde el lado derecho */
+  top: 10px;
+  left: 10px;
   background: rgba(0, 0, 0, 0.5);
   color: white;
   border: none;
   cursor: pointer;
-  font-size: 18px;
+  font-size: 16px;
   border-radius: 5px;
-  /* 📌 Asegurar que el botón esté sobre el PDF */
+  padding: 6px 12px;
   z-index: 10;
 }
 
 
-  #marcador {
-    position: absolute;
-    top: 5%; /* 📌 Coloca los botones a media altura */
-    transform: translateY(-50%); /* 📌 Centra verticalmente */
-    border: none;
-    padding: 15px 20px;
-    cursor: pointer;
-    font-size: 30px;
-    right: 30%;
-    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
-    z-index: 10; /* 📌 Asegurar que estén sobre el PDF */
-  }
+#marcador {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  border: none;
+  padding: 10px 12px;
+  cursor: pointer;
+  font-size: 24px;
+  color: #333;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 5px;
+  z-index: 15;
+  transition: transform 0.2s ease, background 0.3s;
+}
+
+#marcador:hover {
+  background: rgba(255, 255, 255, 0.8);
+}
 
   #zoom-controls {
   position: absolute;
@@ -423,26 +487,52 @@ export default {
   transition: all 0.2s ease-in-out;
 }
 
-  #prev-button, #next-button {
-    position: absolute;
-    top: 50%; /* 📌 Coloca los botones a media altura */
-    transform: translateY(-50%); /* 📌 Centra verticalmente */
-    border: none;
-    padding: 15px 20px;
-    cursor: pointer;
-    border-radius: 50%;
-    z-index: 10; /* 📌 Asegurar que estén sobre el PDF */
-  }
+.flecha-button {
+  position: absolute;
+  bottom: 10px;
+  background-color: #ffffff00;
+  color: #000;
+  border: #b27d01e6 0.2em solid;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 8.5em;
+  height: 2.9em;
+  padding: 0.5em;
+  z-index: 15;
+  transition: all 0.3s ease;
+}
 
-  /* 📌 Botón de Anterior (Izquierda) */
-  #prev-button {
-    left: 28%;
-  }
+.flecha-button:hover {
+  background-color: #d09409e6;
+  color: #fff;
+  cursor: pointer;
+}
 
-  /* 📌 Botón de Siguiente (Derecha) */
-  #next-button {
-    right: 30%;
-  }
+.flecha-button svg {
+  width: 2em;
+  margin-right: 0.5em;
+  transition: all 0.3s ease;
+}
+
+.flecha-button:hover svg {
+  transform: translateX(5px);
+}
+
+.flecha-button .text {
+  font-size: 1em;
+  font-weight: bold;
+}
+
+.flecha-izquierda {
+  left: 10px;
+}
+
+.flecha-derecha {
+  right: 10px;
+}
+
 
   /* ✅ Quitar fondo y borde de los botones */
 #zoom-controls button,
