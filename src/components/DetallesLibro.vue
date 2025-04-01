@@ -55,6 +55,22 @@
 
           <h5>Acerca de este libro</h5>
 
+          <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center me-3">
+              <font-awesome-icon :icon="['fas', 'book-open']" class="me-2" />
+              <p class="mb-0">{{ libro.num_paginas }} Páginas</p>
+            </div>
+            <div class="d-flex align-items-center mx-3 border-start border-end px-3">
+              <font-awesome-icon :icon="['fas', 'clock']" class="me-2" />
+              <p class="mb-0">{{ libro.horas_lectura }} Horas de lectura</p>
+            </div>
+            <div class="d-flex align-items-center">
+              <font-awesome-icon :icon="['fas', 'file-word']" class="me-2" />
+              <p class="mb-0">{{ libro.num_palabras }} Total de palabras</p>
+            </div>
+          </div>
+
+
           <!-- Línea horizontal antes de valoraciones del libro -->
           <hr class="my-3">
 
@@ -107,15 +123,15 @@
           <!-- Línea horizontal antes del título todas las reseñas del libro -->
           <hr class="my-3">
 
-          <div class="dropdown d-flex justify-content-end">
-            <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <div ref="dropdown" class="dropdown d-flex justify-content-end">
+            <button class="btn dropdown-toggle" type="button" @click="toggleDropdown">
               Ordena por:
             </button>
-            <ul class="dropdown-menu" style="position: absolute; top: 100%; left: 0; margin-top: 0.125rem;">
-              <li><a href="#" class="dropdown-item" @click.prevent="cambiarFiltro('alta')"> Valoración más alta</a></li>
-              <li><a href="#" class="dropdown-item" @click.prevent="cambiarFiltro('baja')"> Valoración más baja</a></li>
-              <li><a href="#" class="dropdown-item" @click.prevent="cambiarFiltro('antigua')"> Valoración más antigua</a></li>
-              <li><a href="#" class="dropdown-item" @click.prevent="cambiarFiltro('reciente')"> Valoración más reciente</a></li>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('alta')"> Valoración más alta</a></li>
+              <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('baja')"> Valoración más baja</a></li>
+              <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('antigua')"> Valoración más antigua</a></li>
+              <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('reciente')"> Valoración más reciente</a></li>
             </ul>
           </div>
 
@@ -217,6 +233,8 @@ import NavBar from '@/components/NavBar.vue'
 import Cargando from '@/components/Cargando.vue'
 import Footer from '@/components/Footer.vue'
 import { apiClient } from '../config';
+import { Dropdown } from 'bootstrap';
+
 
 
 export default {
@@ -233,7 +251,7 @@ export default {
       librosRelacionados: [],
       mostrarModal: false,
       modalListasAbierto: false,
-      dropdownAbierto: false,
+      dropdownInstance: null,
       listas: {
         usuario_id: "",
         libro_id: "",
@@ -299,6 +317,7 @@ export default {
 
     // Aplicar el tema guardado al cargar la página
     this.applyTheme();
+    this.dropdownInstance = new Dropdown(this.$refs.dropdown);
   } catch (error) {
     console.error('Error al cargar los detalles del libro:', error);
   }
@@ -610,6 +629,13 @@ export default {
         'reciente': 'Valoración más reciente'
       };
       return filterLabels[this.filtroSeleccionado] || 'Ordenar';
+    },
+    seleccionarFiltro(filtro) {
+      this.cambiarFiltro(filtro);
+      this.dropdownInstance.hide(); // Cierra el dropdown después de seleccionar
+    },
+    toggleDropdown() {
+      this.dropdownInstance.toggle();
     }
   }
 };
@@ -826,19 +852,11 @@ export default {
   background-color: #bca369;
 }
 
-.dropdown {
-  position: relative;
-}
-
 .dropdown-item {
   cursor: pointer;
 }
 
 .dropdown-item:hover {
   background-color: rgba(0,0,0,0.1);
-}
-
-.dropdown:focus-within .dropdown-menu {
-  display: block;
 }
 </style>
