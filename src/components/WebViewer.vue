@@ -202,6 +202,9 @@ export default {
       if (pageNum.value >= pageCount.value) return;
       pageNum.value++;
       renderPage(pageNum.value);
+      if (pageNum.value === pageCount.value) {
+        guardarEnLeidos();
+      }
     };
 
     const zoomIn = () => {
@@ -241,6 +244,50 @@ export default {
       }
     });
 
+
+    const guardarEnLeidos = async () => {
+      if (!correo.value || !libroUrl) {
+        console.error("⚠️ No se puede guardar la página: datos faltantes.");
+        return;
+      }
+
+      try {
+        const processedUrl = processBookUrl(libroUrl);
+        console.log("📩 Correo:", correo.value);
+        console.log("📄 Enlace del libro procesado:", processedUrl);
+        await apiClient.post(
+          "/libros/leidos",
+          {
+            correo: correo.value,
+            enlace: processedUrl,
+            fecha_fin_lectura: new Date().toISOString(), // La fecha actual
+          },
+          { withCredentials: true }
+        );
+        console.log("✅ Página guardada en 'leidos'");
+      } catch (error) {
+        console.error("❌ Error al guardar la página en 'leidos':", error.response ? error.response.data : error);
+      }
+    };
+    const processBookUrl = (url) => {
+  if (!url) return null;
+
+  // Si el enlace contiene "proxy-pdf", extrae la URL original
+  if (url.includes("proxy-pdf")) {
+    const parsedUrl = new URL(url);
+    url = parsedUrl.searchParams.get("url") || url;
+  }
+
+  // Si es un enlace de Google Drive, conviértelo al formato correcto
+  const match = url.match(/id=([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)\//);
+  if (match) {
+    const id = match[1];
+    return `https://drive.google.com/file/d/${id}/view?usp=sharing`;
+  }
+
+  // Devuelve el enlace tal cual si no coincide con ninguno de los casos anteriores
+  return url;
+};
     const toggleFavorita = async () => {
       if (!correo.value) {
         alert("Debes iniciar sesión para guardar favoritas.");
