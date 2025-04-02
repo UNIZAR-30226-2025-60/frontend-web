@@ -174,12 +174,14 @@ export default {
     },
     async eliminarLista(lista) {
       try {
+        // Eliminar la lista en el backend
         await apiClient.delete(`/listas/${this.user.correo}/${encodeURIComponent(lista.nombre)}`);
-        if(this.privacidad === "MisListas"){
-          this.$router.push({name: 'Listas', params: { privacidad: 'MisListas'}});
-        } else {
-          this.$router.push({name: 'Listas', params: { privacidad: 'ListasPublicas'}});
-        } // Recargar listas después de eliminar
+
+        // Eliminar la lista del array local
+        this.listas = this.listas.filter(l => l.nombre !== lista.nombre);
+
+        alert('Lista eliminada exitosamente');
+        
       } catch (error) {
         alert("Error al eliminar la lista:", error);
       }

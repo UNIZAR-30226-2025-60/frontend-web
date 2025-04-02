@@ -141,13 +141,17 @@ export default {
   methods: {
     async cargarLista() {
       try {
-        const response = await apiClient.get(`/listas/${this.user.correo}/${this.nombre}`);;
+        const response = await apiClient.get(`/listas/${this.user.correo}/${encodeURIComponent(this.nombre)}`);
         const lista = response.data;
         this.descripcion = lista.descripcion;
         this.publica = lista.publica;
         this.imagenSeleccionada = { foto: lista.portada };
+        // Verificar que los datos se están cargando
+        console.log("Datos de la lista cargados:", lista);
       } catch (error) {
         console.error("Error al cargar la lista para editar:", error);
+        // Añadir más información de depuración
+        console.error("Detalles del error:", error.response ? error.response.data : error.message);
       }
     },
     // Función para transformar URLs de Google Drive
@@ -173,10 +177,39 @@ export default {
     async cargarImagenes() {
       try {
         const response = await apiClient.get("/listas/portadas-temas");
-        this.imagenes = response.data;
+        // Filtrar imágenes duplicadas basado en la URL normalizada
+        const imagenesUnicas = [];
+        const urlsVistas = new Set();
+        
+        response.data.forEach(imagen => {
+          // Normalizar la URL para comparación más precisa
+          const urlNormalizada = this.normalizarURL(imagen.foto);
+          
+          if (!urlsVistas.has(urlNormalizada)) {
+            urlsVistas.add(urlNormalizada);
+            imagenesUnicas.push(imagen);
+          }
+        });
+        
+        this.imagenes = imagenesUnicas;
+        console.log(`Cargadas ${this.imagenes.length} imágenes únicas de ${response.data.length} totales`);
       } catch(error) {
         console.error('Error al cargar las imagenes:', error);
       }
+    },
+    // Función para comparar URLs en busca de imágenes duplicadas
+    normalizarURL(url) {
+      if (!url) return "";
+      
+      // Extraer el ID del archivo de Google Drive
+      const match = url.match(/id=([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)\//);
+      
+      if (match) {
+        return match[1]; // Devolver solo el ID como identificador único
+      }
+      
+      // Si no es una URL de Google Drive, normalizar quitando parámetros
+      return url.split('?')[0];
     },
     seleccionarImagen(imagen) {
       this.imagenSeleccionada = imagen;
@@ -200,17 +233,27 @@ export default {
           });
           alert('Lista creada con éxito');
         } else if (this.hacer === "Editar") {
-          await apiClient.patch(`/listas/${this.user.correo}/${this.nombreOriginal}`, {
+          // Asegurarnos de que imagenSeleccionada existe
+          const portada = this.imagenSeleccionada ? this.imagenSeleccionada.foto : this.defaultProfileImage;
+          
+          await apiClient.patch(`/listas/${this.user.correo}/${encodeURIComponent(this.nombreOriginal)}`, {
             descripcion: this.descripcion,
             publica: this.publica,
-            portada: this.imagenSeleccionada.foto,
+            portada: portada,
             nuevoNombre: this.nombre // En caso de que quiera cambiar el nombre
           });
           alert('Lista actualizada con éxito');
         }
-        this.$router.push({ name: 'Listas', params: { privacidad: 'Mis Listas' }});
+        // Redirigir a "Mis Listas" si la lista es privada
+        if (this.publica === false) {
+          this.$router.push({ name: 'Listas', params: { privacidad: 'MisListas' } });
+        } else {
+          // Si la lista es pública, redirigir a las listas públicas
+          this.$router.push({ name: 'Listas', params: { privacidad: 'ListasPublicas' } });
+        }
       } catch (error) {
         console.error('Error al guardar la lista:', error);
+        console.error("Detalles del error:", error.response ? error.response.data : error.message);
         alert('No se pudo guardar la lista');
       }
     },

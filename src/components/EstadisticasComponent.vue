@@ -126,10 +126,23 @@
                   'card mb-2': true,
                   'bg-gold': i === 0,  /* Primer puesto (dorado) */
                   'bg-silver': i === 1, /* Segundo puesto (plateado) */
-                  'bg-bronce': i === 2, /* Tercer puesto (bronce/marrón anaranjado) */
+                  'bg-bronce': i === 2, /* Tercer puesto (bronce) */
                 }">
               <div class="card-body">
-                <strong>{{ usuario.usuario_id }}</strong> - Libros leídos: {{ usuario.libros_leidos }}
+                <font-awesome-icon :icon="['fas', 'trophy']" 
+                      :class="{
+                        'text-warning': i === 0, /* Dorado */
+                        'text-secondary': i === 1, /* Plateado */
+                        'text-muted': i === 2, /* Bronce */
+                        'trophy-border': true 
+                      }" />
+
+                <span class="position-relative ms-2">
+                  <span v-if="i === 0">1º Lugar: </span>
+                  <span v-if="i === 1">2º Lugar: </span>
+                  <span v-if="i === 2">3º Lugar: </span>
+                </span>
+                {{ usuario.usuario_id }} - Libros leídos: {{ usuario.libros_leidos }}
               </div>
             </div>
           </div>
@@ -140,7 +153,7 @@
             <!-- Cada recuadro individual para los usuarios -->
             <div v-for="(usuario, i) in top3UsuariosAnio" :key="i" class="card mb-1">
               <div class="card-body">
-                <strong>{{ usuario.usuario_id }}</strong> - Libros leídos: {{ usuario.libros_leidos }}
+                {{ usuario.usuario_id }} - Libros leídos: {{ usuario.libros_leidos }}
               </div>
             </div>
           </div>
@@ -769,7 +782,7 @@ export default {
 }
 
 .bg-gold {
-  background-color: #edd502; 
+  background-color: #dbc70d; 
 }
 
 .bg-silver {
@@ -778,5 +791,11 @@ export default {
 
 .bg-bronce {
   background-color: #e1974e;
+}
+
+.trophy-border {
+  stroke: black;  /* Define el borde del ícono */
+  stroke-width: 3px;  /* Grosor del borde */
+  fill: none;  /* Solo rellena el contorno*/
 }
 </style>

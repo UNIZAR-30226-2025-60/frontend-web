@@ -363,4 +363,36 @@ export default {
 .lista-tipo i {
   margin-right: 5px;
 }
+
+.book-card {
+  width: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease-in-out;
+  cursor: pointer;
+}
+
+.book-card:hover {
+  transform: scale(1.05);
+}
+
+.book-image {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.book-title {
+  width: 160px; 
+  white-space: normal; 
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  -webkit-box-orient: vertical;
+  text-align: center;
+}
 </style>

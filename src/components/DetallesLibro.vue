@@ -207,16 +207,20 @@
           <div class="modal-header">
             <h4 class="modal-title fw-bold mb-4">Selecciona una lista</h4>
           </div>
-          <div class="modal-body">
-            <ul class="list-group">
-              <li v-for="lista in listasUsuario" :key="lista.id" class="list-group-li bg-dark mb-2">
-                <button class="btn w-100 text-start" @click="aniadirALista(lista.nombre)">{{ lista.nombre }}</button>
-              </li>
-            </ul>
-
-            <div class="mt-3 text-end">
-              <button class="btn btn-cancelar" @click="cerrarModalListas">Cerrar</button>
+          <div v-if="listasUsuario.length > 0">
+            <div class="modal-body">
+              <ul class="list-group">
+                <li v-for="lista in listasUsuario" :key="lista.id" class="list-group-li bg-dark mb-2">
+                  <button class="btn w-100 text-start" @click="aniadirALista(lista.nombre)">{{ lista.nombre }}</button>
+                </li>
+              </ul>
             </div>
+          </div>
+          <div v-else class="mt-3">
+            <p>No tienes ninguna lista creada.</p>
+          </div>
+          <div class="mt-3 text-end">
+            <button class="btn btn-cancelar" @click="cerrarModalListas">Cerrar</button>
           </div>
         </div>
       </div>
