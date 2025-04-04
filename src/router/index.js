@@ -21,7 +21,7 @@ import ChatbotComponent from "@/components/Chatbot.vue";  // Importa tu componen
 const routes = [
   { path: "/", name: "Login", component: LoginComponent },
   { path: "/inicio", name: "Inicio", component: InicioComponent },
-  { path: "/foro", name: "Foro", component: ForoComponent },
+  { path: "/foro", name: "Foro", component: ForoComponent  , meta: { requiresAuth: true }},
   { path: "/detalles/:id", name: "Detalles", component: DetallesComponent },
   { path: "/avisoLegal", name: "AvisoLegal", component: AvisoLegalComponent },
   { path: "/politica", name: "Politica", component: PoliticaComponent },
@@ -38,11 +38,11 @@ const routes = [
     meta: { cleanLayout: true }
   },
   { path: "/estadisticas", name: "Estadisticas", component: EstadisticasComponent },
-  { path: "/listas/:privacidad", name: "Listas", component: ListasComponent },
+  { path: "/listas/:privacidad", name: "Listas", component: ListasComponent, meta: { requiresAuth: true } },
   { path: "/crearlista/:hacer/:nombre?", name: "CrearEditarLista", component: CrearEditarListaComponent },
-  { path: "/perfil", name: "Perfil", component: PerfilComponent },
+  { path: "/perfil", name: "Perfil", component: PerfilComponent, meta: { requiresAuth: true }  },
   //{ path: "/webviewer", name: "WebViewer", component: WebViewer }, 
-  { path: "/chatbot", name: "Chatbot", component: ChatbotComponent },
+  { path: "/chatbot", name: "Chatbot", component: ChatbotComponent, meta: { requiresAuth: true } },
 ];
 
 const router = createRouter({
@@ -50,23 +50,17 @@ const router = createRouter({
   routes,
 });
 
-// const routes = [
-//   // otras rutas
-//   {
-//     path: '/visor-pdf',
-//     name: 'VisorPdf',
-//     component: () => import('@/components/WebViewer.vue'),
-//     props: (route) => ({
-//       pdfUrl: `http://localhost:3000/api/proxy-pdf?url=${route.query.url}` // ← línea exacta aquí
-//     }),
-//     meta: { cleanLayout: true }
-//   },  
-// ];
+// Middleware de autenticación
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = !!localStorage.getItem("userToken") || !!document.cookie.includes('connect.sid'); // Verifica si hay un token o si la sesión está activa
 
-// const router = createRouter({
-//   history: createWebHistory(),
-//   routes,
-// });
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    alert("Debes iniciar sesión para acceder a esta página.");
+    next({ name: 'Login' }); // Redirige al login
+  } else {
+    next(); // Permite el acceso
+  }
+});
 
 export default router;
 

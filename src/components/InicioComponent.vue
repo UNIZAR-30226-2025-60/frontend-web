@@ -1,5 +1,5 @@
 <template>
-  <div v-if="user">
+  <div v-if="user || (!user && libros.length > 0)">
     <NavBar :dark-mode="darkMode"></NavBar>
     <div class="cabecera" style="background-color: #9b885b;">
       <div class="container mt-2">
@@ -123,18 +123,28 @@ export default {
       return this.temas.slice(0, this.visibleCategories);
     }
   },
-  async mounted() {
-    try {
-      const response = await apiClient.get("/user"); // Llamada a usuario
-      this.user = response.data;
-      this.cargarLibros();
-      this.cargarTematicas();
-      this.applyTheme();
-    } catch (error) {
-      console.error("Error al obtener los datos del usuario:", error);
-      this.$router.push("/");
-    }
-  },
+    async mounted() {
+  try {
+    // Intenta obtener los datos del usuario autenticado
+    const response = await apiClient.get("/user");
+    this.user = response.data; // Guarda los datos del usuario si existe
+    console.log("Usuario autenticado:", this.user);
+  } catch (error) {
+    // Si no hay usuario autenticado, simplemente continúa con los datos públicos
+    console.warn("Usuario no autenticado:", error);
+    this.user = null; // Marcar como no autenticado
+  }
+
+  // Cargar libros y temáticas independientemente del estado de autenticación
+  try {
+    await this.cargarLibros();
+    await this.cargarTematicas();
+    this.applyTheme();
+  } catch (error) {
+    console.error("Error al cargar datos públicos:", error);
+    alert("Hubo un problema al cargar la página. Inténtalo más tarde.");
+  }
+},
   watch: {
     // Observador para buscar mientras se escribe
     busqueda(newValue) {
