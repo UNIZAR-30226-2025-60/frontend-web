@@ -38,6 +38,12 @@
         </button>
       </div>
       <div>
+        <button class="btn mb-2" @click="showImageModal">
+          <font-awesome-icon :icon="['fas', 'image']" />
+          Cambiar Foto de Perfil
+        </button>
+      </div>
+      <div>
         <button class="btn" @click="cerrarSesion">
           <font-awesome-icon :icon="['fas', 'right-from-bracket']" />
           Cerrar Sesión
@@ -113,6 +119,27 @@
         </form>
       </div>
     </div>
+    <!-- Modal para cambiar foto de perfil -->
+    <div v-if="CshowImageModal" class="modal-overlay" @click.self="hideImageModal">
+      <div class="modal-content" :class="darkMode ? 'modal-dark' : 'modal-light'">
+        <h5 class="mb-3">Selecciona una nueva foto de perfil</h5>
+        <div class="image-grid">
+          <div
+            v-for="(imagen, index) in imagenes"
+            :key="index"
+            class="image-item"
+            :class="{ selected: imagenSeleccionada === imagen.url }"
+            @click="seleccionarImagen(imagen.url)"
+          >
+            <img :src="transformarURLGoogleDrive(imagen.url)" alt="Foto de perfil" class="image-preview" />
+          </div>
+        </div>
+        <div class="button-group mt-3">
+          <button class="btn btn-save" @click="guardarImagen">Guardar</button>
+          <button class="btn btn-cancel" @click="hideImageModal">Cancelar</button>
+        </div>
+      </div>
+    </div>
   </div>
   <div v-else>
     <Cargando :dark-mode="darkMode"></Cargando>
@@ -123,7 +150,13 @@
 import axios from 'axios';
 import Cargando from '@/components/Cargando.vue';
 import { apiClient } from '../config';
-    
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { fas } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+
+// Agregar íconos al sistema
+library.add(fas);
+
 export default {
   name: 'Perfil',
   components: {
@@ -153,7 +186,10 @@ export default {
       },
       nameLoading: false,
       nameMessage: "",
-      nameStatus: false
+      nameStatus: false,
+      CshowImageModal: false,
+      imagenes: [],
+      imagenSeleccionada: null,
     };
   },
   async mounted() {
@@ -326,7 +362,48 @@ export default {
 
     // Redirigir al login
     this.$router.push({ name: 'Login' });
-  }
+  },
+  async cargarImagenes() {
+      try {
+        const response = await apiClient.get("/usuarios/fotos-perfil");
+        console.log("Imágenes cargadas: ", response.data);
+        this.imagenes = response.data;
+      } catch (error) {
+        console.error("Error al cargar fotos de perfil:", error);
+      }
+    },
+    showImageModal() {
+      this.cargarImagenes();
+      this.CshowImageModal = true;
+      console.log("Modal abierto: ", this.CshowImageModal);
+    },
+    hideImageModal() {
+      this.CshowImageModal = false;
+      this.imagenSeleccionada = null;
+    },
+    seleccionarImagen(url) {
+      this.imagenSeleccionada = url;
+    },
+    async guardarImagen() {
+      if (!this.imagenSeleccionada) {
+        alert("Debes seleccionar una imagen.");
+        return;
+      }
+      try {
+        const response = await apiClient.post("/usuario/cambiar-foto", {
+          correo: this.user.correo,
+          foto_perfil: this.imagenSeleccionada,
+        });
+        this.user.foto_perfil = this.transformarURLGoogleDrive(response.data.foto_perfil);
+        alert("Foto de perfil actualizada correctamente.");
+        this.hideImageModal();
+      } catch (error) {
+        console.error("Error al actualizar la foto de perfil:", error);
+        alert("No se pudo actualizar la foto de perfil.");
+      }
+    },
+
+
   }
 };
 </script>
@@ -537,5 +614,112 @@ export default {
 .clickable {
   cursor: pointer;
   pointer-events: auto; /* Asegura que el clic sea detectado */
+}
+
+
+
+
+.dark-mode .lista-banner {
+  background-color: #444;
+}
+.dark-mode .lista-info {
+  color: #ffffff;
+}
+.dark-mode .lista-tipo i {
+  color: #f1c40f; /* Color del candado en modo oscuro */
+}
+.dark-mode .text-light {
+  color: #ffffff;
+}
+
+.light-mode .lista-banner {
+  background-color: #f8f9fa;
+}
+.light-mode .lista-info {
+  color: #000000;
+}
+.light-mode .lista-tipo i {
+  color: #888; /* Color del candado en modo claro */
+}
+.light-mode .text-dark {
+  color: #000000;
+}
+.dark-mode .lista-banner {
+  background-color: #444;
+}
+.dark-mode .lista-info {
+  color: #ffffff;
+}
+.dark-mode .lista-tipo i {
+  color: #f1c40f; /* Color del candado en modo oscuro */
+}
+.dark-mode .text-light {
+  color: #ffffff;
+}/* Estilos del modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;  /* Asegúrate de que esté por encima de otros elementos */
+}
+
+.modal-content {
+  width: 90%;
+  max-width: 500px;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  background-color: #fff;
+  color: #000;
+}
+
+.modal-light {
+  background-color: #ead5a1;
+  color: #000;
+}
+
+.modal-dark {
+  background-color: #444;
+  color: #fff;
+}
+
+/* Agrega estos estilos */
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.image-item {
+  cursor: pointer;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.image-item.selected {
+  border-color: #4CAF50;
+}
+
+.image-preview {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+}
+
+.btn-save {
+  background-color: #4CAF50 !important;
+  margin-right: 10px;
+}
+
+.btn-cancel {
+  background-color: #f44336 !important;
 }
 </style>
