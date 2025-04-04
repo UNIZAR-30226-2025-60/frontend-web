@@ -152,9 +152,19 @@ export default {
         // En primer lugar obtenemos todos los libros de la base de datos
         const response = await apiClient.get("/libros");
         const todosLosLibros = response.data;
-        // En segundo lugar obtenemos los libros favoritos del usuario
-        const response1 = await apiClient.get(`/listas/${this.user.correo}/${this.lista.nombre}/libros`);
-        const librosLista = response1.data;
+
+
+        let librosLista;
+        
+        if(this.donde == "MisListas"){
+          // Si es una lista propia
+          const response1 = await apiClient.get(`/listas/${this.user.correo}/${this.lista.nombre}/libros`);
+          librosLista = response1.data;
+        } else {
+          // Si es una lista pública
+          const responsePublica = await apiClient.get(`/listas/publicas/${this.lista.nombre}/librosP`);
+          librosLista = responsePublica.data;
+        }
       
         console.log("Vamos a cargar los libros favoritos de:", this.user.correo);
         console.log("los libros favoritos de usuario son:", librosLista);
