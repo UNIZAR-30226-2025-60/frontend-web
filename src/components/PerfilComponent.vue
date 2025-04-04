@@ -313,9 +313,20 @@ export default {
       document.body.classList.toggle("light-mode", !this.darkMode);
     },
     cerrarSesion() {
-      localStorage.removeItem("userToken");
-      this.$router.push({ name: 'Login' });
-    }
+    // Eliminar cookies
+    document.cookie = "connect.sid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie = "userEmail=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+
+    // Limpiar localStorage
+    localStorage.removeItem("userToken");
+    localStorage.removeItem("userData");
+
+    // Reiniciar el estado de la aplicación
+    this.user = null;
+
+    // Redirigir al login
+    this.$router.push({ name: 'Login' });
+  }
   }
 };
 </script>
