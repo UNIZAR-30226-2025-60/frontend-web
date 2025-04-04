@@ -21,8 +21,7 @@
 
     
       <!-- Mensaje de bienvenida -->
-      <h4><strong>Bienvenido</strong></h4>
-      <p class="mb-1">{{ user.nombre }}</p>
+      <h4><strong>¡Bienvenid@ {{ user.nombre }}!</strong></h4>
       <p class="mb-4">{{ user.correo }}</p>
     
       <!-- Botones -->
@@ -35,7 +34,7 @@
       <div>
         <button class="btn mb-2" @click="changeName">
           <font-awesome-icon :icon="['fas', 'pencil']" />
-          Cambiar Nombre
+          Editar Nombre
         </button>
       </div>
       <div>
@@ -49,21 +48,21 @@
     <!-- Modal para cambiar contraseña -->
     <div v-if="showPasswordModal" class="modal-overlay" @click.self="closePasswordModal">
       <div class="modal-content" :class="darkMode ? 'modal-dark' : 'modal-light'">
-        <h3 class="mb-3">Cambiar Contraseña</h3>
+        <h5 class="mb-3">Editar contraseña</h5>
             
         <form @submit.prevent="cambiarContraseña">
           <div class="form-group">
-            <label for="oldPassword">Contraseña Actual</label>
+            <label for="oldPassword">Contraseña actual:</label>
             <input type="password" id="oldPassword" v-model="passwordForm.oldPassword" class="form-input" required/>
           </div>
               
           <div class="form-group">
-            <label for="newPassword">Nueva Contraseña</label>
+            <label for="newPassword">Nueva contraseña:</label>
             <input type="password" id="newPassword" v-model="passwordForm.newPassword" class="form-input" required/>
           </div>
               
           <div class="form-group">
-            <label for="confirmPassword">Confirmar Nueva Contraseña</label>
+            <label for="confirmPassword">Confirmar nueva contraseña:</label>
             <input type="password" id="confirmPassword" v-model="confirmPassword" class="form-input" required/>
           </div>
               
@@ -86,16 +85,16 @@
     <!-- Modal para cambiar nombre -->
     <div v-if="showNameModal" class="modal-overlay" @click.self="closeNameModal">
       <div class="modal-content" :class="darkMode ? 'modal-dark' : 'modal-light'">
-        <h3 class="mb-3">Cambiar Nombre</h3>
+        <h5 class="mb-3">Editar nombre</h5>
         
         <form @submit.prevent="guardarNuevoNombre">
           <div class="form-group">
-            <label for="currentName">Nombre Actual</label>
+            <label for="currentName">Nombre actual:</label>
             <input type="text" id="currentName" :value="user.nombre" class="form-input" disabled />
           </div>
           
           <div class="form-group">
-            <label for="newName">Nuevo Nombre</label>
+            <label for="newName">Nuevo nombre:</label>
             <input type="text" id="newName" v-model="nameForm.newName" class="form-input" required />
           </div>
           
@@ -105,7 +104,7 @@
           
           <div class="button-group">
             <button type="submit" class="btn btn-save" :disabled="nameLoading">
-              {{ nameLoading ? 'Guardando...' : 'Guardar' }}
+              {{ nameLoading ? 'Guardando...' : 'Confirmar' }}
             </button>
             <button type="button" class="btn btn-cancel" @click="closeNameModal">
               Cancelar

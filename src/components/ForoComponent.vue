@@ -78,7 +78,7 @@
       <div class="modal-dialog modal-dialog-centered"> 
         <div class="modal-content bg-dark text-white rounded-3 shadow-lg">
           <div class="modal-header">
-            <h4 class="modal-title fw-bold mb-4">Nueva Respuesta</h4>
+            <h4 class="modal-title fw-bold mb-4">Nueva respuesta</h4>
           </div>
           <div class="modal-body">
             <form>

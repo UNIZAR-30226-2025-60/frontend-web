@@ -11,7 +11,7 @@
       <h4 class="mb-4 text-center">{{ privacidad }}</h4>
 
       <div class="l-container p-2 mx-5">
-        <h4 class="text p-2">{{ listas.length > 0 ? '' : 'No tienes listas aún' }}</h4>
+        <h5 class="text p-2">{{ listas.length > 0 ? '' : 'No tienes listas aún' }}</h5>
         <div class="row listas-container">
           <!-- Listado de listas -->
           <div v-for="lista in listas" :key="lista.id" class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4 d-flex justify-content-center" @click="goToVerLista(lista)">

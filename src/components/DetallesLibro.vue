@@ -87,7 +87,7 @@
                   <p>({{conteoValoraciones.total}})</p>
                 </div>
                 <div class="pt-2">
-                  <button class="btn" @click="aniadirValoracion(libro)">Añadir Valoración</button>
+                  <button class="btn" @click="aniadirValoracion(libro)">+ Añadir Valoración</button>
                 </div>
               </div>
               <div>
@@ -125,7 +125,7 @@
 
           <div ref="dropdown" class="dropdown d-flex justify-content-end">
             <button class="btn dropdown-toggle" type="button" @click="toggleDropdown">
-              Ordena por:
+              Ordenar por:
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
               <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('alta')"> Valoración más alta</a></li>
@@ -147,7 +147,7 @@
                 </span>
               </p>
               <p class="mb-1">{{ valoracion.mensaje }}</p>
-              <p>Por {{valoracion.usuario_id}} en {{ new Date(valoracion.fecha).toLocaleDateString() }}</p>
+              <p>Por {{valoracion.usuario_id}} el {{ new Date(valoracion.fecha).toLocaleDateString() }}</p>
               <hr>
             </div>
           </div>
@@ -173,7 +173,7 @@
       <div class="modal-dialog modal-dialog-centered"> 
         <div class="modal-content bg-dark text-white rounded-3 shadow-lg">
           <div class="modal-header">
-            <h4 class="modal-title fw-bold mb-4">Nueva Valoración</h4>
+            <h4 class="modal-title fw-bold mb-4">Nueva valoración</h4>
           </div>
           <div class="modal-body">
             <form>
@@ -186,7 +186,7 @@
                 <textarea v-model="nuevaValoracion.mensaje" placeholder="Introduce tu valoración*" required></textarea>
               </div>
               <div>
-                <label class="controls mb-3 p-2" for="valor">Puntuación:</label>
+                <label class="controls mb-3 p-2" for="valor">Puntuación del 1 al 5:</label>
                 <input type="number" v-model="nuevaValoracion.valor" min="1" max="5">
               </div>
             </form>
@@ -639,10 +639,10 @@ export default {
     },
     getSelectedFilterLabel() {
       const filterLabels = {
-        'alta': 'Valoración más alta',
-        'baja': 'Valoración más baja',
-        'antigua': 'Valoración más antigua',
-        'reciente': 'Valoración más reciente'
+        'alta': 'valoraciones más altas',
+        'baja': 'valoraciones más bajas',
+        'antigua': 'valoraciones más antiguas',
+        'reciente': 'valoraciones más recientes'
       };
       return filterLabels[this.filtroSeleccionado] || 'Ordenar';
     },

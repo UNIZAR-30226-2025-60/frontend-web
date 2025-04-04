@@ -33,14 +33,14 @@
               <h3>Iniciar Sesión</h3>
               <form @submit.prevent="login">
                 <div class="form-group">
-                  <label>Email</label>
+                  <label>Correo electrónico:</label>
                   <input type="email" v-model="email" class="form-control" />
                 </div>
                 <div class="form-group">
-                  <label>Contraseña</label>
+                  <label>Contraseña:</label>
                   <input type="password" v-model="password" class="form-control" />
                 </div>
-                <button type="submit" class="btn-primary">Ingresar</button>
+                <button type="submit" class="btn-primary">Confirmar</button>
               </form>
               <button class="google-btn" @click="loginWithGoogle">
                 <img src="@/assets/logo-google.png" alt="Google logo" />
@@ -53,18 +53,18 @@
               <h3>Registrarse</h3>
               <form @submit.prevent="registerUsuario">
                 <div class="form-group">
-                  <label>Nombre</label>
+                  <label>Nombre:</label>
                   <input type="text" v-model="name" class="form-control" />
                 </div>
                 <div class="form-group">
-                  <label>Email</label>
+                  <label>Correo electrónico</label>
                   <input type="email" v-model="email" class="form-control" />
                 </div>
                 <div class="form-group">
-                  <label>Contraseña</label>
+                  <label>Contraseña:</label>
                   <input type="password" v-model="password" class="form-control" />
                 </div>
-                <button type="submit" class="btn-primary">Registrarse</button>
+                <button type="submit" class="btn-primary">Confirmar</button>
               </form>
             </div>
           </div>

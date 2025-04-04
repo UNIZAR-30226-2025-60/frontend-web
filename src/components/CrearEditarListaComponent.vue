@@ -14,7 +14,7 @@
                    alt="Foto lista" 
                    class="rounded-2 mx-auto d-block" 
                    width="100">
-              <h4 class="mt-2">{{ hacer === 'Editar' ? 'Editar Lista' : 'Crear Lista' }}</h4>
+              <h4 class="mt-2">{{ hacer === 'Editar' ? 'Editar Lista' : 'Confirmar' }}</h4>
               <p class="text-secondary text-justify">Crea o edita tu lista de temáticas especiales. ¿Quieres compartir tus recomendaciones o prefieres mantener tu lista solo para ti? ¡Tú decides! Pública para inspirar a otros, privada para disfrutar en solitario.</p>
               <button type="button" class="btn btn-warning" @click="showModal">
                 Editar foto de perfil
@@ -38,7 +38,7 @@
                   <option :value="false">Privada</option>
                 </select>
               </div>
-              <button class="btn btn-warning w-100" @click="guardarLista">{{ hacer === 'Editar' ? 'Guardar Cambios' : 'Crear Lista' }}</button>
+              <button class="btn btn-warning w-100" @click="guardarLista">{{ hacer === 'Editar' ? 'Guardar Cambios' : 'Confirmar' }}</button>
             </div>
           </div>
         </div>

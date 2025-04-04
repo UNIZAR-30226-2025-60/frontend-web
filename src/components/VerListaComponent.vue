@@ -33,7 +33,7 @@
         </div>
       </div>
 
-      <h5 class="text-center p-2">{{ libros.length > 0 ? '' : 'No tienes ningun libro en la lista' }}</h5>
+      <h5 class="text-center p-2">{{ libros.length > 0 ? '' : 'No se encontraron libros' }}</h5>
 
       <!-- Lista de libros -->
       <div class="listado">
