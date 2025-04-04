@@ -10,13 +10,13 @@
         <!-- Barra de búsqueda -->
         <form class="d-flex mb-3 mt-4" @submit.prevent="buscarLibros">
           <div class="input-group">
-            <input class="form-control rounded-pill" type="search" placeholder="Buscar título" aria-label="Buscar" v-model="busqueda">
+            <input class="form-control rounded-pill" type="search" placeholder="Buscar libros..." aria-label="Buscar" v-model="busqueda">
           </div>
         </form>
 
         <!-- Categorías-->
         <div class="categorias-header">
-          <h4 class="categorias-titulo">Categorías:</h4>
+          <h5 class="categorias-titulo">Categorías:</h5>
           
           <div class="categorias-wrapper">
             <!-- Flecha Izquierda -->
@@ -59,12 +59,6 @@
               <span class="arrow-right-icon"></span>
             </button>
           </div>
-        </div>
-        
-        <!-- Información del usuario -->
-        <div class="text-center">
-          <h3>Bienvenid@, {{ user.nombre }}</h3>
-          <p>Correo: {{ user.correo }}</p>
         </div>
       </div>
     </div>

@@ -205,21 +205,33 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-dark text-white rounded-3 shadow-lg">
           <div class="modal-header">
-            <h4 class="modal-title fw-bold mb-4">Selecciona una lista</h4>
+            <h4 class="modal-title fw-bold mb-4 mx-4">Guardar en...</h4>
           </div>
           <div v-if="listasUsuario.length > 0">
             <div class="modal-body">
               <ul class="list-group">
-                <li v-for="lista in listasUsuario" :key="lista.id" class="list-group-li bg-dark mb-2">
-                  <button class="btn w-100 text-start" @click="aniadirALista(lista.nombre)">{{ lista.nombre }}</button>
+                <li v-for="lista in listasUsuario" :key="lista.id" class="list-group-li bg-dark">
+                  <div class="d-flex align-items-center w-100 px-3 py-2">
+                    <input 
+                      type="checkbox" 
+                      class="form-check-input me-3" 
+                      :checked="verificarLibroEnLista(lista)"
+                      @click.stop="toggleLibroEnLista(lista)"
+                    />
+                    <span class="list-name">{{ lista.nombre }}</span>
+                  </div>
                 </li>
               </ul>
             </div>
           </div>
-          <div v-else class="mt-3">
+          <div v-else class="mt-3 px-4">
             <p>No tienes ninguna lista creada.</p>
           </div>
-          <div class="mt-3 text-end">
+          <hr class="my-3">
+          <div class="text-start px-4">
+            <button class="btn w-100 text-start" @click="irACrearListas">+ Nueva lista</button>
+          </div>
+          <div class="mt-3 text-end px-4 mb-3">
             <button class="btn btn-cancelar" @click="cerrarModalListas">Cerrar</button>
           </div>
         </div>
@@ -640,6 +652,98 @@ export default {
     },
     toggleDropdown() {
       this.dropdownInstance.toggle();
+    },
+    irACrearListas() {
+      this.$router.push({ name: 'CrearEditarLista', params: { hacer: 'Crear' } });
+    },
+    // Método para verificar si un libro está en una lista
+    verificarLibroEnLista(lista) {
+      // Comprueba si el libro actual está en la lista proporcionada
+      if (lista && lista.libros) {
+        // Si la lista tiene un array de libros completos
+        return lista.libros.some(libro => libro.enlace === this.libro.enlace);
+      } else if (lista && lista.libro_id) {
+        // Si la lista tiene un array de IDs de libros
+        return lista.libro_id.includes(this.libro.enlace);
+      }
+      return false;
+    },
+
+    // Método para obtener las listas del usuario actualizado
+    async obtenerListasUsuario() {
+      try {
+        const response = await apiClient.get(`/listas/${encodeURIComponent(this.user.correo)}`);
+        this.listasUsuario = response.data
+          .filter(lista => lista.nombre !== "Mis Favoritos" && lista.nombre !== "Leídos" && lista.nombre !== "En proceso");
+        console.log("Listas actualizadas:", this.listasUsuario);
+      } catch (error) {
+        console.error("Error al obtener las listas del usuario:", error);
+      }
+    },
+
+    // Método para abrir el modal de listas
+    async abrirModalListas(libro) {
+      this.libroSeleccionado = libro;
+      await this.obtenerListasUsuario();
+      this.modalListasAbierto = true;
+    },
+
+    // Método para alternar la presencia de un libro en una lista
+    async toggleLibroEnLista(lista) {
+      try {
+        const libroEnLista = this.verificarLibroEnLista(lista);
+        
+        if (libroEnLista) {
+          // Si el libro está en la lista, lo removemos
+          const data = {
+            usuario_id: this.user.correo,
+            libro_id: this.libro.enlace,
+          };
+          
+          console.log("Eliminando libro de lista:", data);
+          
+          const response = await apiClient.delete(`/listas/${encodeURIComponent(lista.nombre)}`, { 
+            data: data 
+          });
+          
+          console.log("Respuesta al eliminar:", response.data);
+          alert(`Libro eliminado de la lista "${lista.nombre}"`);
+          
+          // Actualizamos las listas para reflejar el cambio
+          await this.obtenerListasUsuario();
+          await this.comprobarFavorito();
+        } else {
+          // Si el libro no está en la lista, lo añadimos
+          const listas = {
+            usuario_id: this.user.correo,
+            libro_id: this.libro.enlace,
+            nombreLista: lista.nombre
+          };
+          
+          console.log("Añadiendo libro a lista:", listas);
+          
+          const response = await apiClient.post(`/listas/${encodeURIComponent(lista.nombre)}`, listas);
+          console.log("Respuesta al añadir:", response.data);
+          
+          alert(`Libro añadido a la lista "${lista.nombre}" correctamente`);
+          
+          // Actualizamos las listas para reflejar el cambio
+          await this.obtenerListasUsuario();
+          await this.comprobarFavorito();
+        }
+      } catch (error) {
+        console.error("Error al modificar libro en la lista:", error);
+        if (error.response) {
+          console.error("Detalles del error:", error.response.data);
+          if (error.response.status === 409) {
+            alert(`El libro ya está en la lista "${lista.nombre}".`);
+          } else {
+            alert(`Error (${error.response.status}): ${error.response.data.message || "Hubo un error al modificar la lista."}`);
+          }
+        } else {
+          alert("Error de conexión al modificar la lista.");
+        }
+      }
     }
   }
 };
@@ -862,5 +966,30 @@ export default {
 
 .dropdown-item:hover {
   background-color: rgba(0,0,0,0.1);
+}
+
+.list-group-li {
+  background: #444;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  color: white;
+  transition: background-color 0.2s;
+}
+
+.list-group-li:hover {
+  background: #555;
+}
+
+.list-name {
+  font-size: 1rem;
+}
+
+.form-check-input {
+  cursor: pointer;
+}
+
+.form-check-input:checked {
+  background-color: #046f2a;
+  border-color: #046f2a;
 }
 </style>

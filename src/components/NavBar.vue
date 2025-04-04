@@ -19,7 +19,7 @@
           <a class="nav-link nav-bold clickable" @click="goToEstadisticas">Estadísticas</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link nav-bold clickable" @click="goToListas">Listas</a>
+          <a class="nav-link nav-bold clickable" @click="goToListas">Listas Públicas</a>
         </li>
         <li class="nav-item">
           <a class="nav-link nav-bold clickable" @click="goToMisListas">Mis Listas</a>
