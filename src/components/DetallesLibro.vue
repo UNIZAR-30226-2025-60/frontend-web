@@ -212,13 +212,13 @@
               <ul class="list-group">
                 <li v-for="lista in listasUsuario" :key="lista.id" class="list-group-li bg-dark">
                   <div class="d-flex align-items-center w-100 px-3 py-2">
-                    <input 
-                      type="checkbox" 
-                      class="form-check-input me-3" 
-                      :checked="verificarLibroEnLista(lista)"
-                      @click.stop="toggleLibroEnLista(lista)"
-                    />
-                    <span class="list-name">{{ lista.nombre }}</span>
+                    <div class="custom-checkbox me-3" @click="toggleLibroEnLista(lista)">
+                      {{ seleccionadas.includes(lista.nombre) ? '✓' : '' }}
+                    </div>
+                    <span class="list-name me-2">{{ lista.nombre }}</span>
+                    <span :title="lista.publica ? 'Lista pública' : 'Lista privada'">
+                      {{ lista.publica ? '🔓' : '🔒' }}
+                    </span>
                   </div>
                 </li>
               </ul>
@@ -268,6 +268,8 @@ export default {
       mostrarModal: false,
       modalListasAbierto: false,
       dropdownInstance: null,
+      seleccionadas: [], // Almacena las listas que contienen el libro
+      listasUsuario: [], // Almacena todas las listas de un usuario
       listas: {
         usuario_id: "",
         libro_id: "",
@@ -360,7 +362,6 @@ export default {
 
         alert(`Libro añadido a la lista ${lista} correctamente`);
         await this.comprobarFavorito();
-        this.cerrarModalListas();
       } catch (error) {
           if (error.response && error.response.status === 409) {
             alert(`El libro ya está en la lista "${lista}".`);
@@ -368,6 +369,36 @@ export default {
             console.error("Error al añadir libro a la lista:", error);
             alert("Hubo un error al añadir el libro a la lista.");
           }
+      }
+    },
+    async eliminarDeLista(lista) {
+      try {
+        const listas = {
+          usuario_id: this.user.correo,
+          libro_id: this.libro.enlace,
+          nombreLista: lista,
+        };
+
+        console.log(`Eliminando libro ${this.libro.enlace} de la lista ${lista}`);
+
+        // This is the correct way to send a DELETE request with a body
+        const response = await apiClient.delete(`/listas/${lista}`, { 
+          data: listas 
+        });
+
+        console.log("Respuesta de eliminación:", response.data);
+        alert(`Libro eliminado de la lista ${lista} correctamente`);
+        await this.comprobarFavorito();
+      } catch (error) {
+        console.error("Error completo al eliminar de lista:", error);
+        if (error.response && error.response.status === 409) {
+          alert(`El libro no está en la lista "${lista}".`);
+        } else {
+          console.error("Error al eliminar libro de la lista:", error);
+          if (!this.modalListasAbierto) {
+            alert("Hubo un error al eliminar el libro de la lista.");
+          }
+        }
       }
     },
     getStarIcons(rating) {
@@ -607,11 +638,11 @@ export default {
     },
     async abrirModalListas(libro) {
       this.libroSeleccionado = libro;
-      const response = await apiClient.get(`/listas/${(this.user.correo)}`);
-      console.log("Listas del usuario", response.data);
-      this.listasUsuario = response.data
-        .filter(lista => lista.nombre !== "Mis Favoritos" && lista.nombre !== "Leídos" && lista.nombre !== "En proceso") // Excluir "Mis Favoritos", "Leídos" y "En proceso"
-        .map(lista => ({ ...lista, mostrarMenu: false }));
+      // Primero, obtener las listas actualizadas
+      await this.obtenerListasUsuario();
+      // Luego, verificar en cuáles está el libro
+      await this.obtenerListasDelLibro(libro);
+      // Mostrar el modal
       this.modalListasAbierto = true;
     },
     cerrarModalListas() {
@@ -619,9 +650,6 @@ export default {
     },
     scrollTop() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
-    },
-    toggleDropdown() {
-      this.dropdownAbierto = !this.dropdownAbierto;
     },
     cambiarFiltro(filtro) {
       console.log("Cambiando filtro a:", filtro);
@@ -656,19 +684,6 @@ export default {
     irACrearListas() {
       this.$router.push({ name: 'CrearEditarLista', params: { hacer: 'Crear' } });
     },
-    // Método para verificar si un libro está en una lista
-    verificarLibroEnLista(lista) {
-      // Comprueba si el libro actual está en la lista proporcionada
-      if (lista && lista.libros) {
-        // Si la lista tiene un array de libros completos
-        return lista.libros.some(libro => libro.enlace === this.libro.enlace);
-      } else if (lista && lista.libro_id) {
-        // Si la lista tiene un array de IDs de libros
-        return lista.libro_id.includes(this.libro.enlace);
-      }
-      return false;
-    },
-
     // Método para obtener las listas del usuario actualizado
     async obtenerListasUsuario() {
       try {
@@ -680,69 +695,68 @@ export default {
         console.error("Error al obtener las listas del usuario:", error);
       }
     },
-
-    // Método para abrir el modal de listas
-    async abrirModalListas(libro) {
-      this.libroSeleccionado = libro;
-      await this.obtenerListasUsuario();
-      this.modalListasAbierto = true;
-    },
-
-    // Método para alternar la presencia de un libro en una lista
-    async toggleLibroEnLista(lista) {
+    async obtenerListasDelLibro(libro) {
       try {
-        const libroEnLista = this.verificarLibroEnLista(lista);
+        this.seleccionadas = [];
         
-        if (libroEnLista) {
-          // Si el libro está en la lista, lo removemos
-          const data = {
-            usuario_id: this.user.correo,
-            libro_id: this.libro.enlace,
-          };
+        if (this.listasUsuario && Array.isArray(this.listasUsuario)) {
+          const libroEnlace = libro.enlace;
           
-          console.log("Eliminando libro de lista:", data);
-          
-          const response = await apiClient.delete(`/listas/${encodeURIComponent(lista.nombre)}`, { 
-            data: data 
-          });
-          
-          console.log("Respuesta al eliminar:", response.data);
-          alert(`Libro eliminado de la lista "${lista.nombre}"`);
-          
-          // Actualizamos las listas para reflejar el cambio
-          await this.obtenerListasUsuario();
-          await this.comprobarFavorito();
-        } else {
-          // Si el libro no está en la lista, lo añadimos
-          const listas = {
-            usuario_id: this.user.correo,
-            libro_id: this.libro.enlace,
-            nombreLista: lista.nombre
-          };
-          
-          console.log("Añadiendo libro a lista:", listas);
-          
-          const response = await apiClient.post(`/listas/${encodeURIComponent(lista.nombre)}`, listas);
-          console.log("Respuesta al añadir:", response.data);
-          
-          alert(`Libro añadido a la lista "${lista.nombre}" correctamente`);
-          
-          // Actualizamos las listas para reflejar el cambio
-          await this.obtenerListasUsuario();
-          await this.comprobarFavorito();
+          for (const lista of this.listasUsuario) { // Para cada una de las listas creadas por el usuario
+            if (lista.nombre === "Mis Favoritos" || lista.nombre === "Leídos" || lista.nombre === "En proceso") {
+              continue;
+            }
+            
+            try {
+              // Obtenemos los libros que forman parte de cada una de las listas
+              const listContentsResponse = await apiClient.get(`/listas/${encodeURIComponent(this.user.correo)}/${encodeURIComponent(lista.nombre)}/libros`);
+              
+              console.log(`La lista "${lista.nombre}" contiene los libros:`, listContentsResponse.data);
+              
+              if (listContentsResponse.data && Array.isArray(listContentsResponse.data)) {
+                
+                const containsBook = listContentsResponse.data.some(bookItem => {
+
+                  // Comprobamos si coincide alguno de los enlaces de la lista con el del libro que queremos añadir
+                  if (bookItem['enlace_libro'] && bookItem['enlace_libro'] === libroEnlace) {
+                    return true;
+                  }
+                });
+                
+                if (containsBook) {
+                  // Añadimos la lista que contiene dicho libro a las listas qeu deben estar marcadas con el check
+                  this.seleccionadas.push(lista.nombre);
+                }
+              }
+            } catch (listError) {
+              console.warn(`Error comprobando los libros de la lista "${lista.nombre}":`, listError);
+            }
+          }
+          console.log("Listas seleccionadas: ", this.seleccionadas);
         }
       } catch (error) {
-        console.error("Error al modificar libro en la lista:", error);
-        if (error.response) {
-          console.error("Detalles del error:", error.response.data);
-          if (error.response.status === 409) {
-            alert(`El libro ya está en la lista "${lista.nombre}".`);
-          } else {
-            alert(`Error (${error.response.status}): ${error.response.data.message || "Hubo un error al modificar la lista."}`);
-          }
+        console.error("Error obteniendo las listas del usuario:", error);
+      }
+    },
+    async toggleLibroEnLista(lista) {
+      const listaNombre = lista.nombre;
+      const yaSeleccionada = this.seleccionadas.includes(listaNombre);
+      
+      try {
+        if (yaSeleccionada) {
+          // Eliminar de lista y desmarcar
+          console.log("Eliminando libro de la lista:", listaNombre);
+          await this.eliminarDeLista(listaNombre);
+          this.seleccionadas = this.seleccionadas.filter(nombre => nombre !== listaNombre);
         } else {
-          alert("Error de conexión al modificar la lista.");
+          // Añadir a lista y marcar
+          console.log("Añadiendo libro a la lista:", listaNombre);
+          await this.aniadirALista(listaNombre);
+          this.seleccionadas.push(listaNombre);
         }
+      } catch (error) {
+        console.error(`Error marcando o desmarcando libro en la lista "${listaNombre}":`, error);
+        await this.obtenerListasDelLibro(this.libro);
       }
     }
   }
@@ -984,12 +998,17 @@ export default {
   font-size: 1rem;
 }
 
-.form-check-input {
+.custom-checkbox {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  font-size: 18px;
+  user-select: none;
+  border-radius: 3px;
 }
 
-.form-check-input:checked {
-  background-color: #046f2a;
-  border-color: #046f2a;
-}
 </style>
