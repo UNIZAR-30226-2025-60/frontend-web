@@ -52,6 +52,16 @@
       </div>
 
     </div>
+
+    <!-- Menú de páginas favoritas -->
+    <div id="favoritas-menu">
+      <h3>Páginas Favoritas</h3>
+      <ul>
+        <li v-for="pagina in paginasFavoritas" :key="pagina" @click="irAPagina(pagina)">
+          Página {{ pagina }}
+        </li>
+      </ul>
+    </div>
   </div>
 
   <Footer></Footer>
@@ -86,6 +96,14 @@ export default {
     Cargando,
     FontAwesomeIcon,
   },
+  data() {
+    return {
+      paginasFavoritas: [], // Inicializar el array de páginas favoritas
+      correo: "",
+      libroUrl: "",
+    };
+  },
+
   setup() {
     const canvas = ref(null);
     const pageNum = ref(1);
@@ -200,6 +218,7 @@ export default {
         }
     };
 
+    // ✅ Cargar el PDF
     const loadPdf = async () => {
       try {
         console.log("📄 URL recibida en el visor:", route.query.url);
@@ -321,24 +340,24 @@ export default {
       }
     };
     const processBookUrl = (url) => {
-  if (!url) return null;
+      if (!url) return null;
 
-  // Si el enlace contiene "proxy-pdf", extrae la URL original
-  if (url.includes("proxy-pdf")) {
-    const parsedUrl = new URL(url);
-    url = parsedUrl.searchParams.get("url") || url;
-  }
+      // Si el enlace contiene "proxy-pdf", extrae la URL original
+      if (url.includes("proxy-pdf")) {
+        const parsedUrl = new URL(url);
+        url = parsedUrl.searchParams.get("url") || url;
+      }
 
-  // Si es un enlace de Google Drive, conviértelo al formato correcto
-  const match = url.match(/id=([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)\//);
-  if (match) {
-    const id = match[1];
-    return `https://drive.google.com/file/d/${id}/view?usp=sharing`;
-  }
+      // Si es un enlace de Google Drive, conviértelo al formato correcto
+      const match = url.match(/id=([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)\//);
+      if (match) {
+        const id = match[1];
+        return `https://drive.google.com/file/d/${id}/view?usp=sharing`;
+      }
 
-  // Devuelve el enlace tal cual si no coincide con ninguno de los casos anteriores
-  return url;
-};
+      // Devuelve el enlace tal cual si no coincide con ninguno de los casos anteriores
+      return url;
+    };
     const toggleFavorita = async () => {
       if (!correo.value) {
         alert("Debes iniciar sesión para guardar favoritas.");
@@ -377,8 +396,64 @@ export default {
       }
     };
    
+    // Objeto compartido con funciones accesibles desde methods
+    const sharedFunctions = {
+      renderPage, processBookUrl,
+    };
 
-    return { canvas, isLoading, handlerCanvasClick, estiloMarcador, isFullScreen, esFavorita, pageNum, pageCount, prevPage, nextPage, zoomIn, zoomOut, zoomLevel, toggleFullScreen, toggleFavorita};
+    return { correo, libroUrl, processBookUrl, renderPage, canvas, isLoading, handlerCanvasClick, estiloMarcador, isFullScreen, esFavorita, pageNum, pageCount, prevPage, nextPage, zoomIn, zoomOut, zoomLevel, toggleFullScreen, toggleFavorita};
+  },
+
+  methods: {
+    async cargarPaginasFavoritas() {
+      try {
+        const correo = this.correo;
+        const enlaceoriginal = this.libroUrl; //Enlace sin procesar
+        const enlaceProcesado = this.processBookUrl(enlaceoriginal); // Enlace procesado
+
+        if (!correo || !enlaceProcesado) {
+          console.error("⚠️ Datos insuficientes para cargar páginas favoritas.");
+          return;
+        }
+
+        console.log("🚀 Llamando a /fragmentos/obtenerFragmentos con:", { correo, enlace: enlaceProcesado });
+
+        const response = await apiClient.get("/fragmentos/obtenerFragmentos", {
+          params: { correo, enlace: enlaceProcesado },
+          withCredentials: true,
+        });
+
+        console.log("✅ Respuesta del backend:", response.data);
+
+        this.paginasFavoritas = response.data.map(fragmento => fragmento.pagina);
+        console.log("✅ Páginas favoritas cargadas:", this.paginasFavoritas);
+      } catch (error) {
+        console.error("❌ Error al cargar páginas favoritas:", error);
+      }
+    },
+
+    irAPagina(pagina) {
+      this.pageNum = pagina;
+      this.renderPage(this.pageNum);
+    },
+  },
+  watch: {
+    correo: {
+      immediate: true,
+      handler(newCorreo) {
+        if (newCorreo && this.libroUrl) {
+          this.cargarPaginasFavoritas();
+        }
+      },
+    },
+    libroUrl: {
+      immediate: true,
+      handler(newLibroUrl) {
+        if (newLibroUrl && this.correo) {
+          this.cargarPaginasFavoritas();
+        }
+      },
+    },
   },
 };
 </script>
@@ -546,6 +621,45 @@ export default {
   font-size: 18px;
   cursor: pointer;
   padding: 10px;
+}
+
+
+/* Estilo para el menú de páginas favoritas */
+
+#favoritas-menu {
+  position: fixed;
+  top: 80px; /* Ajusta según la altura del NavBar */
+  right: 20px;
+  width: 200px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  z-index: 20;
+}
+
+#favoritas-menu h3 {
+  margin: 0 0 10px;
+  font-size: 16px;
+  text-align: center;
+}
+
+#favoritas-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#favoritas-menu li {
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: background-color 0.3s;
+}
+
+#favoritas-menu li:hover {
+  background-color: #f0f0f0;
 }
 
   </style>
