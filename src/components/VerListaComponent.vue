@@ -2,48 +2,61 @@
   <div v-if="lista && libros" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
     <NavBar :dark-mode="darkMode"></NavBar>
 
-    <div class="container-fluid pt-5 p-5 min-vh-100">
-      <!-- Botón de cambio de tema -->
-      <button @click="toggleDarkMode" class="theme-toggle-btn mb-3">
-        {{ darkMode ? 'Modo Claro' : 'Modo Oscuro' }}
-      </button>
-
-      <!-- Barra de búsqueda -->
-      <form class="d-flex mb-3 mt-4" @submit.prevent="buscarLibros">
-        <div class="input-group">
-          <input class="form-control rounded-pill" type="search" placeholder="Buscar título" aria-label="Buscar" v-model="busqueda">
-        </div>
-      </form>
-
-      <!-- Banner con imagen a la izquierda y texto a la derecha -->
-      <div class="lista-banner">
-        <div class="banner-image">
-          <img :src="transformarURLGoogleDrive(lista.portada) || 'https://via.placeholder.com/150x150.png?text=Imagen+de+Lista'" alt="Imagen de la lista">
-        </div>
-        <div class="lista-info">
-          <h2 class="lista-titulo">{{ lista.nombre }}</h2>
-          <p class="lista-descripcion">{{ lista.descripcion }}</p>
-          <!-- Tipo de lista: Pública o Privada -->
-          <p class="lista-tipo">
-            <span :class="darkMode ? 'text-light' : 'text-dark'">
-              <i v-if="!lista.publica" class="fas fa-lock"></i>
-              {{ lista.publica ? 'Pública' : 'Privada' }}
-            </span>
-          </p>
+    <div class="container-fluid pt-4 p-5 min-vh-100">
+      <!-- Switch con iconos sol/luna -->
+      <div class="theme-switch-wrapper mb-1">
+        <div class="theme-switch" @click="toggleDarkMode">
+          <div class="switch-track" :class="{ 'dark': darkMode }">
+            <div class="switch-thumb" :class="{ 'dark': darkMode }">
+              <!-- Sol icono -->
+              <font-awesome-icon v-if="!darkMode" :icon="['fas', 'sun']" class="icon sun-icon"/>
+              <!-- Luna icono -->
+              <font-awesome-icon v-else :icon="['fas', 'moon']" class="icon moon-icon"/>
+            </div>
+          </div>
         </div>
       </div>
 
-      <h5 class="text-center p-2">{{ libros.length > 0 ? '' : 'No se encontraron libros' }}</h5>
+      <div>
 
-      <!-- Lista de libros -->
-      <div class="listado">
-        <div class="l-container p-2 mx-5">
-          <div class="row libros-container">
-            <div v-for="libro in libros" :key="libro.enlace" class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4 d-flex justify-content-center" @click="goToDetalles(libro)">
-              <div class="book-card card shadow-sm">
-                <img :src="libro.imagen_portada" class="book-image card-img-top" alt="Portada del libro">
-                <div class="card-body text-center p-2">
-                  <h6 class="book-title">{{ libro.nombre }}</h6>
+        <!-- Banner con imagen a la izquierda y texto a la derecha -->
+        <div class="lista-banner">
+          <div class="banner-image">
+            <img :src="transformarURLGoogleDrive(lista.portada) || 'https://via.placeholder.com/150x150.png?text=Imagen+de+Lista'" alt="Imagen de la lista">
+          </div>
+          <div class="lista-info">
+            <h2 class="lista-titulo">{{ lista.nombre }}</h2>
+            <p class="lista-descripcion">{{ lista.descripcion }}</p>
+            <!-- Tipo de lista: Pública o Privada -->
+            <p class="lista-tipo">
+              <span :class="darkMode ? 'text-light' : 'text-dark'">
+                <i v-if="!lista.publica" class="fas fa-lock"></i>
+                {{ lista.publica ? 'Pública' : 'Privada' }}
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Barra de búsqueda -->
+        <form class="d-flex mb-3 mt-4" @submit.prevent="buscarLibros">
+          <div class="position-relative w-100">
+            <font-awesome-icon :icon="['fas', 'magnifying-glass']" class="position-absolute" style="left: 15px; top: 50%; transform: translateY(-50%); color: #aaa;"/>
+            <input class="form-control rounded-pill ps-5" type="search" placeholder="Buscar libros..." aria-label="Buscar" v-model="busqueda">
+          </div>
+        </form>
+
+        <h5 class="text-center p-2">{{ libros.length > 0 ? '' : 'No se encontraron libros' }}</h5>
+
+        <!-- Lista de libros -->
+        <div class="listado">
+          <div class="l-container p-2 mx-5">
+            <div class="row libros-container">
+              <div v-for="libro in libros" :key="libro.enlace" class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4 d-flex justify-content-center" @click="goToDetalles(libro)">
+                <div class="book-card card shadow-sm">
+                  <img :src="libro.imagen_portada" class="book-image card-img-top" alt="Portada del libro">
+                  <div class="card-body text-center p-2">
+                    <h6 class="book-title">{{ libro.nombre }}</h6>
+                  </div>
                 </div>
               </div>
             </div>
@@ -237,18 +250,82 @@ export default {
 </script>
 
 <style scoped>
-/* Estilos del boton de cambio de tema */
-.theme-toggle-btn {
-  background-color: #444;
-  color: #fff;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
+/* Estilo para alinear el título y el switch */
+.libros-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.theme-switch-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  padding: 12px 50px;
+  right: 0;
+}
+
+.theme-switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 30px;
   cursor: pointer;
 }
 
-.theme-toggle-btn:hover {
-  background-color: #666;
+.switch-track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ffdf27; /* Color amarillo para el modo claro */
+  border-radius: 34px;
+  transition: background-color 0.3s ease;
+}
+
+.switch-track.dark {
+  background-color: #585858; /* Color azul oscuro para el modo oscuro */
+}
+
+.switch-thumb {
+  position: absolute;
+  height: 26px;
+  width: 26px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.switch-thumb.dark {
+  transform: translateX(30px);
+}
+
+.icon {
+  font-size: 16px;
+}
+
+.sun-icon {
+  color: #FFD700; /* Amarillo para el sol */
+}
+
+.moon-icon {
+  color: #686e77; /* Gris para la luna */
+}
+
+
+/* Modo claro */
+.light-mode {
+  background-color: #ffffff;
+  color: #000000;
 }
 
 /* Colores modo oscuro */
@@ -324,8 +401,8 @@ export default {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  margin-top: 30px;
-  margin-bottom: 40px;
+  margin-top: 60px;
+  margin-bottom: 20px;
   padding: 20px;
   background-color: rgba(0, 0, 0, 0.1);
   border-radius: 12px;

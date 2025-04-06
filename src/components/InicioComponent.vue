@@ -2,15 +2,12 @@
   <div v-if="user || (!user && libros.length > 0)">
     <NavBar :dark-mode="darkMode"></NavBar>
     <div class="cabecera" style="background-color: #9b885b;">
-      <div class="container mt-2">
-        <!-- Boton modos -->
-        <button @click="toggleDarkMode" class="theme-toggle-btn">
-          {{ darkMode ? 'Modo Claro' : 'Modo Oscuro' }}
-        </button>
+      <div class="container mt-2 position-relative">
         <!-- Barra de búsqueda -->
         <form class="d-flex mb-3 mt-4" @submit.prevent="buscarLibros">
-          <div class="input-group">
-            <input class="form-control rounded-pill" type="search" placeholder="Buscar libros..." aria-label="Buscar" v-model="busqueda">
+          <div class="position-relative w-100">
+            <font-awesome-icon :icon="['fas', 'magnifying-glass']" class="position-absolute" style="left: 15px; top: 50%; transform: translateY(-50%); color: #aaa;"/>
+            <input class="form-control rounded-pill ps-5" type="search" placeholder="Buscar libros..." aria-label="Buscar" v-model="busqueda">
           </div>
         </form>
 
@@ -20,26 +17,15 @@
           
           <div class="categorias-wrapper">
             <!-- Flecha Izquierda -->
-            <button
-              class="arrow-btn arrow-left"
-              :class="{ disabled: isAtStart }"
-              @click="scrollLeft"
-            >
+            <button class="arrow-btn arrow-left" :class="{ disabled: isAtStart }" @click="scrollLeft">
               <span class="arrow-left-icon"></span>
             </button>
 
             <!-- Contenedor con scroll horizontal -->
-            <div
-              class="categorias-container"
-              ref="categoriasScroll"
-              @scroll="checkScroll"
-            >
+            <div class="categorias-container" ref="categoriasScroll" @scroll="checkScroll">
               <div class="categorias-scroll">
                 <!-- Mostrar todas las categorías -->
-                <button
-                  v-for="tema in temas"
-                  :key="tema.tematica"
-                  @click="filtrarPorCategoria(tema.tematica)"
+                <button v-for="tema in temas" :key="tema.tematica" @click="filtrarPorCategoria(tema.tematica)"
                   class="btn rounded-pill btn-sm"
                   :style="categoriaSeleccionada === tema.tematica 
                     ? 'background-color: #e5c578; color: #343434;' 
@@ -51,11 +37,7 @@
             </div>
 
             <!-- Flecha Derecha -->
-            <button
-              class="arrow-btn arrow-right"
-              :class="{ disabled: isAtEnd }"
-              @click="scrollRight"
-            >
+            <button class="arrow-btn arrow-right" :class="{ disabled: isAtEnd }" @click="scrollRight">
               <span class="arrow-right-icon"></span>
             </button>
           </div>
@@ -64,10 +46,27 @@
     </div>
     <div class="listado">
       <div class="l-container p-2 mx-5">
-        <!-- Lista de libros -->
-        <h4 class="libros-disponibles">
-          {{ busqueda ? 'Resultados de la búsqueda' : 'LIBROS DISPONIBLES' }}
-        </h4>
+        <!-- Lista de libros - Título con switch alineado -->
+        <div class="libros-header">
+          <h4 class="libros-disponibles">
+            {{ busqueda ? 'Resultados de la búsqueda' : 'LIBROS DISPONIBLES' }}
+          </h4>
+          
+          <!-- Switch con iconos sol/luna -->
+          <div class="theme-switch-wrapper">
+            <div class="theme-switch" @click="toggleDarkMode">
+              <div class="switch-track" :class="{ 'dark': darkMode }">
+                <div class="switch-thumb" :class="{ 'dark': darkMode }">
+                  <!-- Sol icono -->
+                  <font-awesome-icon v-if="!darkMode" :icon="['fas', 'sun']" class="icon sun-icon"/>
+                  <!-- Luna icono -->
+                  <font-awesome-icon v-else :icon="['fas', 'moon']" class="icon moon-icon"/>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
         <div class="row libros-container">
           <div v-for="libro in libros" :key="libro.enlace" class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4 d-flex justify-content-center" @click="goToDetalles(libro)">
             <div class="book-card card shadow-sm">
@@ -84,7 +83,6 @@
     <button class="back-to-top" @click="scrollTop">
       <font-awesome-icon :icon="['fas', 'chevron-up']" />
     </button>
-
   </div>
   <div v-else>
     <Cargando :dark-mode="darkMode"></Cargando>
@@ -146,19 +144,8 @@ export default {
   }
 },
   watch: {
-    // Observador para buscar mientras se escribe
-    busqueda(newValue) {
-      if (!newValue) {
-        // Si está vacío, se muestran todos los libros
-        this.libros = this.librosOriginales;
-        return;
-      }
-      
-      // Filtrar libros basado en la búsqueda
-      const busquedaMinuscula = newValue.toLowerCase().trim();
-      this.libros = this.librosOriginales.filter(libro => 
-        libro.nombre.toLowerCase().includes(busquedaMinuscula)
-      );
+    busqueda() {
+      this.aplicarFiltros();
     }
   },
   methods: {
@@ -180,27 +167,40 @@ export default {
         console.error("Error al cargar temáticas:", error);
       }
     },
-    async buscarLibros() {
-      try {
-        const response = await apiClient.get(`/libros/obtenerTitulo/${this.busqueda.trim()}`);
-        this.libros = Array.isArray(response.data) ? response.data : [response.data];
-      } catch (error) {
-        console.error("Error al buscar el libro:", error);
-        this.libros = [];
-      }
+    buscarLibros() {
+      this.aplicarFiltros();
     },
     async filtrarPorCategoria(categoria) {
       if (this.categoriaSeleccionada === categoria) {
         this.categoriaSeleccionada = "";
-        return this.cargarLibros();
+      } else {
+        this.categoriaSeleccionada = categoria;
       }
+      await this.aplicarFiltros();
+    },
+    async aplicarFiltros() {
+      const titulo = this.busqueda.trim();
+      const categoria = this.categoriaSeleccionada;
 
-      this.categoriaSeleccionada = categoria;
       try {
-        const response = await apiClient.get(`/libros/tematica/${categoria}`);
-        this.libros = response.data;
+        if (titulo && categoria) {
+          // Ambos filtros activos
+          const response = await apiClient.get(`/libros/tematicaTitulo/${categoria}/${titulo}`);
+          this.libros = Array.isArray(response.data) ? response.data : [response.data];
+        } else if (titulo) {
+          // Solo búsqueda
+          const response = await apiClient.get(`/libros/obtenerTitulo/${titulo}`);
+          this.libros = Array.isArray(response.data) ? response.data : [response.data];
+        } else if (categoria) {
+          // Solo categoría
+          const response = await apiClient.get(`/libros/tematica/${categoria}`);
+          this.libros = response.data;
+        } else {
+          // Nada seleccionado → mostrar todos
+          await this.cargarLibros();
+        }
       } catch (error) {
-        console.error(`Error al cargar libros de la categoría ${categoria}:`, error);
+        console.error("Error al aplicar filtros:", error);
         this.libros = [];
       }
     },
@@ -244,17 +244,90 @@ export default {
 </script>
 
 <style scoped>
-.theme-toggle-btn {
-  background-color: #444;
-  color: #fff;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
+/* Estilo para alinear el título y el switch */
+.libros-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.theme-switch-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  right: 0;
+}
+
+.theme-switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 30px;
   cursor: pointer;
 }
 
-.theme-toggle-btn:hover {
-  background-color: #666;
+.switch-track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ffdf27; /* Color amarillo para el modo claro */
+  border-radius: 34px;
+  transition: background-color 0.3s ease;
+}
+
+.switch-track.dark {
+  background-color: #585858; /* Color azul oscuro para el modo oscuro */
+}
+
+.switch-thumb {
+  position: absolute;
+  height: 26px;
+  width: 26px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.switch-thumb.dark {
+  transform: translateX(30px);
+}
+
+.icon {
+  font-size: 16px;
+}
+
+.sun-icon {
+  color: #FFD700; /* Amarillo para el sol */
+}
+
+.moon-icon {
+  color: #686e77; /* Gris para la luna */
+}
+
+.dark-mode .listado {
+  background-color: #343434;
+  color: #ffffff;
+}
+
+/* Modo claro */
+.light-mode {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.light-mode .listado {
+  background-color: #ead5a1;
+  color: #000000;
 }
 
 /* Modo oscuro */
@@ -438,7 +511,7 @@ export default {
   font-weight: bold;        
   font-size: 2rem;          
   color: #343434;           
-  margin: 30px 0;           
+  margin: 0;           
 }
 
 .dark-mode .libros-disponibles {
@@ -446,6 +519,6 @@ export default {
   font-weight: bold;        
   font-size: 2rem;          
   color: #e3c377;           
-  margin: 30px 0;         
+  margin: 0;         
 }
 </style>

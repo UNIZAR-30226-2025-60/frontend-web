@@ -1,14 +1,21 @@
 <template>
   <div v-if="libro && librosRelacionados" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
     <NavBar :dark-mode="darkMode"></NavBar>
-    <div v-if="libro" class="container mt-4">
-
-      <!-- Botón de cambio de tema -->
-      <button @click="toggleDarkMode" class="theme-toggle-btn mb-3">
-        {{ darkMode ? 'Modo Claro' : 'Modo Oscuro' }}
-      </button>
-
-      <div class="row">
+    <div v-if="libro" class="container-fluid pt-4 p-5 min-vh-100">
+      <!-- Switch con iconos sol/luna -->
+      <div class="theme-switch-wrapper mb-1">
+        <div class="theme-switch" @click="toggleDarkMode">
+          <div class="switch-track" :class="{ 'dark': darkMode }">
+            <div class="switch-thumb" :class="{ 'dark': darkMode }">
+              <!-- Sol icono -->
+              <font-awesome-icon v-if="!darkMode" :icon="['fas', 'sun']" class="icon sun-icon"/>
+              <!-- Luna icono -->
+              <font-awesome-icon v-else :icon="['fas', 'moon']" class="icon moon-icon"/>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row mt-2">
         <div class="col-md-4 d-flex flex-column align-items-center">
           <img :src="libro.imagen_portada" class="img-fluid" alt="Portada del libro">
           <p class="mb-3 text-center cursiva">{{ libro.nombre }}</p>
@@ -764,14 +771,73 @@ export default {
 </script>
 
 <style scoped>
-/* Estilos del botón */
-.theme-toggle-btn {
-  background-color: #444;
-  color: #fff;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
+/* Estilo para el switch */
+.theme-switch-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  padding: 12px 50px;
+  right: 0;
+}
+
+.theme-switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 30px;
   cursor: pointer;
+}
+
+.switch-track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ffdf27; /* Color amarillo para el modo claro */
+  border-radius: 34px;
+  transition: background-color 0.3s ease;
+}
+
+.switch-track.dark {
+  background-color: #585858; /* Color azul oscuro para el modo oscuro */
+}
+
+.switch-thumb {
+  position: absolute;
+  height: 26px;
+  width: 26px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.switch-thumb.dark {
+  transform: translateX(30px);
+}
+
+.icon {
+  font-size: 16px;
+}
+
+.sun-icon {
+  color: #FFD700; /* Amarillo para el sol */
+}
+
+.moon-icon {
+  color: #686e77; /* Gris para la luna */
+}
+
+/* Modo claro */
+.light-mode {
+  background-color: #ffffff;
+  color: #000000;
 }
 
 .btn {

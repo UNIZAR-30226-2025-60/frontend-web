@@ -1,19 +1,25 @@
 <template>
   <div v-if="user" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
-    <!-- Franja de perfil -->
-    <div class="profile-header">
-      <div class="d-flex align-items-center py-3 ms-3">
-        <font-awesome-icon :icon="['fas', 'arrow-left']" class="me-3 clickable" @click="$router.back()"/>
-        <h5 class="titulo m-0">Perfil</h5>
-      </div>
-    </div>
+    <NavBar :dark-mode="darkMode"></NavBar>
   
-    <div class="py-3 ms-4">
-      <!-- Botón de cambio de tema -->
-      <button @click="toggleDarkMode" class="theme-toggle-btn">
-        {{ darkMode ? 'Modo Claro' : 'Modo Oscuro' }}
-      </button>
-    </div>
+    <div class="container-fluid pt-4 p-5 min-vh-100">
+      <div class="libros-header">
+        <h4 class="titulo mb-1">PERFIL</h4>
+
+        <!-- Switch con iconos sol/luna -->
+        <div class="theme-switch-wrapper">
+          <div class="theme-switch" @click="toggleDarkMode">
+            <div class="switch-track" :class="{ 'dark': darkMode }">
+              <div class="switch-thumb" :class="{ 'dark': darkMode }">
+                <!-- Sol icono -->
+                <font-awesome-icon v-if="!darkMode" :icon="['fas', 'sun']" class="icon sun-icon"/>
+                  <!-- Luna icono -->
+                <font-awesome-icon v-else :icon="['fas', 'moon']" class="icon moon-icon"/>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     
     <div class="profile-container text-center">
       <!-- Foto de perfil - Modificado para manejar el caso cuando no hay foto -->
@@ -140,6 +146,8 @@
         </div>
       </div>
     </div>
+    </div>
+    <Footer></Footer>
   </div>
   <div v-else>
     <Cargando :dark-mode="darkMode"></Cargando>
@@ -148,7 +156,9 @@
     
 <script>
 import axios from 'axios';
+import NavBar from '@/components/NavBar.vue'
 import Cargando from '@/components/Cargando.vue';
+import Footer from '@/components/Footer.vue'
 import { apiClient } from '../config';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { fas } from '@fortawesome/free-solid-svg-icons';
@@ -160,6 +170,8 @@ library.add(fas);
 export default {
   name: 'Perfil',
   components: {
+    NavBar,
+    Footer,
     Cargando
   },
   data() {
@@ -437,6 +449,82 @@ export default {
   border-radius: 20px;
   cursor: pointer;
 }
+
+/* Estilo para alinear el título y el switch */
+.libros-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.theme-switch-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  right: 0;
+}
+
+.theme-switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 30px;
+  cursor: pointer;
+}
+
+.switch-track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ffdf27; /* Color amarillo para el modo claro */
+  border-radius: 34px;
+  transition: background-color 0.3s ease;
+}
+
+.switch-track.dark {
+  background-color: #585858; /* Color azul oscuro para el modo oscuro */
+}
+
+.switch-thumb {
+  position: absolute;
+  height: 26px;
+  width: 26px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.switch-thumb.dark {
+  transform: translateX(30px);
+}
+
+.icon {
+  font-size: 16px;
+}
+
+.sun-icon {
+  color: #FFD700; /* Amarillo para el sol */
+}
+
+.moon-icon {
+  color: #686e77; /* Gris para la luna */
+}
+
+/* Modo claro */
+.light-mode {
+  background-color: #ffffff;
+  color: #000000;
+}
   
 .btn:hover {
   background-color: #666;
@@ -635,27 +723,52 @@ export default {
 .light-mode .lista-banner {
   background-color: #f8f9fa;
 }
+
 .light-mode .lista-info {
   color: #000000;
 }
+
 .light-mode .lista-tipo i {
   color: #888; /* Color del candado en modo claro */
 }
+
 .light-mode .text-dark {
   color: #000000;
 }
+
+.light-mode .titulo {
+  text-align: center;         
+  font-weight: bold;        
+  font-size: 2rem;        
+  color: #343434;             
+  margin: 0;           
+}
+
 .dark-mode .lista-banner {
   background-color: #444;
 }
+
 .dark-mode .lista-info {
   color: #ffffff;
 }
+
 .dark-mode .lista-tipo i {
   color: #f1c40f; /* Color del candado en modo oscuro */
 }
+
 .dark-mode .text-light {
   color: #ffffff;
-}/* Estilos del modal */
+}
+
+.dark-mode .titulo {
+  text-align: center;       
+  font-weight: bold;    
+  font-size: 2rem;        
+  color: #e3c377;           
+  margin: 0;        
+}
+
+/* Estilos del modal */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -722,4 +835,5 @@ export default {
 .btn-cancel {
   background-color: #f44336 !important;
 }
+
 </style>

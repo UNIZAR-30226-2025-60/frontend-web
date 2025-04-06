@@ -2,14 +2,25 @@
   <div v-if="top3UsuariosAnio && top3UsuariosMes && top5LibrosAnioActual && top5LibrosMesActual" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
     <NavBar :dark-mode="darkMode"></NavBar>
 
-    <div class="container pt-5 min-vh-100">
-      <!-- Botón de cambio de tema -->
-      <button @click="toggleDarkMode" class="theme-toggle-btn mb-3">
-        {{ darkMode ? 'Modo Claro' : 'Modo Oscuro' }}
-      </button>
+    <div class="container-fluid">
+      <div class="libros-header">
+        <!-- Título "Estadísticas" -->
+        <h2 class="titulo">ESTADÍSTICAS</h2>
 
-      <!-- Título "Estadísticas" -->
-      <h2 class="titulo">ESTADÍSTICAS</h2>
+        <!-- Switch con iconos sol/luna -->
+        <div class="theme-switch-wrapper">
+          <div class="theme-switch" @click="toggleDarkMode">
+            <div class="switch-track" :class="{ 'dark': darkMode }">
+              <div class="switch-thumb" :class="{ 'dark': darkMode }">
+                <!-- Sol icono -->
+                <font-awesome-icon v-if="!darkMode" :icon="['fas', 'sun']" class="icon sun-icon"/>
+                <!-- Luna icono -->
+                <font-awesome-icon v-else :icon="['fas', 'moon']" class="icon moon-icon"/>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div class="row gap-4">
         <!-- COLUMNA "MIS ESTADÍSTICAS" -->
@@ -499,16 +510,81 @@ export default {
   padding-right: 0 !important;
 }
 
-.theme-toggle-btn {
-  background-color: #444;
-  color: #fff;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
+/* Estilo para alinear el título y el switch */
+.libros-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.theme-switch-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  padding: 12px 50px;
+  right: 0;
+}
+
+.theme-switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 30px;
   cursor: pointer;
 }
-.theme-toggle-btn:hover {
-  background-color: #666;
+
+.switch-track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ffdf27; /* Color amarillo para el modo claro */
+  border-radius: 34px;
+  transition: background-color 0.3s ease;
+}
+
+.switch-track.dark {
+  background-color: #585858; /* Color azul oscuro para el modo oscuro */
+}
+
+.switch-thumb {
+  position: absolute;
+  height: 26px;
+  width: 26px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.switch-thumb.dark {
+  transform: translateX(30px);
+}
+
+.icon {
+  font-size: 16px;
+}
+
+.sun-icon {
+  color: #FFD700; /* Amarillo para el sol */
+}
+
+.moon-icon {
+  color: #686e77; /* Gris para la luna */
+}
+
+/* Modo claro */
+.light-mode {
+  background-color: #ffffff;
+  color: #000000;
 }
 
 /* Colores modo oscuro */
@@ -550,15 +626,6 @@ export default {
 .small-cover {
   height: 150px;
   object-fit: cover;
-}
-
-/* TÍTULO PRINCIPAL "ESTADÍSTICAS" */
-.stats-main-title {
-  font-size: 2rem;       
-  font-weight: 800;      
-  color: #b35900;        
-  text-transform: uppercase; 
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
 }
 
 /* Carroussel */
@@ -661,7 +728,6 @@ export default {
   font-weight: bold;
   font-size: 1rem;
 }
-
 
 .stats-circles {
   margin-bottom: 1rem;
