@@ -54,10 +54,10 @@
     </div>
 
     <!-- Menú de páginas favoritas -->
-    <div id="favoritas-menu">
+    <div v-if="!isLoading && isFullScreen" id="favoritas-menu">
       <h3>Páginas Favoritas</h3>
       <ul>
-        <li v-for="pagina in paginasFavoritas" :key="pagina" @click="irAPagina(pagina)">
+        <li v-for="(pagina, index) in paginasFavoritas" :key="index" @click="irAPagina(pagina)" :class="{ active: pagina === pageNum }">
           Página {{ pagina }}
         </li>
       </ul>
@@ -96,13 +96,6 @@ export default {
     Cargando,
     FontAwesomeIcon,
   },
-  data() {
-    return {
-      paginasFavoritas: [], // Inicializar el array de páginas favoritas
-      correo: "",
-      libroUrl: "",
-    };
-  },
 
   setup() {
     const canvas = ref(null);
@@ -117,6 +110,7 @@ export default {
     let pdfDoc = null;
     const route = useRoute();
     const correo = ref(""); // Guardar correo del usuario
+    const paginasFavoritas = ref([]); // Guardar páginas favoritas del usuario
 
     console.log("📄 URL recibida en el visor:", route.query.url);
 
@@ -262,6 +256,13 @@ export default {
       await verificarFavorita();
     });
 
+    // Watchers
+    watch([correo, libroUrl], () => {
+      if (correo.value && libroUrl.value) {
+        cargarPaginasFavoritas();
+      }
+    });
+
     const prevPage = () => {
       if (pageNum.value <= 1) return;
       pageNum.value--;
@@ -358,6 +359,7 @@ export default {
       // Devuelve el enlace tal cual si no coincide con ninguno de los casos anteriores
       return url;
     };
+    
     const toggleFavorita = async () => {
       if (!correo.value) {
         alert("Debes iniciar sesión para guardar favoritas.");
@@ -378,6 +380,8 @@ export default {
             withCredentials: true,
           });
           console.log("🚮 Página eliminada de favoritos");
+          // Actualizar el array de páginas favoritas
+          paginasFavoritas.value = paginasFavoritas.value.filter(pagina => pagina !== pageNum.value);
         } else {
           // ⭐ Guardar en favoritos
           await apiClient.post("/guardar-favorita", {
@@ -386,6 +390,9 @@ export default {
             pagina: pageNum.value,
           }, { withCredentials: true });
           console.log("✅ Página añadida a favoritos");
+
+          //Actualizar la lista de páginas favoritas
+          paginasFavoritas.value = [...paginasFavoritas.value, pageNum.value];
         }
         
         esFavorita.value = !esFavorita.value; // Alternar el estado del icono
@@ -401,7 +408,7 @@ export default {
       renderPage, processBookUrl,
     };
 
-    return { correo, libroUrl, processBookUrl, renderPage, canvas, isLoading, handlerCanvasClick, estiloMarcador, isFullScreen, esFavorita, pageNum, pageCount, prevPage, nextPage, zoomIn, zoomOut, zoomLevel, toggleFullScreen, toggleFavorita};
+    return { correo, libroUrl, paginasFavoritas, processBookUrl, renderPage, canvas, isLoading, handlerCanvasClick, estiloMarcador, isFullScreen, esFavorita, pageNum, pageCount, prevPage, nextPage, zoomIn, zoomOut, zoomLevel, toggleFullScreen, toggleFavorita};
   },
 
   methods: {
@@ -625,43 +632,82 @@ export default {
 
 
 /* Estilo para el menú de páginas favoritas */
-
 #favoritas-menu {
   position: fixed;
   top: 80px; /* Ajusta según la altura del NavBar */
-  right: 20px;
-  width: 200px;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  padding: 10px;
+  right: 30px; /* Aumenta el margen derecho para mayor simetría */
+  width: 250px; /* Ancho más grande para mejorar la legibilidad */
+  background-color: #f5e5d6; /* Fondo claro en tono marrón claro */
+  border: 1px solid #b27d09; /* Borde en tono marrón oscuro */
+  border-radius: 12px; /* Bordes redondeados más suaves */
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* Sombra más pronunciada */
+  padding: 20px; /* Espaciado interno más amplio */
   z-index: 20;
+
+  /* Limitar la altura y habilitar scroll */
+  max-height: 500px; /* Altura máxima más alta para aprovechar el espacio */
+  overflow-y: auto; /* Scroll vertical cuando sea necesario */
 }
 
+/* Título del menú */
 #favoritas-menu h3 {
-  margin: 0 0 10px;
-  font-size: 16px;
+  margin: 0 0 15px;
+  font-size: 18px;
   text-align: center;
+  color: #b27d09; /* Título en tono marrón oscuro */
+  font-weight: bold;
+  letter-spacing: 1px; /* Espaciado entre letras para un diseño más elegante */
 }
 
+/* Lista de páginas favoritas */
 #favoritas-menu ul {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
+/* Elementos individuales de la lista */
 #favoritas-menu li {
-  padding: 8px;
+  padding: 12px; /* Aumenta el espaciado interno */
+  margin-bottom: 8px; /* Espacio entre elementos */
   cursor: pointer;
-  border-radius: 3px;
-  transition: background-color 0.3s;
+  border-radius: 8px; /* Bordes redondeados más suaves */
+  transition: background-color 0.3s ease, color 0.3s ease;
+  background-color: transparent; /* Fondo inicial transparente */
+  color: #333; /* Texto oscuro */
+  font-size: 16px; /* Tamaño de fuente más grande */
 }
 
+/* Hover sobre los elementos de la lista */
 #favoritas-menu li:hover {
-  background-color: #f0f0f0;
+  background-color: #e6d8c7; /* Fondo suave al hover */
+  color: #b27d09; /* Texto en tono marrón oscuro al hover */
 }
 
-  </style>
+/* Página activa resaltada */
+#favoritas-menu li.active {
+  background-color: #d2b48c; /* Fondo resaltado para página activa */
+  color: #ffffff; /* Texto blanco para página activa */
+  font-weight: bold; /* Texto en negrita para destacar */
+}
+
+/* Barra de desplazamiento personalizada */
+#favoritas-menu::-webkit-scrollbar {
+  width: 10px; /* Ancho ligeramente mayor para mejor visibilidad */
+  background-color: transparent; /* Fondo transparente */
+}
+
+#favoritas-menu::-webkit-scrollbar-thumb {
+  background-color: #b27d09; /* Color de la manija del scroll */
+  border-radius: 10px; /* Bordes redondeados */
+  border: 2px solid #f5e5d6; /* Borde para darle un efecto 3D */
+}
+
+#favoritas-menu::-webkit-scrollbar-track {
+  background-color: #f5e5d6; /* Fondo de la pista del scroll */
+  border-radius: 10px; /* Bordes redondeados */
+}
+
+</style>
   
 
