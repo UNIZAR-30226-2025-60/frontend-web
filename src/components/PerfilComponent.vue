@@ -368,27 +368,24 @@ export default {
       document.body.classList.toggle("dark-mode", this.darkMode);
       document.body.classList.toggle("light-mode", !this.darkMode);
     },
-    cerrarSesion() {
-    // Eliminar cookies
-    document.cookie = "connect.sid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    document.cookie = "userEmail=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    document.cookie = "isGoogleAuth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    async cerrarSesion() {
+      try {
+        await apiClient.get("/logout"); // Llama al backend para cerrar sesión
+        console.log("Sesión cerrada correctamente.");
 
-    // Eliminar cookies
-    document.cookie = "connect.sid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=booklyweb-469w.onrender.com; secure; SameSite=None;";
-    document.cookie = "userEmail=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=booklyweb-469w.onrender.com; secure; SameSite=None;";
-    document.cookie = "isGoogleAuth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=booklyweb-469w.onrender.com; secure; SameSite=None;";
+        // Limpiar localStorage
+        localStorage.removeItem("userToken");
+        localStorage.removeItem("userData");
 
-    // Limpiar localStorage
-    localStorage.removeItem("userToken");
-    localStorage.removeItem("userData");
+        // Reiniciar el estado de la aplicación
+        this.user = null;
 
-    // Reiniciar el estado de la aplicación
-    this.user = null;
-
-    // Redirigir al login
-    this.$router.push({ name: 'Login' });
-  },
+        // Redirigir al login
+        this.$router.push({ name: 'Login' });
+      } catch (error) {
+        console.error("Error al cerrar sesión:", error);
+      }
+    },
   async cargarImagenes() {
       try {
         const response = await apiClient.get("/usuarios/fotos-perfil");
