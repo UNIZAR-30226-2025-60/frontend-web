@@ -20,6 +20,7 @@ body.dark-mode {
   --color-scrollbar: #FBF1CD;
 }
 
+
 body {
   background-color: var(--color-fondo);
   color: var(--color-texto);
@@ -108,4 +109,70 @@ input, textarea, select {
   color: var(--color-texto);
   background-color: var(--color-fondo);
   border: 1px solid #bbb;
+}
+
+.libros-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.theme-switch-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  padding: 12px 50px;
+  right: 0;
+}
+
+.theme-switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 30px;
+  cursor: pointer;
+}
+
+.switch-track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--color-boton); /* Color amarillo para el modo claro */
+  border-radius: 34px;
+  transition: background-color 0.3s ease;
+}
+
+.switch-thumb {
+  position: absolute;
+  height: 26px;
+  width: 26px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.switch-thumb.dark {
+  transform: translateX(30px);
+}
+
+.icon {
+  font-size: 16px;
+}
+
+.sun-icon {
+  color: #FFD700; /* Amarillo para el sol */
+}
+
+.moon-icon {
+  color: #686e77; /* Gris para la luna */
 }
