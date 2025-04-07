@@ -71,10 +71,10 @@
           </div>
               
           <div class="button-group">
-            <button type="submit" class="btn btn-save" :disabled="passwordLoading">
+            <button type="submit" class="btn-enviar" :disabled="passwordLoading">
               {{ passwordLoading ? 'Guardando...' : 'Guardar' }}
             </button>
-            <button type="button" class="btn btn-cancel" @click="closePasswordModal">
+            <button type="button" class="btn-cancelar" @click="closePasswordModal">
               Cancelar
             </button>
           </div>
@@ -103,10 +103,10 @@
           </div>
           
           <div class="button-group">
-            <button type="submit" class="btn btn-save" :disabled="nameLoading">
+            <button type="submit" class="btn-enviar" :disabled="nameLoading">
               {{ nameLoading ? 'Guardando...' : 'Confirmar' }}
             </button>
-            <button type="button" class="btn btn-cancel" @click="closeNameModal">
+            <button type="button" class="btn-cancelar" @click="closeNameModal">
               Cancelar
             </button>
           </div>
@@ -321,40 +321,7 @@ export default {
 </script>
     
 <style scoped>
-.light-mode .profile-header {
-  background-color: #343434; /* Modo claro */
-  color: #ead5a1;
-}
-  
-.dark-mode .profile-header {
-  background-color: #e5c578; /* Modo oscuro */
-  color: #000000;
-}
-  
-/* Estilos del botón */
-.theme-toggle-btn {
-  background-color: #444;
-  color: #fff;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
-  cursor: pointer;
-}
-  
-.btn {
-  background-color: #444;
-  color: #fff;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
-  cursor: pointer;
-}
-  
-.btn:hover {
-  background-color: #666;
-  color: #fff;
-}
-  
+
 .profile-container {
   text-align: center;
   padding: 20px;
@@ -377,52 +344,11 @@ export default {
   font-size: 16px;
   cursor: pointer;
 }
-  
-/* Colores modo oscuro */
-.dark-mode {
-  background-color: #343434;
-  color: #ffffff;
-}
-  
-.dark-mode .container {
-  background-color: #343434;
-  color: #ffffff;
-}
-  
-/* Colores modo claro */
-.light-mode {
-  background-color: #ffffff;
-  color: #000000;
-}
-  
-.light-mode .container {
-  background-color: #ead5a1;
-  color: #000000;
-}
-  
+   
 .page-wrapper {
   min-height: 100vh;
 }
   
-.page-wrapper.dark-mode {
-  background-color: #343434;
-  color: #ffffff;
-}
-  
-.page-wrapper.light-mode {
-  background-color: #ead5a1;
-  color: #000000;
-}
-  
-.dark-mode .titulo {                   
-  color: #343434;            
-}
-  
-.light-mode .titulo {       
-  color: #e3c377;             
-}
-  
-/* Estilos para el modal */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -443,17 +369,7 @@ export default {
   border-radius: 10px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
-  
-.modal-light {
-  background-color: #ead5a1;
-  color: #000000;
-}
-  
-.modal-dark {
-  background-color: #444;
-  color: #ffffff;
-}
-  
+    
 .form-group {
   margin-bottom: 15px;
 }
@@ -474,39 +390,7 @@ export default {
   color: #333;
 }
   
-.dark-mode .form-input {
-  background-color: #333;
-  color: #fff;
-  border-color: #555;
-}
-  
-.button-group {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-}
-  
-.btn-save {
-  background-color: #4CAF50;
-}
-  
-.btn-save:hover {
-  background-color: #45a049;
-}
-  
-.btn-save:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
-}
-  
-.btn-cancel {
-  background-color: #f44336;
-}
-  
-.btn-cancel:hover {
-  background-color: #d32f2f;
-}
-  
+ 
 .message {
   padding: 10px;
   border-radius: 5px;
@@ -525,6 +409,6 @@ export default {
 
 .clickable {
   cursor: pointer;
-  pointer-events: auto; /* Asegura que el clic sea detectado */
+  pointer-events: auto; 
 }
 </style>

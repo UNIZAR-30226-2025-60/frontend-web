@@ -183,7 +183,6 @@ export default {
   transition: transform 0.5s;
 }
 
-/* Portada */
 .cover {
   position: absolute;
   width: 100%;
@@ -193,7 +192,7 @@ export default {
   transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   z-index: 10;
-  overflow: hidden; /* Evita que la imagen sobresalga */
+  overflow: hidden; 
 }
 
 .index {
@@ -214,7 +213,7 @@ export default {
 .cover-image {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Asegura que ocupe todo el espacio */
+  object-fit: cover; 
 }
 
 .book-spine {
@@ -227,7 +226,6 @@ export default {
   z-index: 9;
 }
 
-/* Contenido */
 .content-wrapper {
   position: absolute;
   width: 100%;
@@ -258,7 +256,6 @@ export default {
   transform: rotateY(0);
 }
 
-/* Animaciones */
 .open .cover {
   transform: rotateY(-125deg);
 }
@@ -275,7 +272,6 @@ export default {
   transform: rotateY(-180deg);
 }
 
-/* Estilos de formularios */
 .form-group {
   margin-bottom: 1.5rem;
 }
@@ -311,7 +307,6 @@ label {
   background: #432818;
 }
 
-/* Botón de Google */
 .google-btn {
   display: flex;
   align-items: center;
@@ -337,7 +332,6 @@ label {
   background: #f8f8f8;
 }
 
-/* Estilos del índice */
 ul {
   list-style: none;
   padding: 0;
@@ -362,7 +356,6 @@ h3 {
   font-size: 1.5rem;
 }
 
-/* Abrir libro */
 .open .cover {
   transform: rotateY(-125deg);
 }

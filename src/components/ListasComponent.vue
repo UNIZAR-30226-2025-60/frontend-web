@@ -196,54 +196,10 @@ export default {
 };
 </script>
 
-
 <style scoped>
-.theme-toggle-btn {
-  background-color: #444;
-  color: #fff;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
-  cursor: pointer;
-}
-.theme-toggle-btn:hover {
-  background-color: #666;
-}
-
-/* Colores modo oscuro */
-.dark-mode {
-  background-color: #343434;
-  color: #ffffff;
-}
-
-.dark-mode .listado {
-  background-color: #343434;
-  color: #ffffff;
-}
-
-/* Colores modo claro */
-.light-mode {
-  background-color: #ffffff;
-  color: #000000;
-}
-
-.light-mode .listado {
-  background-color: #ead5a1;
-  color: #000000;
-}
 
 .page-wrapper {
   min-height: 100vh;
-}
-
-.page-wrapper.dark-mode {
-  background-color: #343434;
-  color: #ffffff;
-}
-
-.page-wrapper.light-mode {
-  background-color: #ead5a1;
-  color: #000000;
 }
 
 .lista-card {
@@ -301,7 +257,7 @@ export default {
 
 .options-menu {
   position: absolute;
-  right: 10px; /* Pegado al borde derecho */
+  right: 10px; 
   top: 50%;
   transform: translateY(-50%);
 }
@@ -310,7 +266,7 @@ export default {
   position: absolute;
   right: 0;
   top: 30px;
-  background: white;
+  background: --color-texto;
   border-radius: 5px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 10;
@@ -333,83 +289,73 @@ export default {
   background-color: #f0f0f0;
 }
 
-/* Cambios para la disposición de los elementos en la lista */
 .lista-header {
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: center; /* Centra el contenido */
+  justify-content: center;
   width: 100%;
 }
 
 .lista-title-container {
-  flex-grow: 1; /* Hace que el título ocupe el espacio necesario */
-  text-align: center; /* Centra el texto */
+  flex-grow: 1; 
+  text-align: center; 
 }
 
-/* Estilo del botón circular de crear lista */
 .create-list-btn {
-  width: 90px; /* Ancho del botón */
-  height: 90px; /* Alto del botón */
-  border-radius: 50%; /* Hace que el botón sea circular */
-  background-color: #ffbf47; /* Color de fondo más vivo (amarillo vibrante) */
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background-color: #ffbf47; 
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
   transition: transform 0.3s ease-in-out;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  margin-top: 20px; /* Añadido para darle espacio vertical */
 }
 
-/* Efecto de hover para el botón */
 .create-list-btn:hover {
-  transform: scale(1.1); /* Efecto de hover */
+  transform: scale(1.1); 
 }
 
-/* Estilo del icono "+" */
 .create-list-icon {
-  font-size: 3rem; /* Tamaño grande del icono */
-  color: #444; /* Color del icono */
+  font-size: 3rem; 
   font-weight: bold;
-  line-height: 1; /* Asegura que el + esté centrado verticalmente */
-  text-align: center; /* Asegura que el texto esté centrado */
-  position: relative; /* Asegura un mejor control de la posición */
-  top: -1px; /* Ajuste fino para alinear verticalmente */
+  line-height: 1; 
+  text-align: center; 
+  position: relative; 
+  top: -1px; 
 }
 
-/* Ajustes para centrar el botón con las tarjetas de las listas */
 .listas-container {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  align-items: center; /* Esto asegura que los elementos se alineen verticalmente */
+  align-items: center; 
 }
 
-/* Para asegurar que el espacio alrededor del botón es consistente */
 .create-list-btn {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: auto; /* Ajusta la posición para que esté alineado con las tarjetas */
+  margin-top: auto;
 }
 
-/* Colores modo oscuro */
 .dark-mode .create-list-btn {
-  background-color: #ead5a1; /* Fondo oscuro para el botón */
+  background-color: #ead5a1; 
 }
 
 .dark-mode .create-list-icon {
-  color: #343434; /* Icono blanco para el modo oscuro */
+  color: #343434; 
 }
 
-/* Colores modo claro */
 .light-mode .create-list-btn {
-  background-color: #343434; /* Fondo amarillo brillante para el modo claro */
+  background-color: #343434; 
 }
 
 .light-mode .create-list-icon {
-  color: #ead5a1; /* Icono oscuro para el modo claro */
+  color: #ead5a1; 
 }
 
 </style>

@@ -1,12 +1,8 @@
 <template>
   <div v-if="user">
     <NavBar :dark-mode="darkMode"></NavBar>
-    <div class="cabecera" style="background-color: #9b885b;">
+    <div class="cabecera">
       <div class="container mt-2">
-        <!-- Boton modos -->
-        <button @click="toggleDarkMode" class="theme-toggle-btn">
-          {{ darkMode ? 'Modo Claro' : 'Modo Oscuro' }}
-        </button>
         <!-- Barra de búsqueda -->
         <form class="d-flex mb-3 mt-4" @submit.prevent="buscarLibros">
           <div class="input-group">
@@ -40,10 +36,8 @@
                   v-for="tema in temas"
                   :key="tema.tematica"
                   @click="filtrarPorCategoria(tema.tematica)"
-                  class="btn rounded-pill btn-sm"
-                  :style="categoriaSeleccionada === tema.tematica 
-                    ? 'background-color: #e5c578; color: #343434;' 
-                    : 'background-color: #f6e5bb; color: #9b665b;'"
+                  class="categoria-btn"
+                  :class="{ 'categoria-seleccionada': categoriaSeleccionada === tema.tematica }"
                 >
                   {{ tema.tematica }}
                 </button>
@@ -65,6 +59,9 @@
     <div class="listado">
       <div class="l-container p-2 mx-5">
         <!-- Lista de libros -->
+        <button @click="toggleDarkMode" class="theme-toggle-btn">
+          {{ darkMode ? 'Modo Claro' : 'Modo Oscuro' }}
+        </button>
         <h4 class="libros-disponibles">
           {{ busqueda ? 'Resultados de la búsqueda' : 'LIBROS DISPONIBLES' }}
         </h4>
@@ -234,34 +231,15 @@ export default {
 </script>
 
 <style scoped>
-.theme-toggle-btn {
-  background-color: #444;
-  color: #fff;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
-  cursor: pointer;
+
+.cabecera {
+  padding: 20px;
+  background-color: #F8E79B;
 }
 
-.theme-toggle-btn:hover {
-  background-color: #666;
-}
-
-/* Modo oscuro */
-.dark-mode .listado {
-  background-color: #343434;
-  color: #ffffff;
-}
-
-/* Modo claro */
-.light-mode {
-  background-color: #ffffff;
-  color: #000000;
-}
-
-.light-mode .listado {
-  background-color: #ead5a1;
-  color: #000000;
+.categorias-titulo{
+  color:#4C4637 !important;
+  font-weight: bold;
 }
 
 .categorias-header {
@@ -269,6 +247,26 @@ export default {
   align-items: center;
   gap: 10px;
   margin-bottom: 1rem; 
+}
+
+.categoria-btn {
+  background-color: #F8F7F3;
+  color: #4C4637;
+  border: 1px solid #4C4637;
+  border-radius: 50px;
+  padding: 6px 16px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.categoria-btn:hover {
+  background-color: #C6C1B3;
+}
+
+.categoria-seleccionada {
+  background-color: #C6C1B3 !important;
+  color: #4C4637 !important;
 }
 
 .categorias-wrapper {
@@ -287,6 +285,7 @@ export default {
   -ms-overflow-style: none; 
   scrollbar-width: none;
 }
+
 .categorias-container::-webkit-scrollbar {
   display: none;
 }
@@ -298,7 +297,6 @@ export default {
   padding: 5px;
 }
 
-/* Flechas */
 .arrow-btn {
   background: none;
   border: none;
@@ -339,6 +337,13 @@ export default {
   justify-content: center;
 }
 
+.card-body {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
 .book-card {
   width: 180px;
   display: flex;
@@ -347,6 +352,9 @@ export default {
   justify-content: center;
   transition: transform 0.3s ease-in-out;
   cursor: pointer;
+  border: none !important;
+  box-shadow: none !important;
+  background-color: transparent !important;
 }
 
 .book-card:hover {
@@ -361,14 +369,15 @@ export default {
 }
 
 .book-title {
-  width: 160px; 
-  white-space: normal; 
+  width: 160px;
+  white-space: normal;
   font-size: 0.9rem;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
-  -webkit-box-orient: vertical;
   text-align: center;
+  margin-top: 10px;
+  color: var(--color-texto);
 }
 
 .cabecera {
@@ -379,11 +388,10 @@ export default {
   margin-top: 0 !important; 
 }
 
-.light-mode .back-to-top {
+.back-to-top {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background-color: #48402e; 
   border: none;
   border-radius: 50%;
   width: 50px;
@@ -394,48 +402,13 @@ export default {
   cursor: pointer;
   z-index: 9999;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  color: #ffffff; 
 }
 
-.light-mode .back-to-top:hover {
-  background-color: #343026; 
-}
-
-.dark-mode .back-to-top {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background-color: #e3c377; 
-  border: none;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 9999;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  color: #ffffff; 
-}
-
-.dark-mode .back-to-top:hover {
-  background-color: #bca369;
-}
-
-.light-mode .libros-disponibles {
+.libros-disponibles {
   text-align: center;         
   font-weight: bold;        
   font-size: 2rem;          
-  color: #343434;           
   margin: 30px 0;           
 }
 
-.dark-mode .libros-disponibles {
-  text-align: center;       
-  font-weight: bold;        
-  font-size: 2rem;          
-  color: #e3c377;           
-  margin: 30px 0;         
-}
 </style>

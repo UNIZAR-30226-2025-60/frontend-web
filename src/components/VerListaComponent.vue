@@ -25,7 +25,7 @@
           <p class="lista-descripcion">{{ lista.descripcion }}</p>
           <!-- Tipo de lista: Pública o Privada -->
           <p class="lista-tipo">
-            <span :class="darkMode ? 'text-light' : 'text-dark'">
+            <span>
               <i v-if="!lista.publica" class="fas fa-lock"></i>
               {{ lista.publica ? 'Pública' : 'Privada' }}
             </span>
@@ -227,89 +227,11 @@ export default {
 </script>
 
 <style scoped>
-/* Estilos del boton de cambio de tema */
-.theme-toggle-btn {
-  background-color: #444;
-  color: #fff;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
-  cursor: pointer;
-}
-
-.theme-toggle-btn:hover {
-  background-color: #666;
-}
-
-/* Colores modo oscuro */
-.dark-mode {
-  background-color: #343434;
-  color: #ffffff;
-}
-
-.dark-mode .container-fluid {
-  background-color: #343434;
-  color: #ffffff;
-}
-
-.dark-mode .lista-banner {
-  background-color: #444;
-}
-
-.dark-mode .lista-info {
-  color: #ffffff;
-}
-
-.dark-mode .lista-tipo i {
-  color: #f1c40f; /* color del candado en modo oscuro */
-}
-
-.dark-mode .text-light {
-  color: #ffffff;
-}
-
-/* Colores modo claro */
-.light-mode {
-  background-color: #ffffff;
-  color: #000000;
-}
-
-.light-mode .container-fluid {
-  background-color: #ead5a1;
-  color: #000000;
-}
-
-.light-mode .lista-banner {
-  background-color: #f8f9fa;
-}
-
-.light-mode .lista-info {
-  color: #000000;
-}
-
-.light-mode .lista-tipo i {
-  color: #888; /* color del candado en modo claro */
-}
-
-.light-mode .text-dark {
-  color: #000000;
-}
 
 .page-wrapper {
   min-height: 100vh;
 }
 
-.page-wrapper.dark-mode {
-  background-color: #343434;
-  color: #ffffff;
-}
-
-.page-wrapper.light-mode {
-  background-color: #ead5a1;
-  color: #000000;
-}
-
-/* Banner con imagen a la izquierda y texto a la derecha */
 .lista-banner {
   display: flex;
   align-items: center;
@@ -318,39 +240,41 @@ export default {
   margin-bottom: 40px;
   padding: 20px;
   background-color: rgba(0, 0, 0, 0.1);
+  color: var(--color-texto);
   border-radius: 12px;
 }
 
 .banner-image {
-  width: 150px;  /* Tamaño normal para la imagen */
+  width: 150px;  
   height: 150px;
   overflow: hidden;
   border-radius: 10px;
-  margin-right: 20px;  /* Separación entre imagen y texto */
+  margin-right: 20px; 
 }
 
 .banner-image img {
-  width: 100%;  /* Imagen se ajusta al contenedor */
+  width: 100%; 
   height: 100%;
-  object-fit: cover;  /* Mantener la proporción de la imagen */
+  object-fit: cover;  
 }
 
 .lista-info {
-  flex-grow: 1;  /* Asegura que el texto ocupe el espacio restante */
+  flex-grow: 1; 
   text-align: left;
+  color: var(--color-texto);
 }
 
 .lista-titulo {
   font-size: 2rem;
   font-weight: bold;
   margin-bottom: 10px;
-  color: #333;
+  color: var(--color-texto);
 }
 
 .lista-descripcion {
   font-size: 1.1rem;
-  color: #555;
   opacity: 0.9;
+  color: var(--color-texto);
 }
 
 .lista-tipo {
@@ -358,6 +282,7 @@ export default {
   margin-top: 10px;
   display: flex;
   align-items: center;
+  color: var(--color-texto);
 }
 
 .lista-tipo i {
@@ -385,7 +310,21 @@ export default {
   border-radius: 5px;
 }
 
+.book-card.card {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.book-card .card-body {
+  background-color: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
 .book-title {
+  color: var(--color-texto);
   width: 160px; 
   white-space: normal; 
   font-size: 0.9rem;
