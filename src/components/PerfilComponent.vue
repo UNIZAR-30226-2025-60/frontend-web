@@ -31,7 +31,7 @@
       <p class="mb-4">{{ user.correo }}</p>
     
       <!-- Botones -->
-      <div>
+      <div v-if="!isGoogleUser">
         <button class="btn mb-2" @click="editPassword"> 
           <font-awesome-icon :icon="['fas', 'pencil']" />
           Editar Contraseña
@@ -178,7 +178,7 @@ export default {
     return {
       user: null,
       darkMode: localStorage.getItem("darkMode") === "true", // Obtener el tema guardado
-          
+      isGoogleUser: false,    
       // Para modal de cambio de contraseña
       showPasswordModal: false,
       passwordForm: {
@@ -212,7 +212,11 @@ export default {
 
       const response1 = await apiClient.get(`/usuario/${this.user.correo}`)
       this.user = response1.data;
-      
+      const cookieEmail = this.getCookie("userEmail");
+      if (cookieEmail && cookieEmail === this.user.correo) {
+        // Si el correo coincide con la cookie, asumimos login con Google
+        this.isGoogleUser = true;
+      }
       // Si el usuario tiene foto de perfil, procesarla
       if (this.user.foto_perfil) {
         console.log("Esta es su foto de perfil", this.user.foto_perfil);
@@ -234,6 +238,10 @@ export default {
     }
   },
   methods: {
+    getCookie(name) {
+      const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+      return match ? decodeURIComponent(match[2]) : null;
+    },
     // Función para transformar URLs de Google Drive
     transformarURLGoogleDrive(url) {
       if (!url) return null;
