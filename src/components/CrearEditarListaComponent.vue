@@ -16,7 +16,7 @@
                    width="100">
               <h4 class="mt-2">{{ hacer === 'Editar' ? 'Editar Lista' : 'Confirmar' }}</h4>
               <p class="text-secondary text-justify">Crea o edita tu lista de temáticas especiales. ¿Quieres compartir tus recomendaciones o prefieres mantener tu lista solo para ti? ¡Tú decides! Pública para inspirar a otros, privada para disfrutar en solitario.</p>
-              <button type="button" class="btn btn-warning" @click="showModal">
+              <button type="button" class="btn modal-btn" @click="showModal">
                 Editar foto de perfil
               </button>
             </div>
@@ -38,7 +38,7 @@
                   <option :value="false">Privada</option>
                 </select>
               </div>
-              <button class="btn btn-warning w-100" @click="guardarLista">{{ hacer === 'Editar' ? 'Guardar Cambios' : 'Confirmar' }}</button>
+              <button class="btn modal-btn" @click="guardarLista">{{ hacer === 'Editar' ? 'Guardar Cambios' : 'Confirmar' }}</button>
             </div>
           </div>
         </div>
@@ -65,8 +65,8 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" @click="hideModal">Cerrar</button>
-            <button type="button" class="btn btn-primary" @click="guardarSeleccion">Guardar cambios</button>
+            <button type="button" class="btn modal-btn" @click="hideModal">Cerrar</button>
+            <button type="button" class="btn modal-btn" @click="guardarSeleccion">Guardar cambios</button>
           </div>
         </div>
       </div>
@@ -292,75 +292,17 @@ export default {
 </script>
 
 <style scoped>
-/* Estilos del botón */
-.theme-toggle-btn {
-  background-color: #444;
-  color: #fff;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
-  cursor: pointer;
-}
-
-.theme-toggle-btn:hover {
-  background-color: #666;
-}
-
-/* Colores modo oscuro */
-.dark-mode {
-  background-color: #343434;
-  color: #ffffff;
-}
-
-.dark-mode .container-fluid {
-  background-color: #343434;
-  color: #ffffff;
-}
-.container.dark-mode {
-  background-color: #343434;
-  color: #ffffff;
-}
-/* Colores modo claro */
-.light-mode {
-  background-color: #ffffff;
-  color: #000000;
-}
-
-.light-mode .container-fluid {
-  background-color: #ead5a1;
-  color: #000000;
-}
-.page-wrapper {
-  min-height: 100vh;
-}
-
-.page-wrapper.dark-mode {
-  background-color: #343434;
-  color: #ffffff;
-}
-
-.page-wrapper.light-mode {
-  background-color: #ead5a1;
-  color: #000000;
-}
 .container {
   max-width: 900px;
   margin-top: 20px;
 }
-.container.light-mode {
-  background-color: #ead5a1;
-  color: #000000;
-}
 
-body {
-  height: 100%;
-  padding: 0;
-  background-color: #e5c578;
-}
 .card {
-  background-color: #fff;
+  background-color: #F8E79B ;
+  color: #4C4637;
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
 }
+
 </style>

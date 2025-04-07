@@ -24,7 +24,7 @@
 
       <div class="row gap-4">
         <!-- COLUMNA "MIS ESTADÍSTICAS" -->
-        <div class="col-md-6 mb-4 pe-4" style="border-right: 2px solid #000;">
+        <div class="col-md-6 mb-4 pe-4" style="border-right: 2px solid #4C4637;">
           <h4 class="mb-4 text-center">Mis Estadísticas</h4>
 
           <!-- Bloque con 3 círculos -> libros en progreso, leídos mes, leídos total -->
@@ -514,12 +514,7 @@ export default {
 </script>
 
 <style scoped>
-.container-fluid {
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-}
 
-/* Estilo para alinear el título y el switch */
 .libros-header {
   display: flex;
   align-items: center;
@@ -551,13 +546,9 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ffdf27; /* Color amarillo para el modo claro */
+  background-color: var(--color-boton); /* Color amarillo para el modo claro */
   border-radius: 34px;
   transition: background-color 0.3s ease;
-}
-
-.switch-track.dark {
-  background-color: #585858; /* Color azul oscuro para el modo oscuro */
 }
 
 .switch-thumb {
@@ -590,46 +581,13 @@ export default {
   color: #686e77; /* Gris para la luna */
 }
 
-/* Modo claro */
-.light-mode {
-  background-color: #ffffff;
-  color: #000000;
-}
-
-/* Colores modo oscuro */
-.dark-mode {
-  background-color: #343434;
-  color: #ffffff;
-}
-
-.dark-mode .container {
-  background-color: #343434;
-  color: #ffffff;
-}
-
-/* Colores modo claro */
-.light-mode {
-  background-color: #ffffff;
-  color: #000000;
-}
-
-.light-mode .container {
-  background-color: #ead5a1;
-  color: #000000;
+.container-fluid {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 .page-wrapper {
   min-height: 100vh;
-}
-
-.page-wrapper.dark-mode {
-  background-color: #343434;
-  color: #ffffff;
-}
-
-.page-wrapper.light-mode {
-  background-color: #ead5a1;
-  color: #000000;
 }
 
 .small-cover {
@@ -637,7 +595,14 @@ export default {
   object-fit: cover;
 }
 
-/* Carroussel */
+.stats-main-title {
+  font-size: 2rem;       
+  font-weight: 800;      
+  color: var(--color-texto);        
+  text-transform: uppercase; 
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+}
+
 .carousel-container {
   gap: 0;
 }
@@ -667,14 +632,13 @@ export default {
   }
 }
 
-/* flechas del carroussel */
 .arrow-btn {
-  background-color: #e5c578; 
+  background-color: var(--color-boton);
   border: none;
   border-radius: 50%;
   width: 45px; 
   height: 45px; 
-  color: #343434;
+  color: var(--color-texto-boton);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -684,20 +648,22 @@ export default {
   padding: 0;
   margin: 0;
 }
+
 .arrow-btn:hover {
   transform: scale(1.1);
 }
+
 .arrow-icon {
   font-weight: bold;
 }
 
-/* Bloque Libros que más te han gustado */
 .liked-books-container {
   gap: 1rem; 
   margin: 0;
   padding: 0;
   justify-content: center;
 }
+
 .liked-book-item {
   margin: 0 !important;
   padding: 0 !important;
@@ -715,57 +681,47 @@ export default {
 }
 
 .border-end {
-  border-right: 3px solid #555 !important;
+  border-right: none !important;
+  border-bottom: 2px solid var(--color-texto) !important;
+  padding-bottom: 2rem;
+  margin-bottom: 2rem;
 }
 
-/* Bloque de temáticas */
 .tematicas-block {
   border-radius: 8px;
   max-width: 220px;
   margin-bottom: 1.5rem;
   text-align: center; 
-}
-.tematicas-block-light {
-  background-color: #f6e5bb; 
-  color: #343434;
-}
-.tematicas-block-dark {
-  background-color: #444; 
-  color: #e5c578;
-}
-.tematicas-title {
-  font-weight: bold;
-  font-size: 1rem;
+  background-color: var(--color-boton);
+  color: var(--color-texto-boton);
 }
 
 .stats-circles {
   margin-bottom: 1rem;
+  flex-wrap: wrap;
 }
+
 .stat-circle {
   width: 100px;   
   height: 100px;
   border-radius: 50%;
-  margin: 0 0.5rem;
+  margin: 0 0.5rem 1rem 0.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   position: relative;
-  border: 4px solid #ccc;
+  background-color: var(--color-boton);
+  color: var(--color-texto-boton);
+  border: 4px solid #999;
   box-shadow: 0 2px 4px rgba(0,0,0,0.15);
 }
-.circle-light {
-  border-color: #c7c7c7;
-  background-color: #fff;
-}
-.circle-dark {
-  border-color: #999;
-  background-color: #2f2f2f;
-}
+
 .circle-text {
   font-size: 1.4rem;
   font-weight: bold;
 }
+
 .circle-label {
   font-size: 0.85rem;
   margin-top: 2px;
@@ -784,12 +740,12 @@ export default {
   transform: scale(1.05);
 }
 
-/* Mensajes "error" */
 .no-data-message {
   display: flex;
   justify-content: center;
   margin-top: 1rem;
 }
+
 .no-data-content {
   background-color: rgba(229, 197, 120, 0.1); 
   border: 1px solid #e5c578; 
@@ -799,61 +755,34 @@ export default {
   text-align: center;
   color: inherit;
 }
+
 .no-data-content .icono {
   font-size: 1.5rem;
   margin-bottom: 0.5rem;
   display: block;
   color: #e5c578; 
 }
+
 .no-data-content p {
   margin: 0;
   font-size: 0.95rem;
 }
 
-.light-mode .titulo {
+.titulo {
   text-align: center;        
   font-weight: bold;         
   font-size: 2rem;         
-  color: #343434;            
+  color: var(--color-texto);    
   margin: 30px 0;     
 }
 
-.dark-mode .titulo {
-  text-align: center;      
-  font-weight: bold;        
-  font-size: 2rem;        
-  color: #e3c377;        
-  margin: 30px 0;         
-}
-
-/* Estilo para los selectores */
 .form-select {
-  background-color: #f5f5f5;
-  border: 1px solid #ccc;
+  background-color: var(--color-fondo);
+  border: 1px solid #bbb;
   border-radius: 4px;
   padding: 0.375rem 2.25rem 0.375rem 0.75rem;
   font-size: 0.9rem;
-}
-
-.dark-mode .form-select {
-  background-color: #444;
-  color: #e5c578;
-  border-color: #666;
-}
-
-.border-end {
-  border-right: none !important;
-  border-bottom: 2px solid #555 !important;
-  padding-bottom: 2rem;
-  margin-bottom: 2rem;
-}
-  
-.stats-circles {
-  flex-wrap: wrap;
-}
-  
-.stat-circle {
-  margin-bottom: 1rem;
+  color: var(--color-texto);
 }
 
 .bg-gold {
@@ -869,8 +798,8 @@ export default {
 }
 
 .trophy-border {
-  stroke: black;  /* Define el borde del ícono */
-  stroke-width: 3px;  /* Grosor del borde */
-  fill: none;  /* Solo rellena el contorno*/
+  stroke: black;  
+  stroke-width: 3px;  
+  fill: none;  
 }
 </style>

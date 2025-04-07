@@ -83,10 +83,10 @@
           </div>
               
           <div class="button-group">
-            <button type="submit" class="btn btn-save" :disabled="passwordLoading">
+            <button type="submit" class="btn-enviar" :disabled="passwordLoading">
               {{ passwordLoading ? 'Guardando...' : 'Guardar' }}
             </button>
-            <button type="button" class="btn btn-cancel" @click="closePasswordModal">
+            <button type="button" class="btn-cancelar" @click="closePasswordModal">
               Cancelar
             </button>
           </div>
@@ -115,10 +115,10 @@
           </div>
           
           <div class="button-group">
-            <button type="submit" class="btn btn-save" :disabled="nameLoading">
+            <button type="submit" class="btn-enviar" :disabled="nameLoading">
               {{ nameLoading ? 'Guardando...' : 'Confirmar' }}
             </button>
-            <button type="button" class="btn btn-cancel" @click="closeNameModal">
+            <button type="button" class="btn-cancelar" @click="closeNameModal">
               Cancelar
             </button>
           </div>
@@ -432,36 +432,6 @@ export default {
 </script>
     
 <style scoped>
-.light-mode .profile-header {
-  background-color: #343434; /* Modo claro */
-  color: #ead5a1;
-}
-  
-.dark-mode .profile-header {
-  background-color: #e5c578; /* Modo oscuro */
-  color: #000000;
-}
-  
-/* Estilos del botón */
-.theme-toggle-btn {
-  background-color: #444;
-  color: #fff;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
-  cursor: pointer;
-}
-  
-.btn {
-  background-color: #444;
-  color: #fff;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
-  cursor: pointer;
-}
-
-/* Estilo para alinear el título y el switch */
 .libros-header {
   display: flex;
   align-items: center;
@@ -475,6 +445,7 @@ export default {
   align-items: center;
   justify-content: center;
   position: absolute;
+  padding: 12px 50px;
   right: 0;
 }
 
@@ -492,13 +463,9 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ffdf27; /* Color amarillo para el modo claro */
+  background-color: var(--color-boton); /* Color amarillo para el modo claro */
   border-radius: 34px;
   transition: background-color 0.3s ease;
-}
-
-.switch-track.dark {
-  background-color: #585858; /* Color azul oscuro para el modo oscuro */
 }
 
 .switch-thumb {
@@ -531,16 +498,8 @@ export default {
   color: #686e77; /* Gris para la luna */
 }
 
-/* Modo claro */
-.light-mode {
-  background-color: #ffffff;
-  color: #000000;
-}
-  
-.btn:hover {
-  background-color: #666;
-  color: #fff;
-}
+
+
   
 .profile-container {
   text-align: center;
@@ -564,52 +523,11 @@ export default {
   font-size: 16px;
   cursor: pointer;
 }
-  
-/* Colores modo oscuro */
-.dark-mode {
-  background-color: #343434;
-  color: #ffffff;
-}
-  
-.dark-mode .container {
-  background-color: #343434;
-  color: #ffffff;
-}
-  
-/* Colores modo claro */
-.light-mode {
-  background-color: #ffffff;
-  color: #000000;
-}
-  
-.light-mode .container {
-  background-color: #ead5a1;
-  color: #000000;
-}
-  
+   
 .page-wrapper {
   min-height: 100vh;
 }
   
-.page-wrapper.dark-mode {
-  background-color: #343434;
-  color: #ffffff;
-}
-  
-.page-wrapper.light-mode {
-  background-color: #ead5a1;
-  color: #000000;
-}
-  
-.dark-mode .titulo {                   
-  color: #343434;            
-}
-  
-.light-mode .titulo {       
-  color: #e3c377;             
-}
-  
-/* Estilos para el modal */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -630,17 +548,7 @@ export default {
   border-radius: 10px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
-  
-.modal-light {
-  background-color: #ead5a1;
-  color: #000000;
-}
-  
-.modal-dark {
-  background-color: #444;
-  color: #ffffff;
-}
-  
+    
 .form-group {
   margin-bottom: 15px;
 }
@@ -661,39 +569,7 @@ export default {
   color: #333;
 }
   
-.dark-mode .form-input {
-  background-color: #333;
-  color: #fff;
-  border-color: #555;
-}
-  
-.button-group {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-}
-  
-.btn-save {
-  background-color: #4CAF50;
-}
-  
-.btn-save:hover {
-  background-color: #45a049;
-}
-  
-.btn-save:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
-}
-  
-.btn-cancel {
-  background-color: #f44336;
-}
-  
-.btn-cancel:hover {
-  background-color: #d32f2f;
-}
-  
+ 
 .message {
   padding: 10px;
   border-radius: 5px;
@@ -712,70 +588,13 @@ export default {
 
 .clickable {
   cursor: pointer;
-  pointer-events: auto; /* Asegura que el clic sea detectado */
+  pointer-events: auto; 
 }
 
-
-
-
-.dark-mode .lista-banner {
-  background-color: #444;
-}
-.dark-mode .lista-info {
-  color: #ffffff;
-}
-.dark-mode .lista-tipo i {
-  color: #f1c40f; /* Color del candado en modo oscuro */
-}
-.dark-mode .text-light {
-  color: #ffffff;
-}
-
-.light-mode .lista-banner {
-  background-color: #f8f9fa;
-}
-
-.light-mode .lista-info {
-  color: #000000;
-}
-
-.light-mode .lista-tipo i {
-  color: #888; /* Color del candado en modo claro */
-}
-
-.light-mode .text-dark {
-  color: #000000;
-}
-
-.light-mode .titulo {
-  text-align: center;         
-  font-weight: bold;        
-  font-size: 2rem;        
-  color: #343434;             
-  margin: 0;           
-}
-
-.dark-mode .lista-banner {
-  background-color: #444;
-}
-
-.dark-mode .lista-info {
-  color: #ffffff;
-}
-
-.dark-mode .lista-tipo i {
-  color: #f1c40f; /* Color del candado en modo oscuro */
-}
-
-.dark-mode .text-light {
-  color: #ffffff;
-}
-
-.dark-mode .titulo {
+.titulo {
   text-align: center;       
   font-weight: bold;    
   font-size: 2rem;        
-  color: #e3c377;           
   margin: 0;        
 }
 
@@ -803,16 +622,6 @@ export default {
   color: #000;
 }
 
-.modal-light {
-  background-color: #ead5a1;
-  color: #000;
-}
-
-.modal-dark {
-  background-color: #444;
-  color: #fff;
-}
-
 /* Agrega estos estilos */
 .image-grid {
   display: grid;
@@ -838,13 +647,5 @@ export default {
   object-fit: cover;
 }
 
-.btn-save {
-  background-color: #4CAF50 !important;
-  margin-right: 10px;
-}
-
-.btn-cancel {
-  background-color: #f44336 !important;
-}
 
 </style>

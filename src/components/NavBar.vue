@@ -1,57 +1,108 @@
 <template>
-<nav class="navbar navbar-expand-lg" :class="navbarTheme">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="#" @click="goToInicio">
-        <img :src="cambiarLogo" alt="Bookly" width="60" height="60" class="d-inline-block align-text-top">
-    </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
-        <li v-if="user != null" class="nav-item">
-          <a class="nav-link nav-bold clickable" @click="goToChatBot">ChatBot</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link nav-bold clickable" @click="goToForo">Foro</a>
-        </li>
-        <li v-if="user != null" class="nav-item">
-          <a class="nav-link nav-bold clickable" @click="goToEstadisticas">Estadísticas</a>
-        </li>
-        <li v-if="user == null" class="nav-item">
-          <a class="nav-link nav-bold clickable" @click="goToListas">Listas Públicas</a>
-        </li>
-        <li v-if="user != null" class="nav-item">
-          <a class="nav-link nav-bold clickable" @click="goToMisListas">Mis Listas</a>
-        </li>
-        <li v-if="user != null" class="nav-item" >
-          <a class="nav-link nav-bold clickable" @click="goToFavoritos">Mis Favoritos</a>
-        </li>
-        <li v-if="user != null" class="nav-item">
-          <a class="nav-link nav-bold clickable" @click="goToLeidos">Leídos</a>
-        </li>
-        <li v-if="user != null" class="nav-item">
-          <a class="nav-link nav-bold clickable" @click="goToEnProceso">En proceso</a>
-        </li>
-        <li v-if="user != null" class="nav-item">
-          <a class="nav-link nav-bold clickable" @click="goToPerfil">
-            <font-awesome-icon :icon="['fas', 'user']" /> Perfil
-          </a>
-        </li>
-      <!-- Duda de si le tengo que cambiar el titulito de Perfil -> Acceder -->
-        <li v-if="user == null" class="nav-item">
-          <a class="nav-link nav-bold clickable" @click="goToLogin">
-            <font-awesome-icon :icon="['fas', 'user']" /> Perfil
-          </a>
-        </li>
-      </ul>
+  <nav class="navbar navbar-expand-lg" :class="navbarTheme">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#" @click="goToInicio">
+        <div class="logo-wrapper">
+          <img :src="cambiarLogo" alt="Bookly" />
+        </div>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
+
+          <!-- Chatbot (coincide con name: "Chatbot" en index.js) -->
+          <li class="nav-item">
+            <a class="nav-link nav-bold clickable"
+               :class="{ 'active-link': activeRouteName === 'Chatbot' }"
+               @click="goToChatBot">
+               ChatBot
+            </a>
+          </li>
+
+          <!-- Foro (name: "Foro") -->
+          <li class="nav-item">
+            <a class="nav-link nav-bold clickable"
+               :class="{ 'active-link': activeRouteName === 'Foro' }"
+               @click="goToForo">
+               Foro
+            </a>
+          </li>
+
+          <!-- Estadísticas (name: "Estadisticas") -->
+          <li class="nav-item">
+            <a class="nav-link nav-bold clickable"
+               :class="{ 'active-link': activeRouteName === 'Estadisticas' }"
+               @click="goToEstadisticas">
+               Estadísticas
+            </a>
+          </li>
+
+          <!-- Listas Públicas (name: "Listas" con param privacidad="ListasPublicas") -->
+          <li class="nav-item">
+            <a class="nav-link nav-bold clickable"
+               :class="{ 'active-link': activeRouteName === 'Listas' && activeParams.privacidad === 'ListasPublicas' }"
+               @click="goToListas">
+               Listas Públicas
+            </a>
+          </li>
+
+          <!-- Mis Listas (name: "Listas" con param privacidad="MisListas") -->
+          <li class="nav-item">
+            <a class="nav-link nav-bold clickable"
+               :class="{ 'active-link': activeRouteName === 'Listas' && activeParams.privacidad === 'MisListas' }"
+               @click="goToMisListas">
+               Mis Listas
+            </a>
+          </li>
+
+          <!-- Mis Favoritos (name: "VerLista" con param id="Mis Favoritos") -->
+          <li class="nav-item">
+            <a class="nav-link nav-bold clickable"
+               :class="{ 'active-link': activeRouteName === 'VerLista' && activeParams.id === 'Mis Favoritos' }"
+               @click="goToFavoritos">
+               Mis Favoritos
+            </a>
+          </li>
+
+          <!-- Leídos (name: "VerLista" con param id="Leídos") -->
+          <li class="nav-item">
+            <a class="nav-link nav-bold clickable"
+               :class="{ 'active-link': activeRouteName === 'VerLista' && activeParams.id === 'Leídos' }"
+               @click="goToLeidos">
+               Leídos
+            </a>
+          </li>
+
+          <!-- En proceso (name: "VerLista" con param id="En proceso") -->
+          <li class="nav-item">
+            <a class="nav-link nav-bold clickable"
+               :class="{ 'active-link': activeRouteName === 'VerLista' && activeParams.id === 'En proceso' }"
+               @click="goToEnProceso">
+               En proceso
+            </a>
+          </li>
+
+          <!-- Perfil (name: "Perfil") -->
+          <li class="nav-item">
+            <a class="nav-link nav-bold clickable"
+               :class="{ 'active-link': activeRouteName === 'Perfil' }"
+               @click="goToPerfil">
+               <font-awesome-icon :icon="['fas', 'user']" /> Perfil
+            </a>
+          </li>
+
+        </ul>
+      </div>
     </div>
-  </div>
-</nav>
+  </nav>
 </template>
 
 <script>
 import { Dropdown } from 'bootstrap';
+
 export default {
   name: "NavBar",
   props: {
@@ -64,27 +115,30 @@ export default {
     },
     cambiarLogo() {
       return this.darkMode 
-        ? require("../assets/bookly-oscuro.png") // Imagen para modo oscuro
-        : require("../assets/bookly-claro.png"); // Imagen para modo claro
+        ? require("../assets/bookly-oscuro.png")
+        : require("../assets/bookly-claro.png");
+    },
+    activeRouteName() {
+      return this.$route.name; 
+    },
+    activeParams() {
+      return this.$route.params;
     }
   },
   mounted() {
+    console.log('NavBar montado');
     const dropdownElements = this.$el.querySelectorAll('.dropdown-toggle');
-    console.log('Dropdown elements found:', dropdownElements.length);
     dropdownElements.forEach(el => {
       new Dropdown(el);
     });
   },
   methods: {
+    // Métodos de navegación que NO recargan
     goToChatBot() {
-      this.$router.push('/chatbot').then(() => {
-        this.$router.go(0); // Recarga la página
-      });
+      this.$router.push('/chatbot');
     },
     goToForo() {
-      this.$router.push('/foro').then(() => {
-        this.$router.go(0); // Recarga la página
-      });
+      this.$router.push('/foro');
     },
     goToInicio() {
       this.$router.push('/').then(() => {
@@ -92,33 +146,38 @@ export default {
       });
     },
     goToEstadisticas() {
-      this.$router.push('/estadisticas').then(() => {
-        this.$router.go(0); // Recarga la página
-      });
+      this.$router.push('/estadisticas');
     },
     goToMisListas() {
-      this.$router.push({name: 'Listas', params: { privacidad: 'MisListas'}}).then(() => {
-        this.$router.go(0); // Recarga la página
-      });
+      this.$router.push({ name: 'Listas', params: { privacidad: 'MisListas' } });
     },
     goToListas() {
-      this.$router.push({name: 'Listas', params: { privacidad: 'ListasPublicas'}}).then(() => {
-        this.$router.go(0); // Recarga la página
-      });
+      this.$router.push({ name: 'Listas', params: { privacidad: 'ListasPublicas' } });
     },
+
+    // Métodos que SÍ recargan para forzar la lógica anterior:
     goToFavoritos() {
-      this.$router.push({ name: 'VerLista', params: { donde: 'MisListas', id: 'Mis Favoritos'}}).then(() => {
-        this.$router.go(0); // Recarga la página
+      this.$router.push({ 
+        name: 'VerLista', 
+        params: { donde: 'MisListas', id: 'Mis Favoritos' } 
+      }).then(() => {
+        this.$router.go(0); // recarga la página
       });
     },
-    goToLeidos(){
-      this.$router.push({ name: 'VerLista', params: { donde: 'MisListas',id: 'Leídos'}}).then(() => {
-        this.$router.go(0); // Recarga la página
-      }); 
+    goToLeidos() {
+      this.$router.push({ 
+        name: 'VerLista', 
+        params: { donde: 'MisListas', id: 'Leídos' } 
+      }).then(() => {
+        this.$router.go(0); // recarga la página
+      });
     },
-    goToEnProceso(){
-      this.$router.push({ name: 'VerLista', params: { donde: 'MisListas', id: 'En proceso'}}).then(() => {
-        this.$router.go(0); // Recarga la página
+    goToEnProceso() {
+      this.$router.push({ 
+        name: 'VerLista', 
+        params: { donde: 'MisListas', id: 'En proceso' } 
+      }).then(() => {
+        this.$router.go(0); // recarga la página
       });
     },
     goToPerfil() {
@@ -134,13 +193,50 @@ export default {
   }
 };
 </script>
+
 <style scoped>
+.active-link {
+  position: relative;
+  font-weight: bold;
+}
+
+.active-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100% !important;
+  height: 4px;
+  background-color: #4C4637;
+}
+
+.logo-wrapper {
+  width: 65px;
+  height: 65px;
+  background-color: #e5c578 !important;
+  border: 3px solid #4C4637;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  box-sizing: border-box;
+}
+
+.logo-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 50%;
+  display: block;
+}
+
 .navbar-light {
-  background-color: #343434; /* Modo claro */
+  background-color: #EECA06; 
 }
 
 .navbar-dark {
-  background-color: #e5c578; /* Modo oscuro */
+  background-color: #EECA06; 
 }
 
 .nav-bold {
@@ -148,23 +244,18 @@ export default {
 }
 
 .navbar-dark .nav-bold {
-  color: #343434; /* Texto claro en modo oscuro */
+  color: #343434;
 }
 
 .navbar-light .nav-bold {
-  color: #f6e5bb; /* Texto oscuro en modo claro */
+  color: #343434; 
 }
 
-.nav-item:hover {
-  background-color: #9b885b;
+.nav-item:hover,
+.nav-link:hover {
+  background-color: transparent !important;
 }
 
-.navbar-dark .nav-item:hover {
-  background-color: #e0a927;
-  z-index: 9999;
-}
-
-/* Dropdown alineado */
 .dropdown-menu {
   min-width: 10rem;
   z-index: 9999;
@@ -177,6 +268,28 @@ export default {
 
 .clickable {
   cursor: pointer;
-  pointer-events: auto; /* Asegura que el clic sea detectado */
+  pointer-events: auto; 
+}
+
+.nav-link {
+  position: relative;
+  padding-bottom: 4px;
+  transition: all 0.2s ease;
+  font-size: 1.2rem;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0%;
+  height: 4px;
+  background-color: #4C4637; 
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+  width: 100%;
 }
 </style>

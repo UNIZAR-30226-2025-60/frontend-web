@@ -1,0 +1,111 @@
+/* variables de colores que utilizamos */
+:root {
+  --color-fondo: #F8F7F3;
+  --color-texto: #4C4637;
+  --color-boton: #4C4637;
+  --color-texto-boton: #F8E79B;
+  --color-estrellas: #EECA06;
+  --color-scrollbar: #4C4637;
+
+  --color-btn-enviar: #046f2a;
+  --color-btn-cancelar: #a30c0c;
+  --color-texto-btn-especial: #ffffff;
+}
+
+body.dark-mode {
+  --color-fondo: #6A6456;
+  --color-texto: #FBF1CD;
+  --color-boton: #FBF1CD;
+  --color-texto-boton: #4C4637;
+  --color-scrollbar: #FBF1CD;
+}
+
+body {
+  background-color: var(--color-fondo);
+  color: var(--color-texto);
+  margin: 0;
+  padding: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-scrollbar) var(--color-fondo);
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 8px;
+}
+
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track {
+  background: var(--color-fondo);
+}
+
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb {
+  background-color: var(--color-scrollbar);
+  border-radius: 10px;
+}
+
+html, body {
+  scrollbar-color: var(--color-scrollbar) var(--color-fondo);
+  scrollbar-width: thin;
+}
+
+/* Botones normales */
+button,
+.btn {
+  background-color: var(--color-boton);
+  color: var(--color-texto-boton);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+button:hover,
+.btn:hover {
+  opacity: 0.9;
+}
+
+/* Botones de modales */
+.modal-btn {
+  background-color: #4C4637 !important;
+  color: #F8E79B !important;
+  border-radius: 20px;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+.modal-btn:hover {
+  filter: brightness(0.9);
+}
+
+/* Modal */
+.modal-content {
+  background-color: #F8E79B !important;
+  color: #4C4637 !important;
+  border-radius: 10px;
+}
+
+/* Botones especiales */
+.btn-enviar {
+  background-color: var(--color-btn-enviar);
+  color: var(--color-texto-btn-especial);
+}
+.btn-cancelar {
+  background-color: var(--color-btn-cancelar);
+  color: var(--color-texto-btn-especial);
+}
+
+/* Estrellas */
+.fa-star,
+.fa-star-half {
+  color: var(--color-estrellas);
+}
+
+/* Inputs */
+input, textarea, select {
+  color: var(--color-texto);
+  background-color: var(--color-fondo);
+  border: 1px solid #bbb;
+}

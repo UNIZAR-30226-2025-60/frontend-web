@@ -86,7 +86,7 @@
     <!-- MODAL personalizado -->
     <div v-if="mostrarModal" class="modal-background">
       <div class="modal-dialog modal-dialog-centered"> 
-        <div class="modal-content bg-dark text-white rounded-3 shadow-lg">
+        <div class="modal-content rounded-3 shadow-lg">
           <div class="modal-header">
             <h4 class="modal-title fw-bold mb-4">Nueva respuesta</h4>
           </div>
@@ -318,7 +318,6 @@ export default {
 </script>
 
 <style scoped>
-/* Estilo para alinear el título y el switch */
 .libros-header {
   display: flex;
   align-items: center;
@@ -332,6 +331,7 @@ export default {
   align-items: center;
   justify-content: center;
   position: absolute;
+  padding: 12px 50px;
   right: 0;
 }
 
@@ -349,13 +349,9 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ffdf27; /* Color amarillo para el modo claro */
+  background-color: var(--color-boton); /* Color amarillo para el modo claro */
   border-radius: 34px;
   transition: background-color 0.3s ease;
-}
-
-.switch-track.dark {
-  background-color: #585858; /* Color azul oscuro para el modo oscuro */
 }
 
 .switch-thumb {
@@ -388,37 +384,62 @@ export default {
   color: #686e77; /* Gris para la luna */
 }
 
-/* Modo claro */
-.light-mode {
-  background-color: #ffffff;
-  color: #000000;
+.page-wrapper {
+  min-height: 100vh;
 }
 
-.btn {
-  background-color: #444;
-  color: #fff;
+.back-to-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: var(--color-boton);
   border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  z-index: 9999;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  color: var(--color-texto-boton);
+  transition: filter 0.2s ease;
+}
+.back-to-top:hover {
+  filter: brightness(0.9);
 }
 
-.btn:hover {
-  background-color: #666;
-  color: #fff;
+.pregunta {
+  background-color: var(--color-fondo);
+  color: var(--color-texto);
+  border: 1px solid #bbb;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.pregunta h5,
+.pregunta p,
+.pregunta strong {
+  color: var(--color-texto);
 }
 
-.theme-toggle-btn {
-  background-color: #444;
-  color: #fff;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
-  cursor: pointer;
+.respuestas {
+  margin-left: 20px;
+}
+.respuesta {
+  border-top: 1px solid #ccc;
+  padding-top: 10px;
+  margin-top: 10px;
+}
+.respuesta p,
+.respuesta strong {
+  color: var(--color-texto);
 }
 
-.theme-toggle-btn:hover {
-  background-color: #666;
+.text-muted {
+  color: var(--color-texto) !important;
+  opacity: 0.8;
 }
 
 .modal-background {
@@ -434,155 +455,66 @@ export default {
 }
 
 .modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  text-align: center;
+  background-color: #F8E79B !important;
+  color: #4C4637 !important;  
+  border-radius: 12px;
+  padding: 32px;
+  width: 500px;
+  max-width: 95%;
+  text-align: left;
+  font-size: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
+
+.modal-title,
+.modal-content label,
+.modal-content p,
+.modal-content textarea {
+  color: #4C4637 !important;
+  font-weight: 500;
+}
+
+.modal-content textarea {
+  width: 100%;
+  height: 100px;
+  padding: 10px;
+  resize: vertical;
+  border-radius: 8px;
+  border: 1px solid #bbb;
+  background-color: #fff;
+  color: #4C4637;
+  font-size: 0.95rem;
+}
+
+/* Modal botones */
 .btn-enviar {
-  background-color: #046f2a;
-  color: #fff;
+  background-color: var(--color-btn-enviar);
+  color: var(--color-texto-btn-especial);
   border: none;
-  padding: 8px 16px;
   border-radius: 20px;
+  padding: 8px 20px;
+  margin-right: 10px;
   cursor: pointer;
 }
-
-.btn-enviar:hover {
-  background-color: #046f2a;
-  color: #fff;
-}
-
 .btn-cancelar {
-  background-color: #a30c0c;
-  color: #fff;
+  background-color: var(--color-btn-cancelar);
+  color: var(--color-texto-btn-especial);
   border: none;
-  padding: 8px 16px;
   border-radius: 20px;
+  padding: 8px 20px;
   cursor: pointer;
 }
-
+.btn-enviar:hover,
 .btn-cancelar:hover {
-  background-color: #a30c0c;
-  color: #fff;
+  filter: brightness(0.95);
 }
 
-.respuestas {
-  margin-left: 20px;
-}
-
-.respuesta {
-  border-top: 1px solid #ccc;
-  padding-top: 10px;
-  margin-top: 10px;
-}
-
-/* Colores modo oscuro */
-.dark-mode {
-  background-color: #343434;
-  color: #ffffff;
-}
-
-.dark-mode .container-fluid {
-  background-color: #343434;
-  color: #ffffff;
-}
-
-.dark-mode .pregunta {
-  background: #989898;
-  padding: 10px;
-  margin-bottom: 10px;
-}
-
-/* Colores modo claro */
-.light-mode {
-  background-color: #ffffff;
-  color: #000000;
-}
-
-.light-mode .container-fluid {
-  background-color: #ead5a1;
-  color: #000000;
-}
-
-.light-mode .pregunta {
-  background: #dedede;
-  padding: 10px;
-  margin-bottom: 10px;
-}
-
-.page-wrapper {
-  min-height: 100vh;
-}
-
-.page-wrapper.dark-mode {
-  background-color: #343434;
-  color: #ffffff;
-}
-
-.page-wrapper.light-mode {
-  background-color: #ead5a1;
-  color: #000000;
-}
-
-.light-mode .titulo {
-  text-align: center;         
-  font-weight: bold;        
-  font-size: 2rem;        
-  color: #343434;             
-  margin: 0;           
-}
-
-.dark-mode .titulo {
-  text-align: center;       
-  font-weight: bold;    
-  font-size: 2rem;        
-  color: #e3c377;           
-  margin: 0;        
-}
-
-.light-mode .back-to-top {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background-color: #48402e; 
-  border: none;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 9999;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  color: #ffffff; 
-}
-
-.light-mode .back-to-top:hover {
-  background-color: #343026; 
-}
-
-.dark-mode .back-to-top {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background-color: #e3c377; 
-  border: none;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 9999;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  color: #ffffff; 
-}
-
-.dark-mode .back-to-top:hover {
-  background-color: #bca369;
+.titulo {
+  text-align: center;
+  font-weight: bold;
+  font-size: 2rem;
+  color: var(--color-texto);
+  margin: 30px 0;
 }
 </style>

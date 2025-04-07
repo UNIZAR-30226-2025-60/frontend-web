@@ -782,116 +782,6 @@ export default {
 </script>
 
 <style scoped>
-/* Estilo para el switch */
-.theme-switch-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  padding: 12px 50px;
-  right: 0;
-}
-
-.theme-switch {
-  position: relative;
-  display: inline-block;
-  width: 60px;
-  height: 30px;
-  cursor: pointer;
-}
-
-.switch-track {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ffdf27; /* Color amarillo para el modo claro */
-  border-radius: 34px;
-  transition: background-color 0.3s ease;
-}
-
-.switch-track.dark {
-  background-color: #585858; /* Color azul oscuro para el modo oscuro */
-}
-
-.switch-thumb {
-  position: absolute;
-  height: 26px;
-  width: 26px;
-  left: 2px;
-  bottom: 2px;
-  background-color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.3s ease;
-}
-
-.switch-thumb.dark {
-  transform: translateX(30px);
-}
-
-.icon {
-  font-size: 16px;
-}
-
-.sun-icon {
-  color: #FFD700; /* Amarillo para el sol */
-}
-
-.moon-icon {
-  color: #686e77; /* Gris para la luna */
-}
-
-/* Modo claro */
-.light-mode {
-  background-color: #ffffff;
-  color: #000000;
-}
-
-.btn {
-  background-color: #444;
-  color: #fff;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
-  cursor: pointer;
-}
-
-.btn:hover {
-  background-color: #666;
-  color: #fff;
-}
-
-.btn-enviar {
-  background-color: #046f2a;
-  color: #fff;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
-  cursor: pointer;
-}
-
-.btn-enviar:hover {
-  background-color: #046f2a;
-  color: #fff;
-}
-
-.btn-cancelar {
-  background-color: #a30c0c;
-  color: #fff;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
-  cursor: pointer;
-}
-
-.btn-cancelar:hover {
-  background-color: #a30c0c;
-  color: #fff;
-}
 
 .text-justify {
   text-align: justify;
@@ -927,46 +817,50 @@ export default {
 }
 
 .modal-content {
-  background: white;
-  padding: 20px;
+  background-color: #F8E79B !important;
+  color: #4C4637 !important;
+  padding: 30px 25px;
   border-radius: 10px;
+  width: 450px; 
+  max-width: 90%;
+  text-align: left;
+}
+
+.modal-title {
   text-align: center;
+  width: 100%;
 }
 
-/* Colores modo oscuro */
-.dark-mode {
-  background-color: #343434;
-  color: #ffffff;
+.modal-header,
+.modal-body,
+.modal-footer {
+  background-color: #F8E79B !important;
+  color: #4C4637 !important;
+  padding: 0;
 }
 
-.dark-mode .container {
-  background-color: #343434;
-  color: #ffffff;
+.modal-body label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 4px; 
+  margin-top: 12px; 
 }
 
-/* Colores modo claro */
-.light-mode {
-  background-color: #ffffff;
-  color: #000000;
+input,
+textarea {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 8px 10px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.light-mode .container {
-  background-color: #ead5a1;
-  color: #000000;
+input[type="number"] {
+  margin-bottom: 16px;
 }
 
 .page-wrapper {
   min-height: 100vh;
-}
-
-.page-wrapper.dark-mode {
-  background-color: #343434;
-  color: #ffffff;
-}
-
-.page-wrapper.light-mode {
-  background-color: #ead5a1;
-  color: #000000;
 }
 
 .heart-icon {
@@ -975,43 +869,23 @@ export default {
   margin-right: 10px;
 }
 
-.light-mode .titulo {
-  text-align: left;        
-  font-weight: bold;         
-  font-size: 2rem;         
-  color: #343434;            
-  margin: 30px 0;     
-}
-
-.dark-mode .titulo {
-  text-align: left;      
-  font-weight: bold;        
-  font-size: 2rem;        
-  color: #e3c377;        
-  margin: 30px 0;         
-}
-
 .cursiva {
   font-style: italic;
 }
 
-.list-group {
-  list-style: none; 
-  padding: 0; /* Elimina el padding por defecto */
-}
-
 .list-group-li {
-  background: #444; /* Color de fondo similar al de tu diseño */
-  border-radius: 15px;
-  text-align: center;
-  color: white;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  transition: background-color 0.2s;
+}
+.list-group-li:hover {
+  filter: brightness(1.1);
 }
 
-.light-mode .back-to-top {
+.back-to-top {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background-color: #48402e; 
   border: none;
   border-radius: 50%;
   width: 50px;
@@ -1019,36 +893,8 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
   z-index: 9999;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  color: #ffffff; 
-}
-
-.light-mode .back-to-top:hover {
-  background-color: #343026; 
-}
-
-.dark-mode .back-to-top {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background-color: #e3c377; 
-  border: none;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 9999;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  color: #ffffff; 
-}
-
-.dark-mode .back-to-top:hover {
-  background-color: #bca369;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
 }
 
 .dropdown-item {
@@ -1087,5 +933,11 @@ export default {
   user-select: none;
   border-radius: 3px;
 }
+
+.form-check-input:checked {
+  background-color: #046f2a;
+  border-color: #046f2a;
+}
+
 
 </style>
