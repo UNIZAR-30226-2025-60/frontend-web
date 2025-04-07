@@ -372,6 +372,7 @@ export default {
     // Eliminar cookies
     document.cookie = "connect.sid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     document.cookie = "userEmail=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie = "isGoogleAuth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 
     // Limpiar localStorage
     localStorage.removeItem("userToken");
