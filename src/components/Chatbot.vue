@@ -1,7 +1,7 @@
 <template>
   <div :class="darkMode ? 'dark-mode' : 'light-mode'" class="chatbot-wrapper">
     <!-- NavBar -->
-    <NavBar :darkMode="darkMode" @toggle-dark-mode="toggleDarkMode" />
+    <NavBar :darkMode="darkMode" @toggle-dark-mode="toggleDarkMode"  :user="user"/>
 
     <!-- Contenedor del Chatbot -->
     <div class="chat-container">
@@ -68,12 +68,18 @@ export default {
   },
   async mounted() {
     try {
-      // Obtener los datos del usuario (incluido el correo)
-      const response = await apiClient.get('/user');
-      this.user = response.data;
+      // Intenta obtener los datos del usuario autenticado
+      const response = await apiClient.get("/user");
+      this.user = response.data; // Guarda los datos del usuario si existe
       this.userEmail = this.user.correo;  // Guardar el correo en la variable userEmail
+      console.log("Usuario autenticado:", this.user);
+      if(this.user == ""){
+        console.log("Usuario no autenticado");
+        this.$router.push("/")
+      }
     } catch (error) {
-      console.error("Error al obtener el usuario:", error);
+      // Si no hay usuario autenticado, simplemente continúa con los datos públicos
+      console.error("Error al cargar los datos del usuario: ", error);
     }
   },
   methods: {

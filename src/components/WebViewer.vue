@@ -117,19 +117,28 @@ export default {
     // ✅ Obtener el usuario autenticado desde el backend
     const loadUser = async () => {
       try {
-        const response = await apiClient.get("/user", { withCredentials: true });
-        correo.value = response.data.correo;
-        console.log("📩 Correo obtenido del backend:", correo.value);
+        // Intenta obtener los datos del usuario autenticado
+        const response = await apiClient.get("/user");
+        this.user = response.data; // Guarda los datos del usuario si existe
+        if(this.user == ""){
+          this.user = null;
+          correo.value = null;
+          console.log("Usuario no autenticado");
+        }
+        else {
+          correo.value = response.data.correo;
+          console.log("Usuario autenticado");
+        }
       } catch (error) {
-        console.error("❌ Error al obtener el usuario:", error);
-        correo.value = null;
+        // Si no hay usuario autenticado, simplemente continúa con los datos públicos
+        console.error("Error al cargar los datos del usuario: ", error);
       }
     };
 
     const libroUrl = route.query.url;
 
     const verificarFavorita = async () => {
-      if (!correo.value) return;
+      if (!user) return;
       try {
         const { data } = await apiClient.get("/verificar-favorita", {
           params: { correo: correo.value, enlace: libroUrl, pagina: pageNum.value },
@@ -418,7 +427,7 @@ export default {
         const enlaceoriginal = this.libroUrl; //Enlace sin procesar
         const enlaceProcesado = this.processBookUrl(enlaceoriginal); // Enlace procesado
 
-        if (!correo || !enlaceProcesado) {
+        if (!user || !enlaceProcesado) {
           console.error("⚠️ Datos insuficientes para cargar páginas favoritas.");
           return;
         }

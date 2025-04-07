@@ -1,6 +1,6 @@
 <template>
-  <div v-if="user" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
-    <NavBar :dark-mode="darkMode"></NavBar>
+  <div v-if="foro" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
+    <NavBar :dark-mode="darkMode"  :user="user"></NavBar>
 
     <div class="container-fluid pt-4 p-5 min-vh-100">
       <div class="libros-header">
@@ -20,23 +20,23 @@
           </div>
         </div>
       </div>
+      <div v-if="user != null">
+        <h5 class="text-center" >¿Quieres preguntar algo?</h5>
 
-      <h5 class="text-center" >¿Quieres preguntar algo?</h5>
+        <form class="d-flex mb-3 mt-4" @submit.prevent="publicarPregunta">
+          <div class="input-group">
+            <input class="form-control rounded-pill" type="text" placeholder="Escribe aquí tu pregunta..." v-model="pregunta">
+          </div>
+        </form>
 
-      <form class="d-flex mb-3 mt-4" @submit.prevent="publicarPregunta">
-        <div class="input-group">
-          <input class="form-control rounded-pill" type="text" placeholder="Escribe aquí tu pregunta..." v-model="pregunta">
+        <!-- Switch para filtrar preguntas -->
+        <div class="form-check form-switch my-3">
+          <input class="form-check-input" type="checkbox" id="filterUserQuestions" v-model="filtrarPorUsuario" @change="obtenerPreguntas">
+          <label class="form-check-label" for="filterUserQuestions">
+            Ver mis preguntas
+          </label>
         </div>
-      </form>
-
-      <!-- Switch para filtrar preguntas -->
-      <div class="form-check form-switch my-3">
-        <input class="form-check-input" type="checkbox" id="filterUserQuestions" v-model="filtrarPorUsuario" @change="obtenerPreguntas">
-        <label class="form-check-label" for="filterUserQuestions">
-          Ver mis preguntas
-        </label>
       </div>
-
       <div v-for="pregunta in preguntasFiltradas" :key="pregunta.id" class="pregunta mb-3 p-3">
         <h5>{{ pregunta.cuestion }}</h5>
         <p class="mb-1"><strong>Por:</strong> {{ pregunta.usuario }} <strong>Fecha:</strong> {{ pregunta.fecha }}</p>
@@ -47,7 +47,7 @@
 
         <div class="d-flex gap-3 align-items-center">
           <!-- Botón para añadir respuesta -->
-          <button class="btn btn-sm btn-outline-secondary" @click="aniadirRespuesta(pregunta.id)"> 
+          <button v-if="user != null" class="btn btn-sm btn-outline-secondary" @click="aniadirRespuesta(pregunta.id)"> 
             <font-awesome-icon :icon="['fas', 'reply']" />
             Responder
           </button>
@@ -106,6 +106,9 @@
       </div> 
     </div>
   </div>
+  <div v-else>
+    <Cargando :dark-mode="darkMode"></Cargando>
+  </div>
 </template>
 
 <script>
@@ -149,8 +152,19 @@ export default {
   },
   async mounted() {
     try {
-      const response1 = await apiClient.get("/user"); // Llamada a usuario
-      this.user = response1.data;
+      // Intenta obtener los datos del usuario autenticado
+      const response = await apiClient.get("/user");
+      this.user = response.data; // Guarda los datos del usuario si existe
+      console.log("Usuario autenticado:", this.user);
+      if(this.user == ""){
+        this.user = null;
+        console.log("Usuario no autenticado");
+      }
+    } catch (error) {
+      // Si no hay usuario autenticado, simplemente continúa con los datos públicos
+      console.error("Error al cargar los datos del usuario: ", error);
+    }
+    try {
       this.cargarForoCompleto();
 
       // Aplicar el tema guardado al cargar la página

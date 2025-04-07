@@ -1,6 +1,6 @@
 <template>
   <div v-if="libro && librosRelacionados" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
-    <NavBar :dark-mode="darkMode"></NavBar>
+    <NavBar :dark-mode="darkMode"  :user="user"></NavBar>
     <div v-if="libro" class="container-fluid pt-4 p-5 min-vh-100">
       <!-- Switch con iconos sol/luna -->
       <div class="theme-switch-wrapper mb-1">
@@ -29,7 +29,7 @@
               <h4 class="titulo">{{ libro.nombre }}</h4>
               <h4>de: {{ libro.autor }}</h4>
             </div>
-            <div>
+            <div v-if="user != null">
               <font-awesome-icon :icon="[ isFavorito ? 'fas' : 'far', 'heart' ]" class="heart-icon" @click="toggleFavorito"/>
               <button class="btn" @click="abrirModalListas(libro)">Añadir a lista</button>
             </div>
@@ -93,7 +93,7 @@
                   </span>
                   <p>({{conteoValoraciones.total}})</p>
                 </div>
-                <div class="pt-2">
+                <div v-if="user != null" class="pt-2">
                   <button class="btn" @click="aniadirValoracion(libro)">+ Añadir Valoración</button>
                 </div>
               </div>
@@ -324,8 +324,19 @@ export default {
   try {
     console.log("Componente montado.");
     // Obtener información del usuario
-    const response1 = await apiClient.get("/user");
-    this.user = response1.data;
+    try {
+      // Intenta obtener los datos del usuario autenticado
+      const response = await apiClient.get("/user");
+      this.user = response.data; // Guarda los datos del usuario si existe
+      console.log("Usuario autenticado:", this.user);
+      if(this.user == ""){
+        this.user = null;
+        console.log("Usuario no autenticado");
+      }
+    } catch (error) {
+      // Si no hay usuario autenticado, simplemente continúa con los datos públicos
+      console.error("Error al cargar los datos del usuario: ", error);
+    }
 
     // Obtener detalles del libro
     const libroId = encodeURIComponent(this.$route.params.id);

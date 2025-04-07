@@ -1,6 +1,6 @@
 <template>
   <div v-if="user || (!user && libros.length > 0)">
-    <NavBar :dark-mode="darkMode"></NavBar>
+    <NavBar :dark-mode="darkMode"  :user="user"></NavBar>
     <div class="cabecera" style="background-color: #9b885b;">
       <div class="container mt-2 position-relative">
         <!-- Barra de búsqueda -->
@@ -121,28 +121,31 @@ export default {
       return this.temas.slice(0, this.visibleCategories);
     }
   },
-    async mounted() {
-  try {
-    // Intenta obtener los datos del usuario autenticado
-    const response = await apiClient.get("/user");
-    this.user = response.data; // Guarda los datos del usuario si existe
-    console.log("Usuario autenticado:", this.user);
-  } catch (error) {
-    // Si no hay usuario autenticado, simplemente continúa con los datos públicos
-    console.warn("Usuario no autenticado:", error);
-    this.user = null; // Marcar como no autenticado
-  }
+  async mounted() {
+    try {
+      // Intenta obtener los datos del usuario autenticado
+      const response = await apiClient.get("/user");
+      this.user = response.data; // Guarda los datos del usuario si existe
+      console.log("Usuario autenticado:", this.user);
+      if(this.user == ""){
+        this.user = null;
+        console.log("Usuario no autenticado");
+      }
+    } catch (error) {
+      // Si no hay usuario autenticado, simplemente continúa con los datos públicos
+      console.error("Error al cargar los datos del usuario: ", error);
+    }
 
-  // Cargar libros y temáticas independientemente del estado de autenticación
-  try {
-    await this.cargarLibros();
-    await this.cargarTematicas();
-    this.applyTheme();
-  } catch (error) {
-    console.error("Error al cargar datos públicos:", error);
-    alert("Hubo un problema al cargar la página. Inténtalo más tarde.");
-  }
-},
+    // Cargar libros y temáticas independientemente del estado de autenticación
+    try {
+      await this.cargarLibros();
+      await this.cargarTematicas();
+      this.applyTheme();
+    } catch (error) {
+      console.error("Error al cargar datos públicos:", error);
+      alert("Hubo un problema al cargar la página. Inténtalo más tarde.");
+    }
+  },
   watch: {
     busqueda() {
       this.aplicarFiltros();

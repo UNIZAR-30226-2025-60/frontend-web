@@ -19,9 +19,9 @@ import ChatbotComponent from "@/components/Chatbot.vue";  // Importa tu componen
 //import WebViewer from "@/components/WebViewer.vue";
 
 const routes = [
-  { path: "/", name: "Login", component: LoginComponent },
-  { path: "/inicio", name: "Inicio", component: InicioComponent },
-  { path: "/foro", name: "Foro", component: ForoComponent  , meta: { requiresAuth: true }},
+  { path: "/login", name: "Login", component: LoginComponent },
+  { path: "/", name: "Inicio", component: InicioComponent },
+  { path: "/foro", name: "Foro", component: ForoComponent },
   { path: "/detalles/:id", name: "Detalles", component: DetallesComponent },
   { path: "/avisoLegal", name: "AvisoLegal", component: AvisoLegalComponent },
   { path: "/politica", name: "Politica", component: PoliticaComponent },
@@ -38,11 +38,11 @@ const routes = [
     meta: { cleanLayout: true }
   },
   { path: "/estadisticas", name: "Estadisticas", component: EstadisticasComponent },
-  { path: "/listas/:privacidad", name: "Listas", component: ListasComponent, meta: { requiresAuth: true } },
+  { path: "/listas/:privacidad", name: "Listas", component: ListasComponent },
   { path: "/crearlista/:hacer/:nombre?", name: "CrearEditarLista", component: CrearEditarListaComponent },
-  { path: "/perfil", name: "Perfil", component: PerfilComponent, meta: { requiresAuth: true }  },
+  { path: "/perfil", name: "Perfil", component: PerfilComponent },
   //{ path: "/webviewer", name: "WebViewer", component: WebViewer }, 
-  { path: "/chatbot", name: "Chatbot", component: ChatbotComponent, meta: { requiresAuth: true } },
+  { path: "/chatbot", name: "Chatbot", component: ChatbotComponent },
 ];
 
 const router = createRouter({
@@ -50,17 +50,6 @@ const router = createRouter({
   routes,
 });
 
-// Middleware de autenticación
-router.beforeEach((to, from, next) => {
-  const isAuthenticated = !!localStorage.getItem("userToken") || !!document.cookie.includes('connect.sid'); // Verifica si hay un token o si la sesión está activa
-
-  if (to.meta.requiresAuth && !isAuthenticated) {
-    alert("Debes iniciar sesión para acceder a esta página.");
-    next({ name: 'Login' }); // Redirige al login
-  } else {
-    next(); // Permite el acceso
-  }
-});
 
 export default router;
 

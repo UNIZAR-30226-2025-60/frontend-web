@@ -22,7 +22,6 @@
               <ul>
                 <li @click="goToPage('login')">Iniciar Sesión</li>
                 <li @click="goToPage('register')">Registrarse</li>
-                <li @click="goToApp">Ir a la app</li>
               </ul>
             </div>
           </div>
@@ -115,10 +114,6 @@ export default {
         this.isPageTurning = false;
       }, 600);
     },
-
-    goToApp() {
-      this.$router.push('/inicio');
-    },
     async login() {
       try {
         const response = await apiClient.post("/usuarios/login", {
@@ -129,7 +124,7 @@ export default {
         console.log("Contraseña:", response.data.contrasena);
         console.log("Usuario que ha iniciado sesión:", response.data);
         alert("Inicio de sesión exitoso");
-        this.$router.push("/inicio");
+        this.$router.push("/");
       } catch (error) {
         console.error("Error al iniciar sesión con usuario:", error);
         alert("Error al iniciar sesión");
@@ -145,7 +140,7 @@ export default {
         });
         console.log("Usuario registrado:", response.data);
         alert("Usuario registrado exitosamente");
-        this.$router.push("/inicio");
+        this.$router.push("/");
       } catch (error) {
         console.error("Error al registrar usuario:", error);
         alert("Error al registrar usuario");

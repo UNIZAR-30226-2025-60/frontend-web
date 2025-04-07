@@ -9,32 +9,38 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
-        <li class="nav-item">
+        <li v-if="user != null" class="nav-item">
           <a class="nav-link nav-bold clickable" @click="goToChatBot">ChatBot</a>
         </li>
         <li class="nav-item">
           <a class="nav-link nav-bold clickable" @click="goToForo">Foro</a>
         </li>
-        <li class="nav-item">
+        <li v-if="user != null" class="nav-item">
           <a class="nav-link nav-bold clickable" @click="goToEstadisticas">Estadísticas</a>
         </li>
-        <li class="nav-item">
+        <li v-if="user == null" class="nav-item">
           <a class="nav-link nav-bold clickable" @click="goToListas">Listas Públicas</a>
         </li>
-        <li class="nav-item">
+        <li v-if="user != null" class="nav-item">
           <a class="nav-link nav-bold clickable" @click="goToMisListas">Mis Listas</a>
         </li>
-        <li class="nav-item" >
+        <li v-if="user != null" class="nav-item" >
           <a class="nav-link nav-bold clickable" @click="goToFavoritos">Mis Favoritos</a>
         </li>
-        <li class="nav-item">
+        <li v-if="user != null" class="nav-item">
           <a class="nav-link nav-bold clickable" @click="goToLeidos">Leídos</a>
         </li>
-        <li class="nav-item">
+        <li v-if="user != null" class="nav-item">
           <a class="nav-link nav-bold clickable" @click="goToEnProceso">En proceso</a>
         </li>
-        <li class="nav-item">
+        <li v-if="user != null" class="nav-item">
           <a class="nav-link nav-bold clickable" @click="goToPerfil">
+            <font-awesome-icon :icon="['fas', 'user']" /> Perfil
+          </a>
+        </li>
+      <!-- Duda de si le tengo que cambiar el titulito de Perfil -> Acceder -->
+        <li v-if="user == null" class="nav-item">
+          <a class="nav-link nav-bold clickable" @click="goToLogin">
             <font-awesome-icon :icon="['fas', 'user']" /> Perfil
           </a>
         </li>
@@ -49,7 +55,8 @@ import { Dropdown } from 'bootstrap';
 export default {
   name: "NavBar",
   props: {
-    darkMode: Boolean
+    darkMode: Boolean,
+    user: Object
   },
   computed: {
     navbarTheme() {
@@ -80,7 +87,7 @@ export default {
       });
     },
     goToInicio() {
-      this.$router.push('/inicio').then(() => {
+      this.$router.push('/').then(() => {
         this.$router.go(0); // Recarga la página
       });
     },
@@ -118,7 +125,12 @@ export default {
       this.$router.push({ name: 'Perfil' }).then(() => {
         this.$router.go(0); // Recarga la página
       });
-    }
+    },
+    goToLogin() {
+      this.$router.push('/login').then(() => {
+        this.$router.go(0); // Recarga la página
+      });
+    },
   }
 };
 </script>

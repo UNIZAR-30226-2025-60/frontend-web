@@ -1,6 +1,6 @@
 <template>
   <div v-if="user" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
-    <NavBar :dark-mode="darkMode"></NavBar>
+    <NavBar :dark-mode="darkMode"  :user="user"></NavBar>
   
     <div class="container-fluid pt-4 p-5 min-vh-100">
       <div class="libros-header">

@@ -1,6 +1,6 @@
 <template>
   <div v-if="top3UsuariosAnio && top3UsuariosMes && top5LibrosAnioActual && top5LibrosMesActual" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
-    <NavBar :dark-mode="darkMode"></NavBar>
+    <NavBar :dark-mode="darkMode"  :user="user"></NavBar>
 
     <div class="container-fluid">
       <div class="libros-header">
@@ -299,10 +299,19 @@ export default {
   },
   async mounted() {
     try {
-      // Cargar datos del usuario actual
+      // Intenta obtener los datos del usuario autenticado
       const response = await apiClient.get("/user");
-      this.user = response.data;
-
+      this.user = response.data; // Guarda los datos del usuario si existe
+      console.log("Usuario autenticado:", this.user);
+      if(this.user == ""){
+        console.log("Usuario no autenticado");
+        this.$router.push("/");
+      }
+    } catch (error) {
+      // Si no hay usuario autenticado, simplemente continúa con los datos públicos
+      console.error("Error al cargar los datos del usuario: ", error);
+    }
+    try {
       // Cargar datos estadísticos
       await this.cargarEstadisticasMes();
       await this.cargarEstadisticasGenerales();

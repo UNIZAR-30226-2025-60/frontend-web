@@ -1,6 +1,6 @@
 <template>
-  <div v-if="user" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
-    <NavBar :dark-mode="darkMode"></NavBar>
+  <div v-if="listas" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
+    <NavBar :dark-mode="darkMode"  :user="user"></NavBar>
 
     <div class="listado pt-4 min-vh-100">
 
@@ -93,8 +93,23 @@ export default {
   },
   async mounted() {
     try {
+      // Intenta obtener los datos del usuario autenticado
       const response = await apiClient.get("/user");
-      this.user = response.data;
+      this.user = response.data; // Guarda los datos del usuario si existe
+      if(this.user == ""){ 
+        this.user = null;
+        if(this.privacidad === "MisListas"){
+          this.$router.push("/");
+        }
+        console.log("Usuario no autenticado");
+      }
+      else {
+        console.log("Usuario autenticado");
+      }
+    } catch (error) {
+      console.error("Error al cargar los datos del usuario: ", error);
+    }
+    try {
       this.privacidad = this.$route.params.privacidad;
       this.donde = this.privacidad;
       if(this.privacidad === "MisListas"){
@@ -126,6 +141,7 @@ export default {
     },
     // Método para verificar si la lista pertenece al usuario actual
     listaDelUsuario(lista) {
+      if (!this.user) return false;
       // Si la privacidad es "Mis Listas", siempre es del usuario actual
       if (this.privacidad === "MisListas") {
         return true;

@@ -1,6 +1,6 @@
 <template>
   <div v-if="lista && libros" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
-    <NavBar :dark-mode="darkMode"></NavBar>
+    <NavBar :dark-mode="darkMode"  :user="user"></NavBar>
 
     <div class="container-fluid pt-4 p-5 min-vh-100">
       <!-- Switch con iconos sol/luna -->
@@ -100,11 +100,17 @@ export default {
   },
   async mounted() {
     try {
-      const response1 = await apiClient.get("/user"); // Llamada a usuario
-      this.user = response1.data;
+      // Intenta obtener los datos del usuario autenticado
+      const response = await apiClient.get("/user");
+      this.user = response.data; // Guarda los datos del usuario si existe
+      console.log("Usuario autenticado:", this.user);
+      if(this.user == ""){
+        this.user = null;
+        console.log("Usuario no autenticado");
+      }
     } catch (error) {
-      console.error("Error al obtener los datos del usuario:", error);
-      this.$router.push("/");
+      // Si no hay usuario autenticado, simplemente continúa con los datos públicos
+      console.error("Error al cargar los datos del usuario: ", error);
     }
     try{
       this.donde = this.$route.params.donde;
@@ -122,7 +128,7 @@ export default {
       this.applyTheme();        
     }catch(error){
       console.error("Error al cargar la lista:", error);
-      this.$router.push("/inicio");
+      this.$router.push("/");
     }
   },
   watch: {
