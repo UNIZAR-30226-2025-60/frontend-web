@@ -374,11 +374,10 @@ export default {
     document.cookie = "userEmail=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     document.cookie = "isGoogleAuth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 
-  // Borrar userEmail
-  document.cookie = "userEmail=; domain=booklyweb-469w.onrender.com; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; secure; SameSite=None;";
-  // Borrar isGoogleAuth
-  document.cookie = "isGoogleAuth=; domain=booklyweb-469w.onrender.com; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; secure; SameSite=None;";
-
+    // Eliminar cookies
+    document.cookie = "connect.sid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=booklyweb-469w.onrender.com; secure; SameSite=None;";
+    document.cookie = "userEmail=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=booklyweb-469w.onrender.com; secure; SameSite=None;";
+    document.cookie = "isGoogleAuth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=booklyweb-469w.onrender.com; secure; SameSite=None;";
 
     // Limpiar localStorage
     localStorage.removeItem("userToken");
