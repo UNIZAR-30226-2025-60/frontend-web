@@ -2,10 +2,19 @@
   <div v-if="imagenes" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
     <NavBar :dark-mode="darkMode"  :user="user"></NavBar>
     <div class="container-fluid pt-5 p-5 min-vh-100">
-      <!-- Theme toggle button -->
-      <button @click="toggleDarkMode" class="theme-toggle-btn mx-5 mb-3">
-        {{ darkMode ? 'Modo Claro' : 'Modo Oscuro' }}
-      </button>
+      <!-- Switch con iconos sol/luna -->
+      <div class="theme-switch-wrapper mb-1">
+        <div class="theme-switch" @click="toggleDarkMode">
+          <div class="switch-track" :class="{ 'dark': darkMode }">
+            <div class="switch-thumb" :class="{ 'dark': darkMode }">
+              <!-- Sol icono -->
+              <font-awesome-icon v-if="!darkMode" :icon="['fas', 'sun']" class="icon sun-icon"/>
+              <!-- Luna icono -->
+              <font-awesome-icon v-else :icon="['fas', 'moon']" class="icon moon-icon"/>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="container d-flex justify-content-center">
         <div class="row w-100">
           <div class="col-md-4">

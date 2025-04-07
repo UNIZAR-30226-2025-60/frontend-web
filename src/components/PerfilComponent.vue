@@ -368,23 +368,20 @@ export default {
       document.body.classList.toggle("dark-mode", this.darkMode);
       document.body.classList.toggle("light-mode", !this.darkMode);
     },
-    async cerrarSesion() {
-      try {
-        await apiClient.get("/logout"); // Llama al backend para cerrar sesión
-        console.log("Sesión cerrada correctamente.");
+    cerrarSesion() {
+      // Eliminar cookies
+      document.cookie = "connect.sid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      document.cookie = "userEmail=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 
-        // Limpiar localStorage
-        localStorage.removeItem("userToken");
-        localStorage.removeItem("userData");
+      // Limpiar localStorage
+      localStorage.removeItem("userToken");
+      localStorage.removeItem("userData");
 
-        // Reiniciar el estado de la aplicación
-        this.user = null;
+      // Reiniciar el estado de la aplicación
+      this.user = null;
 
-        // Redirigir al login
-        this.$router.push({ name: 'Login' });
-      } catch (error) {
-        console.error("Error al cerrar sesión:", error);
-      }
+      // Redirigir al login
+      this.$router.push({ name: 'Login' });
     },
   async cargarImagenes() {
       try {
