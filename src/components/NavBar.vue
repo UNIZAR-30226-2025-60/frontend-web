@@ -14,7 +14,7 @@
         <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
 
           <!-- Chatbot (coincide con name: "Chatbot" en index.js) -->
-          <li class="nav-item">
+          <li  v-if="user != null" class="nav-item">
             <a class="nav-link nav-bold clickable"
                :class="{ 'active-link': activeRouteName === 'Chatbot' }"
                @click="goToChatBot">
@@ -32,7 +32,7 @@
           </li>
 
           <!-- Estadísticas (name: "Estadisticas") -->
-          <li class="nav-item">
+          <li  v-if="user != null" class="nav-item">
             <a class="nav-link nav-bold clickable"
                :class="{ 'active-link': activeRouteName === 'Estadisticas' }"
                @click="goToEstadisticas">
@@ -50,7 +50,7 @@
           </li>
 
           <!-- Mis Listas (name: "Listas" con param privacidad="MisListas") -->
-          <li class="nav-item">
+          <li  v-if="user != null" class="nav-item">
             <a class="nav-link nav-bold clickable"
                :class="{ 'active-link': activeRouteName === 'Listas' && activeParams.privacidad === 'MisListas' }"
                @click="goToMisListas">
@@ -59,7 +59,7 @@
           </li>
 
           <!-- Mis Favoritos (name: "VerLista" con param id="Mis Favoritos") -->
-          <li class="nav-item">
+          <li  v-if="user != null" class="nav-item">
             <a class="nav-link nav-bold clickable"
                :class="{ 'active-link': activeRouteName === 'VerLista' && activeParams.id === 'Mis Favoritos' }"
                @click="goToFavoritos">
@@ -68,7 +68,7 @@
           </li>
 
           <!-- Leídos (name: "VerLista" con param id="Leídos") -->
-          <li class="nav-item">
+          <li  v-if="user != null" class="nav-item">
             <a class="nav-link nav-bold clickable"
                :class="{ 'active-link': activeRouteName === 'VerLista' && activeParams.id === 'Leídos' }"
                @click="goToLeidos">
@@ -77,7 +77,7 @@
           </li>
 
           <!-- En proceso (name: "VerLista" con param id="En proceso") -->
-          <li class="nav-item">
+          <li v-if="user != null" class="nav-item">
             <a class="nav-link nav-bold clickable"
                :class="{ 'active-link': activeRouteName === 'VerLista' && activeParams.id === 'En proceso' }"
                @click="goToEnProceso">
@@ -86,11 +86,20 @@
           </li>
 
           <!-- Perfil (name: "Perfil") -->
-          <li class="nav-item">
+          <li v-if="user != null" class="nav-item">
             <a class="nav-link nav-bold clickable"
                :class="{ 'active-link': activeRouteName === 'Perfil' }"
                @click="goToPerfil">
                <font-awesome-icon :icon="['fas', 'user']" /> Perfil
+            </a>
+          </li>
+
+          <!-- Acceder (name: "Login") -->
+          <li v-if="user == null" class="nav-item">
+            <a class="nav-link nav-bold clickable"
+               :class="{ 'active-link': activeRouteName === 'Login' }"
+               @click="goToLogin">
+               <font-awesome-icon :icon="['fas', 'user']" /> Acceder
             </a>
           </li>
 

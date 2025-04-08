@@ -209,10 +209,9 @@ export default {
         // Eliminar la lista del array local
         this.listas = this.listas.filter(l => l.nombre !== lista.nombre);
 
-        alert('Lista eliminada exitosamente');
-        
+        console.log("Lista borrada correctamente");        
       } catch (error) {
-        alert("Error al eliminar la lista:", error);
+        console.error("Error al eliminar la lista:", error)
       }
     },
     closeAllMenus(event) {

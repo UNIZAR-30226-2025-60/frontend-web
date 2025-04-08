@@ -118,13 +118,25 @@ export default {
       if(this.donde == "MisListas"){
         const response = await apiClient.get(`/listas/${this.user.correo}/${listaID}`);
         this.lista = response.data;
+        if(listaID == "Leídos"){
+          const response = await apiClient.get(`/libros/leidos/${this.user.correo}`);
+          this.libros = response.data;
+        }
+        else if(listaID == "En proceso"){
+          const response = await apiClient.get(`/libros/enproceso/${this.user.correo}`);
+          this.libros = response.data;
+        }
+        else {
+          this.cargarLibros();
+        }
+        
         console.log("Lista obtenida (usuario dueño):", this.lista);
       } else {
         const response = await apiClient.get(`/listas/publicas/${listaID}`);
         this.lista = response.data;
+        this.cargarLibros();
         console.log("Lista obtenida (pública):", this.lista);
       }
-      this.cargarLibros();
       this.applyTheme();        
     }catch(error){
       console.error("Error al cargar la lista:", error);
