@@ -114,41 +114,68 @@ export default {
 
     console.log("📄 URL recibida en el visor:", route.query.url);
 
+    // // ✅ Obtener el usuario autenticado desde el backend
+    // const loadUser = async () => {
+    //   try {
+    //     // Intenta obtener los datos del usuario autenticado
+    //     const response = await apiClient.get("/user");
+    //     this.user = response.data; // Guarda los datos del usuario si existe
+    //     if(this.user == ""){
+    //       this.user = null;
+    //       correo.value = null;
+    //       console.log("Usuario no autenticado");
+    //     }
+    //     else {
+    //       correo.value = response.data.correo;
+    //       console.log("Usuario autenticado");
+    //     }
+    //   } catch (error) {
+    //     // Si no hay usuario autenticado, simplemente continúa con los datos públicos
+    //     console.error("Error al cargar los datos del usuario: ", error);
+    //   }
+    // };
+
+    // const libroUrl = route.query.url;
+
+    // const verificarFavorita = async () => {
+    //   if (!user) return;
+    //   try {
+    //     const { data } = await apiClient.get("/verificar-favorita", {
+    //       params: { correo: correo.value, enlace: libroUrl, pagina: pageNum.value },
+    //     });
+    //     esFavorita.value = data.esFavorita;
+    //     console.log(`⭐ Estado de favorita: ${esFavorita.value}`);
+    //   } catch (error) {
+    //     console.error("⚠️ No se pudo verificar si la página es favorita:", error);
+    //   }
+    // };
+
     // ✅ Obtener el usuario autenticado desde el backend
     const loadUser = async () => {
-      try {
-        // Intenta obtener los datos del usuario autenticado
-        const response = await apiClient.get("/user");
-        this.user = response.data; // Guarda los datos del usuario si existe
-        if(this.user == ""){
-          this.user = null;
-          correo.value = null;
-          console.log("Usuario no autenticado");
-        }
-        else {
-          correo.value = response.data.correo;
-          console.log("Usuario autenticado");
-        }
-      } catch (error) {
-        // Si no hay usuario autenticado, simplemente continúa con los datos públicos
-        console.error("Error al cargar los datos del usuario: ", error);
-      }
-    };
-
-    const libroUrl = route.query.url;
-
-    const verificarFavorita = async () => {
-      if (!user) return;
-      try {
-        const { data } = await apiClient.get("/verificar-favorita", {
-          params: { correo: correo.value, enlace: libroUrl, pagina: pageNum.value },
-        });
-        esFavorita.value = data.esFavorita;
-        console.log(`⭐ Estado de favorita: ${esFavorita.value}`);
-      } catch (error) {
-        console.error("⚠️ No se pudo verificar si la página es favorita:", error);
-      }
-    };
+       try {
+         const response = await apiClient.get("/user", { withCredentials: true });
+         correo.value = response.data.correo;
+         console.log("📩 Correo obtenido del backend:", correo.value);
+       } catch (error) {
+         console.error("❌ Error al obtener el usuario:", error);
+         correo.value = null;
+       }
+     };
+ 
+     const libroUrl = route.query.url;
+ 
+     const verificarFavorita = async () => {
+       if (!correo.value) return;
+       try {
+         const { data } = await apiClient.get("/verificar-favorita", {
+           params: { correo: correo.value, enlace: libroUrl, pagina: pageNum.value },
+         });
+         esFavorita.value = data.esFavorita;
+         console.log(`⭐ Estado de favorita: ${esFavorita.value}`);
+       } catch (error) {
+         console.error("⚠️ No se pudo verificar si la página es favorita:", error);
+       }
+     };
 
     const estiloMarcador = computed(() => {
       const escala = zoomLevel.value;
@@ -305,7 +332,7 @@ export default {
         elem.requestFullscreen()
           .then(() => {
             isFullScreen.value = true;
-            zoomLevel.value = 1.1; // Ajustamos el zoom a 1.1 en pantalla completa
+            zoomLevel.value = 1.3; // Ajustamos el zoom a 1.1 en pantalla completa
             renderPage(pageNum.value);
           })
           .catch((err) => {
@@ -427,7 +454,12 @@ export default {
         const enlaceoriginal = this.libroUrl; //Enlace sin procesar
         const enlaceProcesado = this.processBookUrl(enlaceoriginal); // Enlace procesado
 
-        if (!user || !enlaceProcesado) {
+        // if (!user || !enlaceProcesado) {
+        //   console.error("⚠️ Datos insuficientes para cargar páginas favoritas.");
+        //   return;
+        // }
+
+        if (!correo || !enlaceProcesado) {
           console.error("⚠️ Datos insuficientes para cargar páginas favoritas.");
           return;
         }
