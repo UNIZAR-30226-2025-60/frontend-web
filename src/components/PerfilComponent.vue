@@ -369,10 +369,11 @@ export default {
       document.body.classList.toggle("light-mode", !this.darkMode);
     },
     cerrarSesion() {
-      // Eliminar cookies
-      document.cookie = "connect.sid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-      document.cookie = "userEmail=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      // // Eliminar cookies
+      // document.cookie = "connect.sid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      // document.cookie = "userEmail=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 
+      apiClient.get('/logout').then(() => {
       // Limpiar localStorage
       localStorage.removeItem("userToken");
       localStorage.removeItem("userData");
@@ -382,6 +383,9 @@ export default {
 
       // Redirigir al login
       this.$router.push({ name: 'Login' });
+    }).catch((error) => {
+      console.error('Error al cerrar sesión:', error);
+    });
     },
   async cargarImagenes() {
       try {
