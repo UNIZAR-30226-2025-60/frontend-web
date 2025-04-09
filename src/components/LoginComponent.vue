@@ -132,8 +132,7 @@ export default {
     },
     async registerUsuario() {
       try {
-        //Se mantiene `/api/usuarios/registro`**
-        const response = await apiClient.post("/usuarios/registro", {
+        const response = await apiClient.post("/registro", {
           correo: this.email,
           nombre: this.name,
           contrasena: this.password,
