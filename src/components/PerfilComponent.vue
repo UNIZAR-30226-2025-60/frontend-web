@@ -32,23 +32,24 @@
     
       <!-- Botones -->
       <div v-if="!isGoogleUser">
-        <button class="btn mb-2" @click="editPassword"> 
+        <button class="btn mb-2 w-25" @click="editPassword"> 
           <font-awesome-icon :icon="['fas', 'pencil']" />
           Editar Contraseña
         </button>
       </div>
       <div>
-        <button class="btn mb-2" @click="changeName">
+        <button class="btn mb-2 w-25" @click="changeName">
           <font-awesome-icon :icon="['fas', 'pencil']" />
           Editar Nombre
         </button>
       </div>
       <div>
-        <button class="btn mb-2" @click="showImageModal">
+        <button class="btn mb-6 w-25" @click="showImageModal">
           <font-awesome-icon :icon="['fas', 'image']" />
           Cambiar Foto de Perfil
         </button>
       </div>
+      <hr class="w-30">
       <div>
         <button class="btn" @click="cerrarSesion">
           <font-awesome-icon :icon="['fas', 'right-from-bracket']" />

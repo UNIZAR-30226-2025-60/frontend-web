@@ -25,7 +25,10 @@
 
         <form class="d-flex mb-3 mt-4" @submit.prevent="publicarPregunta">
           <div class="input-group">
-            <input class="form-control rounded-pill" type="text" placeholder="Escribe aquí tu pregunta..." v-model="pregunta">
+            <input class="form-control rounded-start-pill" type="text" placeholder="Escribe aquí tu pregunta..." v-model="pregunta">
+            <button type="submit" class="btn btn-preguntar rounded-end-pill">
+              Preguntar
+            </button>
           </div>
         </form>
 
@@ -35,6 +38,20 @@
           <label class="form-check-label" for="filterUserQuestions">
             Ver mis preguntas
           </label>
+        </div>
+      </div>
+      <!-- Dropdown de ordenación (movido aquí, debajo del switch) -->
+      <div class="mb-3">
+        <div ref="dropdown" class="dropdown">
+          <button class="btn btn-outline-secondary dropdown-toggle" type="button" @click="toggleDropdown">
+            Ordenar por: {{ getSelectedFilterLabel() }}
+          </button>
+          <ul class="dropdown-menu">
+            <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('reciente')">Más recientes</a></li>
+            <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('antigua')">Más antiguas</a></li>
+            <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('masRespuestas')">Con más respuestas</a></li>
+            <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('menosRespuestas')">Con menos respuestas</a></li>
+          </ul>
         </div>
       </div>
       <div v-for="pregunta in preguntasFiltradas" :key="pregunta.id" class="pregunta mb-3 p-3">
@@ -116,6 +133,8 @@ import axios from 'axios';
 import NavBar from '@/components/NavBar.vue';
 import Footer from '@/components/Footer.vue';
 import { apiClient } from '../config';
+import { Dropdown } from 'bootstrap';
+import { parse } from '@fortawesome/fontawesome-svg-core';
 
 export default {
   name: 'ForoComponent',
@@ -126,6 +145,7 @@ export default {
   data() {
     return {
       foro: [],
+      dropdownInstance: null,
       nuevaPregunta: {
         usuarioCorreo: "",
         pregunta: ""
@@ -140,14 +160,35 @@ export default {
         usuario_respuesta: "",
         mensaje_respuesta: ""
       },
-      darkMode: localStorage.getItem("darkMode") === "true" // Obtener el tema guardado
+      darkMode: localStorage.getItem("darkMode") === "true", // Obtener el tema guardado
+      filtroSeleccionado: "reciente", // Ordenación por defecto
     };
   },
   computed: {
+    
     preguntasFiltradas() {
-      return this.filtrarPorUsuario
+      // Primero filtramos por usuario si es necesario
+      let preguntas = this.filtrarPorUsuario
         ? this.foro.filter(p => p.usuario.trim().toLowerCase() === this.user.correo.trim().toLowerCase())
         : this.foro;
+      // Función auxiliar para convertir fechas en formato DD-MM-YYYY a objeto Date
+    const parseCustomDate = (dateStr) => {
+      const [day, month, year] = dateStr.split('-');
+      return new Date(`${year}-${month}-${day}`);
+    };
+      // Luego ordenamos según el filtro seleccionado
+      switch (this.filtroSeleccionado) {
+        case "antigua":
+          return [...preguntas].sort((a, b) => parseCustomDate(a.fecha) - parseCustomDate(b.fecha));
+        case "reciente":
+          return [...preguntas].sort((a, b) => parseCustomDate(b.fecha) - parseCustomDate(a.fecha));
+        case "masRespuestas":
+          return [...preguntas].sort((a, b) => b.respuestas.length - a.respuestas.length);
+        case "menosRespuestas":
+          return [...preguntas].sort((a, b) => a.respuestas.length - b.respuestas.length);
+        default:
+          return preguntas;
+      }
     }
   },
   async mounted() {
@@ -169,10 +210,12 @@ export default {
 
       // Aplicar el tema guardado al cargar la página
       this.applyTheme();
+      this.dropdownInstance = new Dropdown(this.$refs.dropdown);
     } 
     catch (error) {
       console.error('Error al cargar el foro:', error);
     }
+    document.addEventListener('click', this.closeDropdownOnClickOutside);
   },
   methods: {
     async cargarForoCompleto() {
@@ -218,6 +261,42 @@ export default {
       } catch (error) {
         console.error('Error al enviar la pregunta:', error);
         alert("Hubo un error al enviar tu pregunta. Inténtalo de nuevo.");
+      }
+    },
+    toggleDropdown() {
+      this.dropdownInstance.toggle();
+    },
+
+    seleccionarFiltro(filtro) {
+      this.cambiarFiltro(filtro);
+      this.dropdownInstance.hide();
+    },
+    cambiarFiltro(filtro) {
+      console.log("Cambiando filtro a:", filtro);
+      this.filtroSeleccionado = filtro;
+      
+      const dropdownToggle = this.$el.querySelector('.dropdown-toggle');
+      if (dropdownToggle) {
+        dropdownToggle.setAttribute('aria-expanded', 'false');
+        const dropdownMenu = dropdownToggle.nextElementSibling;
+        if (dropdownMenu) {
+          dropdownMenu.classList.remove('show');
+          dropdownToggle.closest('.dropdown').classList.remove('show');
+        }
+      }
+    },
+    getSelectedFilterLabel() {
+      const filterLabels = {
+        'reciente': 'Más recientes',
+        'antigua': 'Más antiguas',
+        'masRespuestas': 'Con más respuestas',
+        'menosRespuestas': 'Con menos respuestas'
+      };
+      return filterLabels[this.filtroSeleccionado] || 'Ordenar';
+    },
+    closeDropdownOnClickOutside(event) {
+      if (this.$refs.dropdown && !this.$refs.dropdown.contains(event.target)) {
+        this.mostrarDropdown = false;
       }
     },
     // Métodos para el tema oscuro/claro
@@ -443,6 +522,17 @@ export default {
 .btn-enviar:hover,
 .btn-cancelar:hover {
   filter: brightness(0.95);
+}
+
+.btn-preguntar {
+  background-color: var(--color-boton);
+  color: var(--color-texto-boton);
+  border: none;
+  transition: filter 0.2s ease;
+}
+
+.btn-preguntar:hover {
+  filter: brightness(0.9);
 }
 
 .titulo {

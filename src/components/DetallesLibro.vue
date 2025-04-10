@@ -35,22 +35,17 @@
             </div>
           </div>
 
-          <!-- Línea horizontal antes de más libros del mismo autor -->
-          <hr class="my-3">
-
-          <!-- Sección para otros libros del mismo autor -->
-          <h5>Más de {{ libro.autor }}</h5>
           <div v-if="librosRelacionados.length > 0">
+            <!-- Línea horizontal antes de más libros del mismo autor -->            
+            <hr class="my-3">
+            <!-- Sección para otros libros del mismo autor -->
+            <h5>Más de {{ libro.autor }}</h5>
             <div class="row">
               <div v-for="(libroRelacionado, index) in librosRelacionados" :key="index" class="col-md-3">
                 <img :src="libroRelacionado.imagen_portada" class="libro-relacionado-img" alt="Portada" @click="goToDetalles(libroRelacionado)">
               </div>
             </div>
           </div>
-          <div v-else class="mt-3">
-            <p>No hay más libros de este autor.</p>
-          </div>
-
           <!-- Línea horizontal antes de la sinopsis -->
           <hr class="my-3">
           
@@ -130,16 +125,20 @@
           <!-- Línea horizontal antes del título todas las reseñas del libro -->
           <hr class="my-3">
 
-          <div ref="dropdown" class="dropdown d-flex justify-content-end">
-            <button class="btn dropdown-toggle" type="button" @click="toggleDropdown">
-              Ordenar por:
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end">
-              <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('alta')"> Valoración más alta</a></li>
-              <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('baja')"> Valoración más baja</a></li>
-              <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('antigua')"> Valoración más antigua</a></li>
-              <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('reciente')"> Valoración más reciente</a></li>
-            </ul>
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Todas las reseñas del libro</h5>
+            <div ref="dropdown" class="dropdown">
+              <button class="btn dropdown-toggle" type="button" @click="toggleDropdown">
+                Ordenar por:
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('reciente')">Ninguna</a></li>
+                <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('alta')"> Valoración más alta</a></li>
+                <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('baja')"> Valoración más baja</a></li>
+                <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('antigua')"> Valoración más antigua</a></li>
+                <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('reciente')"> Valoración más reciente</a></li>
+              </ul>
+            </div>
           </div>
 
           <!-- Línea horizontal antes de todas las reseñas del libro -->
