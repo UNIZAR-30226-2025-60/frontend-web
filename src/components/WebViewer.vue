@@ -14,7 +14,7 @@
           <button @click="zoomOut">
             <font-awesome-icon :icon="['fas', 'minus']" />
           </button>
-          <span>{{ zoomLevel.toFixed(1) }}x</span>
+          <span style="color: black;">{{ zoomLevel.toFixed(1) }}x</span>
           <button @click="zoomIn">
             <font-awesome-icon :icon="['fas', 'plus']" />
           </button>
@@ -24,7 +24,7 @@
 
       <div class="canvas-wrapper">
         <button v-if="!isLoading && !isFullScreen" id="pantCompleta" @click="toggleFullScreen">⛶ Pantalla Completa</button>
-        <canvas ref="canvas" @click="handlerCanvasClick"></canvas>
+        <canvas ref="canvas" ></canvas>
         <div v-if="!isLoading && isFullScreen" id="contPagina">Página {{ pageNum }} de {{ pageCount }}</div>
         <button id="marcador" @click="toggleFavorita" :style="estiloMarcador"> 
           <font-awesome-icon :icon="[esFavorita ? 'fas' : 'far', 'bookmark']" />
@@ -186,19 +186,19 @@ export default {
     })
 
     // Función para manejar el paso de páginas
-    const handlerCanvasClick = (event) => {
-      const rect = canvas.value.getBoundingClientRect();
-      const clickX = event.clientX - rect.left;
+    // const handlerCanvasClick = (event) => {
+    //   const rect = canvas.value.getBoundingClientRect();
+    //   const clickX = event.clientX - rect.left;
 
-      // Si el clic es en el tercio izquierdo => página anterior
-      if (clickX < rect.width / 3) {
-        prevPage();
-      } 
-      // Si el clic es en el tercio derecho => página siguiente
-      else if (clickX > (2 * rect.width) / 3) {
-        nextPage();
-      }
-    } 
+    //   // Si el clic es en el tercio izquierdo => página anterior
+    //   if (clickX < rect.width / 3) {
+    //     prevPage();
+    //   } 
+    //   // Si el clic es en el tercio derecho => página siguiente
+    //   else if (clickX > (2 * rect.width) / 3) {
+    //     nextPage();
+    //   }
+    // } 
 
      // ✅ Renderizar página
      const renderPage = async (num) => {
@@ -315,6 +315,7 @@ export default {
     };
 
     const zoomIn = () => {
+      if (zoomLevel.value >= 2.1) return;
       zoomLevel.value += 0.2;
       renderPage(pageNum.value);
     };
@@ -444,7 +445,7 @@ export default {
       renderPage, processBookUrl,
     };
 
-    return { correo, libroUrl, paginasFavoritas, processBookUrl, renderPage, canvas, isLoading, handlerCanvasClick, estiloMarcador, isFullScreen, esFavorita, pageNum, pageCount, prevPage, nextPage, zoomIn, zoomOut, zoomLevel, toggleFullScreen, toggleFavorita};
+    return { correo, libroUrl, paginasFavoritas, processBookUrl, renderPage, canvas, isLoading, /*handlerCanvasClick,*/ estiloMarcador, isFullScreen, esFavorita, pageNum, pageCount, prevPage, nextPage, zoomIn, zoomOut, zoomLevel, toggleFullScreen, toggleFavorita};
   },
 
   methods: {
