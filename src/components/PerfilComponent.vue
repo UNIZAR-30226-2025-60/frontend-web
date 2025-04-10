@@ -49,7 +49,6 @@
           Cambiar Foto de Perfil
         </button>
       </div>
-      <hr class="w-30">
       <div>
         <button class="btn" @click="cerrarSesion">
           <font-awesome-icon :icon="['fas', 'right-from-bracket']" />

@@ -28,10 +28,10 @@
             <div>
               <h4 class="titulo">{{ libro.nombre }}</h4>
               <h4>de: {{ libro.autor }}</h4>
-            </div>
-            <div v-if="user != null">
-              <font-awesome-icon :icon="[ isFavorito ? 'fas' : 'far', 'heart' ]" class="heart-icon" @click="toggleFavorito"/>
-              <button class="btn" @click="abrirModalListas(libro)">Añadir a lista</button>
+              <div v-if="user != null">
+                <font-awesome-icon :icon="[ isFavorito ? 'fas' : 'far', 'heart' ]" class="heart-icon" @click="toggleFavorito"/>
+                <button class="btn" @click="abrirModalListas(libro)">Añadir a lista</button>
+              </div>
             </div>
           </div>
 

@@ -83,6 +83,15 @@
               style="transform: rotate(180deg);"
             />
           </button>
+          <!-- Botón para eliminar pregunta -->
+          <button
+            v-if="user && pregunta.usuario.trim().toLowerCase() === user.correo.trim().toLowerCase()"
+            class="btn btn-sm btn-outline-danger"
+            @click="eliminarPregunta(pregunta.id)"
+          >
+            <font-awesome-icon :icon="['fas', 'trash']" />
+            Eliminar
+          </button>
         </div>
 
         <!-- Sección de respuestas, solo se muestra si el usuario ha presionado "Ver respuestas" -->
@@ -90,7 +99,17 @@
           <h6 class="mb-2">Respuestas:</h6>
           <div v-for="respuesta in pregunta.respuestas" :key="respuesta.id" class="respuesta border-top pt-2 mt-2">
             <p>{{ respuesta.mensaje }}</p>
-            <p class="text-muted"><strong>Por:</strong> {{ respuesta.usuario }} &nbsp; <strong>Fecha:</strong> {{ respuesta.fecha }}</p>
+            <p class="text-muted"><strong>Por:</strong> {{ respuesta.usuario }} &nbsp; <strong>Fecha:</strong> {{ respuesta.fecha }}
+              <!-- Botón para eliminar respuesta -->
+              <button
+                v-if="user && respuesta.usuario.trim().toLowerCase() === user.correo.trim().toLowerCase()"
+                class="btn btn-sm btn-outline-danger ms-2"
+                @click="eliminarRespuesta(respuesta.id)"
+              >
+                <font-awesome-icon :icon="['fas', 'trash']" />
+                Eliminar
+              </button>
+            </p>
           </div>
         </div>
       </div>
@@ -261,6 +280,31 @@ export default {
       } catch (error) {
         console.error('Error al enviar la pregunta:', error);
         alert("Hubo un error al enviar tu pregunta. Inténtalo de nuevo.");
+      }
+    },
+    async eliminarPregunta(preguntaId) {
+      if (confirm("¿Estás seguro de que quieres eliminar esta pregunta?")) {
+        try {
+          await apiClient.delete(`/BorroPreguntas/${preguntaId}`);
+          this.foro = this.foro.filter(p => p.id !== preguntaId);
+          alert("Pregunta eliminada con éxito.");
+        } catch (error) {
+          console.error("Error al eliminar la pregunta:", error);
+          alert("No se pudo eliminar la pregunta.");
+        }
+      }
+    },
+
+    async eliminarRespuesta(respuestaId) {
+      if (confirm("¿Estás seguro de que quieres eliminar esta respuesta?")) {
+        try {
+          await apiClient.delete(`/BorroRespuestas/${respuestaId}`);
+          await this.cargarForoCompleto(); // Refresca respuestas
+          alert("Respuesta eliminada con éxito.");
+        } catch (error) {
+          console.error("Error al eliminar la respuesta:", error);
+          alert("No se pudo eliminar la respuesta.");
+        }
       }
     },
     toggleDropdown() {
