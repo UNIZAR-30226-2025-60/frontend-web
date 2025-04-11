@@ -20,7 +20,6 @@ body.dark-mode {
   --color-scrollbar: #FBF1CD;
 }
 
-
 body {
   background-color: var(--color-fondo);
   color: var(--color-texto);
@@ -62,9 +61,12 @@ button,
   cursor: pointer;
   transition: 0.2s ease;
 }
+
 button:hover,
 .btn:hover {
   opacity: 0.9;
+  background-color: var(--color-boton);
+  color: var(--color-texto-boton);
 }
 
 /* Botones de modales */

@@ -128,43 +128,114 @@
         <!-- COLUMNA "ESTADÍSTICAS GENERALES" -->
         <div class="col-md-5 text-center">
           <h4 class="mb-4">Estadísticas Generales</h4>
+          <!-- Top 3 Usuarios del Mes (podio) -->
           <div class="mb-4">
             <h6>Top 3 Usuarios del Mes</h6>
-
-            <!-- Recuadro para cada usuario con su puesto -->
-            <div v-for="(usuario, i) in top3UsuariosMes" :key="i" 
-                :class="{
-                  'card mb-2': true,
-                  'bg-gold': i === 0,  /* Primer puesto (dorado) */
-                  'bg-silver': i === 1, /* Segundo puesto (plateado) */
-                  'bg-bronce': i === 2, /* Tercer puesto (bronce) */
-                }">
-              <div class="card-body">
-                <font-awesome-icon :icon="['fas', 'trophy']" 
-                      :class="{
-                        'text-warning': i === 0, /* Dorado */
-                        'text-secondary': i === 1, /* Plateado */
-                        'text-muted': i === 2, /* Bronce */
-                        'trophy-border': true 
-                      }" />
-
-                <span class="position-relative ms-2">
-                  <span v-if="i === 0">1º Lugar: </span>
-                  <span v-if="i === 1">2º Lugar: </span>
-                  <span v-if="i === 2">3º Lugar: </span>
-                </span>
-                {{ usuario.usuario_id }} - Libros leídos: {{ usuario.libros_leidos }}
+            <div class="podium-container">
+              <div class="podium">
+                <div class="podium-item second">
+                  <div class="podium-nombre">{{ nombrePodioSegundo }} </div>
+                  <img
+                    v-if="top3UsuariosMes[1]?.foto_perfil"
+                    :src="fotoPodioSegundo"
+                    class="podium-img"
+                  />
+                  <!-- Placeholder mientras no haya foto -->
+                  <img
+                    v-else
+                    :src="placeholder"
+                    class="podium-img"
+                  />
+                  <div class="podium-bar" :style="{ backgroundColor: getPodiumColor(2) }">2</div>
+                  <div class="podium-libros">{{ top3UsuariosMes[1]?.libros_leidos }} libros</div>
+                </div>
+                <div class="podium-item first">
+                  <div class="podium-nombre">{{ nombrePodioPrimero }}</div>
+                  <img
+                    v-if="top3UsuariosMes[0]?.foto_perfil"
+                    :src="fotoPodioPrimero"
+                    class="podium-img"
+                  />
+                  <!-- Placeholder mientras no haya foto -->
+                  <img
+                    v-else
+                    :src="placeholder"
+                    class="podium-img"
+                  />
+                  <div class="podium-bar" :style="{ backgroundColor: getPodiumColor(1) }">1</div>
+                  <div class="podium-libros">{{ top3UsuariosMes[0]?.libros_leidos }} libros</div>
+                </div>
+                <div class="podium-item third">
+                  <div class="podium-nombre">{{ nombrePodioTercero }}</div>
+                  <img
+                    v-if="top3UsuariosMes[2]?.foto_perfil"
+                    :src="fotoPodioTercero"
+                    class="podium-img"
+                  />
+                  <!-- Placeholder mientras no haya foto -->
+                  <img
+                    v-else
+                    :src="placeholder"
+                    class="podium-img"
+                  />
+                  <div class="podium-bar" :style="{ backgroundColor: getPodiumColor(3) }">3</div>
+                  <div class="podium-libros">{{ top3UsuariosMes[2]?.libros_leidos }} libros</div>
+                </div>
               </div>
             </div>
           </div>
-
           <div class="mb-4">
             <h6>Top 3 Usuarios del Año</h6>
-
-            <!-- Cada recuadro individual para los usuarios -->
-            <div v-for="(usuario, i) in top3UsuariosAnio" :key="i" class="card mb-1">
-              <div class="card-body">
-                {{ usuario.usuario_id }} - Libros leídos: {{ usuario.libros_leidos }}
+            <div class="podium-container">
+              <div class="podium">
+                <div class="podium-item second">
+                  <div class="podium-nombre">{{ nombrePodioSegundoAnio }} </div>
+                  <img
+                    v-if="top3UsuariosAnio[1]?.foto_perfil"
+                    :src="fotoPodioSegundoAnio"
+                    class="podium-img"
+                  />
+                  <!-- Placeholder mientras no haya foto -->
+                  <img
+                    v-else
+                    :src="placeholder"
+                    class="podium-img"
+                  />
+                  <div class="podium-bar" :style="{ backgroundColor: getPodiumColor(2) }">2</div>
+                  <div class="podium-libros">{{ top3UsuariosAnio[1]?.libros_leidos }} libros</div>
+                </div>
+                <div class="podium-item first">
+                  <div class="podium-nombre">{{ nombrePodioPrimeroAnio }}</div>
+                  <img
+                    v-if="top3UsuariosAnio[0]?.foto_perfil"
+                    :src="fotoPodioPrimeroAnio"
+                    class="podium-img"
+                  />
+                  <!-- Placeholder mientras no haya foto -->
+                  <img
+                    v-else
+                    :src="placeholder"
+                    class="podium-img"
+                  />
+                  <div class="podium-bar" :style="{ backgroundColor: getPodiumColor(1) }">1</div>
+                  <div class="podium-libros">{{ top3UsuariosAnio[0]?.libros_leidos }} libros</div>
+                </div>
+                <div class="podium-item third">
+                  <div class="podium-nombre">{{ nombrePodioTerceroAnio }}</div>
+                  <img
+                    v-if="top3UsuariosAnio[2]?.foto_perfil"
+                    :src="fotoPodioTerceroAnio"
+                    class="podium-img"
+                  />
+                  <!-- Placeholder mientras no haya foto -->
+                  <img
+                    v-else
+                    :src="placeholder"
+                    class="podium-img"
+                  />
+                  <div class="podium-bar" :style="{ backgroundColor: getPodiumColor(3) }">3</div>
+                  <div class="podium-libros">{{ top3UsuariosAnio[2]?.libros_leidos }} libros</div>
+                </div>
               </div>
             </div>
           </div>
@@ -295,6 +366,42 @@ export default {
           ...this.librosRecomendados.slice(0, remainder)
         ];
       }
+    },
+    fotoPodioPrimero() {
+      return this.getFotoUsuarioTransformada(0);
+    },
+    fotoPodioSegundo() {
+      return this.getFotoUsuarioTransformada(1);
+    },
+    fotoPodioTercero() {
+      return this.getFotoUsuarioTransformada(2);
+    },
+    nombrePodioPrimero() {
+      return this.getNombre(0);
+    },
+    nombrePodioSegundo() {
+      return this.getNombre(1);
+    },
+    nombrePodioTercero() {
+      return this.getNombre(2);
+    },
+    fotoPodioPrimeroAnio() {
+      return this.getFotoUsuarioTransformadaAnio(0);
+    },
+    fotoPodioSegundoAnio() {
+      return this.getFotoUsuarioTransformadaAnio(1);
+    },
+    fotoPodioTerceroAnio() {
+      return this.getFotoUsuarioTransformadaAnio(2);
+    },
+    nombrePodioPrimeroAnio() {
+      return this.getNombreAnio(0);
+    },
+    nombrePodioSegundoAnio() {
+      return this.getNombreAnio(1);
+    },
+    nombrePodioTerceroAnio() {
+      return this.getNombreAnio(2);
     }
   },
   async mounted() {
@@ -344,6 +451,45 @@ export default {
     window.removeEventListener('resize', this.handleResize);
   },
   methods: {
+    getPodiumColor(place) {
+      switch (place) {
+        case 1: return '#FFD700'; // Oro
+        case 2: return '#C0C0C0'; // Plata
+        case 3: return '#CD7F32'; // Bronce
+        default: return '#999';   // Por si acaso
+      }
+    },
+    transformarURLGoogleDrive(url) {
+      if (!url || typeof url !== 'string') return this.placeholder;
+      const match = url.match(/id=([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)\//);
+      if (match) {
+        const id = match[1];
+        return `https://lh3.googleusercontent.com/d/${id}=w500`;
+      }
+      return this.placeholder;
+    },
+    getFotoUsuarioTransformada(index) {
+      const user = this.top3UsuariosMes[index];
+      const urlOriginal = user?.foto_perfil;
+      const urlTransformada = this.transformarURLGoogleDrive(urlOriginal);
+      return urlOriginal ? urlTransformada : this.placeholder;
+    },
+    getNombre(index){
+      const user = this.top3UsuariosMes[index];
+      return user?.nombre;
+    },
+    getFotoUsuarioTransformadaAnio(index) {
+      const user2 = this.top3UsuariosAnio[index];
+      console.log("usuario: ", user2);
+      const urlOriginal2 = user2?.foto_perfil;
+      const urlTransformada2 = this.transformarURLGoogleDrive(urlOriginal2);
+      console.log(user2?.nombre, user2.foto_perfil, urlTransformada2);
+      return urlOriginal2 ? urlTransformada2 : this.placeholder;
+    },
+    getNombreAnio(index){
+      const user2 = this.top3UsuariosAnio[index];
+      return user2?.nombre;
+    },
     // Métodos para el tema oscuro/claro
     toggleDarkMode() {
       this.darkMode = !this.darkMode;
@@ -421,21 +567,38 @@ export default {
       }
     },
 
+    async enriquecerUsuariosTop3(usuariosTop3) {
+      return await Promise.all(
+          usuariosTop3.map(async (usuario) => {
+            try {
+                const resp = await apiClient.get(`/usuario/${encodeURIComponent(usuario.usuario_id)}`);
+                return { ...usuario, ...resp.data };
+            } catch (error) {
+                console.warn("Error al enriquecer usuario:", usuario.usuario_id, error);
+                return usuario;
+            }
+          })
+      );
+    },
+
     // Estadísticas globales
     async cargarTop3UsuariosMes() {
       try {
-        const response = await apiClient.get('/estadisticas/top3');
-        this.top3UsuariosMes = response.data;
+          const response = await apiClient.get('/estadisticas/top3');
+          const rawData = response.data;
+          const enriquecido = await this.enriquecerUsuariosTop3(rawData);
+          this.top3UsuariosMes = enriquecido;
       } catch (error) {
-        console.error('Error al cargar top3 usuarios del mes:', error);
-        this.top3UsuariosMes = [];
+          console.error('Error al cargar top3 usuarios del mes:', error);
+          this.top3UsuariosMes = [];
       }
     },
     
     async cargarTop3UsuariosAnio() {
       try {
         const response = await apiClient.get('/estadisticas/top3anuales');
-        this.top3UsuariosAnio = response.data;
+        const enriquecido = await this.enriquecerUsuariosTop3(response.data); // <--- esto es lo importante
+        this.top3UsuariosAnio = enriquecido;
       } catch (error) {
         console.error('Error al cargar top3 usuarios del año:', error);
         this.top3UsuariosAnio = [];
@@ -718,22 +881,71 @@ export default {
   font-size: 0.9rem;
   color: var(--color-texto);
 }
-
-.bg-gold {
-  background-color: #dbc70d; 
+.podium-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  margin: 0 auto 1rem auto;
+  width: 100%;
+  max-width: 100%;
 }
 
-.bg-silver {
-  background-color: #bab8b8; 
+.podium {
+  display: flex;
+  justify-content: center; /* Alineación central */
+  align-items: flex-end;
+  width: 100%;
+  gap: 0; /* Sin separación entre columnas */
 }
 
-.bg-bronce {
-  background-color: #e1974e;
+.podium-item {
+  text-align: center;
+  flex: 1; /* Cada item ocupa el mismo ancho */
+  max-width: 90px; /* Límite opcional */
 }
 
-.trophy-border {
-  stroke: black;  
-  stroke-width: 3px;  
-  fill: none;  
+.podium-bar {
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  align-items: center; /* <--- CENTRAR VERTICALMENTE */
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.3rem; /* Puedes subir el tamaño si quieres que resalte más */
+  color: rgb(0, 0, 0);
+  padding: 0.2rem 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  font-size: 30px;
 }
+
+.podium-img {
+  width: 45px;
+  height: 45px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid #4C4637;
+  margin: 0 auto 0.3rem auto;
+}
+
+.podium-nombre {
+  font-weight: bold;
+  font-size: 0.8rem;
+  margin-bottom: 0.2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.podium-libros {
+  font-size: 0.75rem;
+  margin-top: 0.2rem;
+}
+
+/* Alturas relativas para simular podio */
+.first .podium-bar { height: 120px; }
+.second .podium-bar { height: 85px; }
+.third .podium-bar { height: 55px; }
+
+/* Colores ya definidos: bg-gold, bg-silver, bg-bronce */
+
 </style>
