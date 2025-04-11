@@ -220,24 +220,15 @@ export default {
 }
 
 .logo-wrapper {
-  width: 65px;
-  height: 65px;
-  background-color: #e5c578 !important;
-  border: 3px solid #4C4637;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2px;
-  box-sizing: border-box;
+  width: 50px;
+  height: 50px;
+  border: 2px solid #4C4637;
+  border-radius: 50%; 
 }
 
 .logo-wrapper img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  border-radius: 50%;
-  display: block;
 }
 
 .navbar-light {

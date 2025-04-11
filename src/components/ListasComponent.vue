@@ -2,7 +2,7 @@
   <div v-if="listas" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
     <NavBar :dark-mode="darkMode"  :user="user"></NavBar>
 
-    <div class="listado pt-4 min-vh-100">
+    <div class="listado min-vh-100">
 
       <div class="libros-header">
         <span class="titulo" v-if="privacidad === 'MisListas'">MIS LISTAS</span>
@@ -227,6 +227,13 @@ export default {
 <style scoped>
 .page-wrapper {
   min-height: 100vh;
+}
+
+.titulo {
+  text-align: center;         
+  font-weight: bold;        
+  font-size: 2rem;          
+  margin: 30px 0;           
 }
 
 .lista-card {

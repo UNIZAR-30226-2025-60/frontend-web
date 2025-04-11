@@ -2,29 +2,34 @@
   <div v-if="user" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
     <NavBar :dark-mode="darkMode"  :user="user"></NavBar>
   
-    <div class="container-fluid pt-4 p-5 min-vh-100">
-      <div class="libros-header">
-        <h4 class="titulo mb-1">PERFIL</h4>
+    <div class="header pt-4">
+      <h4 class="titulo">PERFIL</h4>
 
-        <!-- Switch con iconos sol/luna -->
-        <div class="theme-switch-wrapper">
-          <div class="theme-switch" @click="toggleDarkMode">
-            <div class="switch-track" :class="{ 'dark': darkMode }">
-              <div class="switch-thumb" :class="{ 'dark': darkMode }">
-                <!-- Sol icono -->
-                <font-awesome-icon v-if="!darkMode" :icon="['fas', 'sun']" class="icon sun-icon"/>
-                  <!-- Luna icono -->
-                <font-awesome-icon v-else :icon="['fas', 'moon']" class="icon moon-icon"/>
-              </div>
+      <!-- Switch con iconos sol/luna -->
+      <div class="theme-switch-wrapper">
+        <div class="theme-switch" @click="toggleDarkMode">
+          <div class="switch-track" :class="{ 'dark': darkMode }">
+            <div class="switch-thumb" :class="{ 'dark': darkMode }">
+              <!-- Sol icono -->
+              <font-awesome-icon v-if="!darkMode" :icon="['fas', 'sun']" class="icon sun-icon"/>
+              <!-- Luna icono -->
+              <font-awesome-icon v-else :icon="['fas', 'moon']" class="icon moon-icon"/>
             </div>
           </div>
         </div>
       </div>
-    
+    </div>
+    <div class="container-fluid px-5 min-vh-100">
     <div class="profile-container text-center">
-      <!-- Foto de perfil - Modificado para manejar el caso cuando no hay foto -->
-      <img v-if="user.foto_perfil" :src="user.foto_perfil" :key="user.foto_perfil" alt="Foto de perfil" class="profile-image mb-2">
-
+      <!-- Foto de perfil con ícono de lápiz en esquina inferior derecha -->
+      <div class="profile-image-container">
+        <img v-if="user.foto_perfil" :src="user.foto_perfil" :key="user.foto_perfil" alt="Foto de perfil" class="profile-image">
+        
+        <!-- Botón de lápiz en esquina inferior derecha -->
+        <div class="btn-editar-perfil" @click="showImageModal">
+          <font-awesome-icon :icon="['fas', 'pencil']" />
+        </div>
+      </div>
     
       <!-- Mensaje de bienvenida -->
       <h4><strong>¡Bienvenid@ {{ user.nombre }}!</strong></h4>
@@ -41,12 +46,6 @@
         <button class="btn mb-2 w-25" @click="changeName">
           <font-awesome-icon :icon="['fas', 'pencil']" />
           Editar Nombre
-        </button>
-      </div>
-      <div>
-        <button class="btn mb-4 w-25" @click="showImageModal">
-          <font-awesome-icon :icon="['fas', 'image']" />
-          Cambiar Foto de Perfil
         </button>
       </div>
       <div>
@@ -83,12 +82,8 @@
           </div>
               
           <div class="button-group">
-            <button type="submit" class="btn-enviar" :disabled="passwordLoading">
-              {{ passwordLoading ? 'Guardando...' : 'Guardar' }}
-            </button>
-            <button type="button" class="btn-cancelar" @click="closePasswordModal">
-              Cancelar
-            </button>
+            <button type="submit" class="btn modal-btn" :disabled="passwordLoading"> {{ passwordLoading ? 'Guardando...' : 'Guardar' }}</button>
+            <button type="button" class="btn modal-btn" @click="closePasswordModal"> Cancelar </button>
           </div>
         </form>
       </div>
@@ -115,37 +110,41 @@
           </div>
           
           <div class="button-group">
-            <button type="submit" class="btn-enviar" :disabled="nameLoading">
-              {{ nameLoading ? 'Guardando...' : 'Confirmar' }}
-            </button>
-            <button type="button" class="btn-cancelar" @click="closeNameModal">
-              Cancelar
-            </button>
+            <button type="submit" class="btn modal-btn" :disabled="nameLoading"> {{ nameLoading ? 'Guardando...' : 'Confirmar' }}</button>
+            <button type="button" class="btn modal-btn" @click="closeNameModal"> Cancelar </button>
           </div>
         </form>
       </div>
     </div>
+
     <!-- Modal para cambiar foto de perfil -->
     <div v-if="CshowImageModal" class="modal-overlay" @click.self="hideImageModal">
+    <div class="modal-dialog modal-wide">
       <div class="modal-content" :class="darkMode ? 'modal-dark' : 'modal-light'">
-        <h5 class="mb-3">Selecciona una nueva foto de perfil</h5>
-        <div class="image-grid">
-          <div
-            v-for="(imagen, index) in imagenes"
-            :key="index"
-            class="image-item"
-            :class="{ selected: imagenSeleccionada === imagen.url }"
-            @click="seleccionarImagen(imagen.url)"
-          >
-            <img :src="transformarURLGoogleDrive(imagen.url)" alt="Foto de perfil" class="image-preview" />
+        <div class="modal-header">
+          <h5 class="modal-title">Selecciona una nueva foto de perfil</h5>
+        </div>
+
+        <!-- El contenedor para las imágenes -->
+        <div class="modal-body scrollable-body">
+          <div class="image-grid">
+            <div v-for="(imagen, index) in imagenes" :key="index" class="image-item" :class="{ selected: imagenSeleccionada === imagen.url }" @click="seleccionarImagen(imagen.url)">
+              <img :src="transformarURLGoogleDrive(imagen.url)" alt="Foto de perfil" class="image-circle"/>
+              <!-- Icono de lápiz sobre la imagen -->
+              <i class="fas fa-pencil-alt edit-icon" @click.stop="editarImagen(imagen.url)"></i>
+            </div>
           </div>
         </div>
-        <div class="button-group mt-3">
-          <button class="btn btn-save" @click="guardarImagen">Guardar</button>
-          <button class="btn btn-cancel" @click="hideImageModal">Cancelar</button>
+
+        <div class="modal-footer">
+          <button class="btn modal-btn" @click="hideImageModal">Cancelar</button>
+          <button class="btn modal-btn" @click="guardarImagen">Guardar</button>
         </div>
       </div>
     </div>
+  </div>
+
+
     </div>
     <Footer></Footer>
   </div>
@@ -172,7 +171,8 @@ export default {
   components: {
     NavBar,
     Footer,
-    Cargando
+    Cargando,
+    FontAwesomeIcon
   },
   data() {
     return {
@@ -426,8 +426,11 @@ export default {
         alert("No se pudo actualizar la foto de perfil.");
       }
     },
-
-
+    editarImagen(url) {
+      // Esta función puede usarse si quieres añadir funcionalidad
+      // específica al hacer clic en el ícono de lápiz de cada imagen
+      this.seleccionarImagen(url);
+    }
   }
 };
 </script>
@@ -436,7 +439,6 @@ export default {
   
 .profile-container {
   text-align: center;
-  padding: 20px;
 }
     
 .profile-image {
@@ -445,7 +447,62 @@ export default {
   border-radius: 50%;
   object-fit: cover;
 }
-    
+
+/* Contenedor para la imagen de perfil y el botón de edición */
+.profile-image-container {
+  position: relative;
+  display: inline-block;
+  border-radius: 50%;
+}
+
+/* Colores del borde modo claro*/
+.light-mode .profile-image-container {
+  border: 2px solid #4C4637;
+}
+
+/* Colores del borde modo oscuro*/
+.dark-mode .profile-image-container {
+  border: 2px solid #fbf1cd;
+}
+
+.btn-editar-perfil {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+/* Colores del botón modo claro */
+.light-mode .btn-editar-perfil {
+  background-color: #4c4637;
+  color: #f8e79b;
+}
+
+.light-mode .btn-editar-perfil:hover {
+  background-color: #4c4637;
+  transform: scale(1.1);
+}
+
+/* Colores del botón modo oscuro */
+.dark-mode .btn-editar-perfil {
+  background-color: #fbf1cd;
+  color: #4c4637;
+}
+
+.dark_mode .btn-editar-perfil:hover {
+  background-color: #fbf1cd;
+  transform: scale(1.1);
+}
+
 .profile-buttons {
   margin-top: 20px;
 }
@@ -531,47 +588,28 @@ export default {
   margin: 0;        
 }
 
-/* Estilos del modal */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;  /* Asegúrate de que esté por encima de otros elementos */
-}
-
-.modal-content {
-  width: 90%;
-  max-width: 500px;
-  padding: 25px;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  background-color: #fff;
-  color: #000;
-}
-
-/* Agrega estos estilos */
-.image-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
 .image-item {
   cursor: pointer;
   border: 2px solid transparent;
   border-radius: 8px;
   overflow: hidden;
   transition: all 0.3s;
+  position: relative;
 }
 
-.image-item.selected {
-  border-color: #4CAF50;
+.image-item .edit-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 1.2rem;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.image-item:hover .edit-icon {
+  opacity: 1;
 }
 
 .image-preview {
@@ -580,5 +618,64 @@ export default {
   object-fit: cover;
 }
 
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 20px;
+}
 
+.modal-wide {
+  max-width: 450px;
+  width: 100%;
+  margin: auto;
+}
+
+/* El body del modal ocupa el espacio restante y tiene scroll */
+.scrollable-body {
+  overflow-y: auto;
+  padding: 10px;
+  max-height: 400px;
+}
+
+.modal-footer {
+  padding: 10px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 1px solid #ddd;
+  background-color: inherit;
+}
+
+/* Grid de imágenes */
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  justify-items: center;
+}
+
+/* Imágenes redondas */
+.image-circle {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  transition: border 0.3s;
+}
+
+.image-item.selected .image-circle {
+  border: 3px solid #ffc107;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 15px;
+}
 </style>

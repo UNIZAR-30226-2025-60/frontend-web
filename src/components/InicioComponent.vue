@@ -1,7 +1,7 @@
 <template>
   <div v-if="user || (!user && libros.length > 0)">
     <NavBar :dark-mode="darkMode"  :user="user"></NavBar>
-    <div class="cabecera" style="background-color: #9b885b;">
+    <div class="cabecera" style="background-color: #f8e79b;">
       <div class="container mt-2 position-relative">
         <!-- Barra de búsqueda -->
         <form class="d-flex mb-3 mt-4" @submit.prevent="buscarLibros">
