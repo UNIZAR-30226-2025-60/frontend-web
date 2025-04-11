@@ -50,15 +50,22 @@
 
     </div>
 
-    <!-- Menú de páginas favoritas -->
-    <div v-if="!isLoading && isFullScreen" id="favoritas-menu">
-      <h3>Páginas Favoritas</h3>
-      <ul>
-        <li v-for="(pagina, index) in paginasFavoritas" :key="index" @click="irAPagina(pagina)" :class="{ active: pagina === pageNum }">
-          Página {{ pagina }}
-        </li>
-      </ul>
-    </div>
+     <!-- Menú de páginas favoritas -->
+      <div v-if="!isLoading && isFullScreen">
+        <div v-if="user && user.value !== null" id="favoritas-menu">
+          <h3>Páginas Favoritas</h3>
+          <ul>
+            <li 
+              v-for="(pagina, index) in paginasFavoritas" 
+              :key="index" 
+              @click="irAPagina(pagina)" 
+              :class="{ active: pagina === pageNum }"
+            >
+              Página {{ pagina }}
+            </li>
+          </ul>
+        </div>
+      </div>
   </div>
 
   <Footer></Footer>
@@ -413,7 +420,7 @@ export default {
       renderPage, processBookUrl,
     };
 
-    return { correo, libroUrl, paginasFavoritas, processBookUrl, renderPage, canvas, isLoading, estiloMarcador, isFullScreen, esFavorita, pageNum, pageCount, prevPage, nextPage, zoomIn, zoomOut, zoomLevel, toggleFullScreen, toggleFavorita};
+    return { user, correo, libroUrl, paginasFavoritas, processBookUrl, renderPage, canvas, isLoading, estiloMarcador, isFullScreen, esFavorita, pageNum, pageCount, prevPage, nextPage, zoomIn, zoomOut, zoomLevel, toggleFullScreen, toggleFavorita};
   },
 
   methods: {
