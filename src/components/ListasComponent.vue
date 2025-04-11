@@ -273,6 +273,7 @@ export default {
 .lista-title {
   font-size: 0.9rem;
   font-weight: bold;
+  width: 160px;
 }
 
 .create-list {

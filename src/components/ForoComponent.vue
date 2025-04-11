@@ -479,6 +479,9 @@ export default {
 .pregunta h5,
 .pregunta p,
 .pregunta strong {
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
   color: var(--color-texto);
 }
 
