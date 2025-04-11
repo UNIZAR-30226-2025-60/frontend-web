@@ -7,9 +7,6 @@
   <div id="pdf-container">
     <div id="nav-controls">
       <template v-if="!isLoading && isFullScreen">
-        <!-- <button id="prev-button" @click="prevPage">⬅</button> -->
-        <!-- <span id="contPagina">Página {{ pageNum }} de {{ pageCount }}</span> -->
-        <!-- <button id="next-button" @click="nextPage">➡</button> -->
         <div id="zoom-controls">
           <button @click="zoomOut">
             <font-awesome-icon :icon="['fas', 'minus']" />
@@ -109,72 +106,47 @@ export default {
 
     let pdfDoc = null;
     const route = useRoute();
+    const user = ref(null); // Guardar usuario autenticado
     const correo = ref(""); // Guardar correo del usuario
     const paginasFavoritas = ref([]); // Guardar páginas favoritas del usuario
 
     console.log("📄 URL recibida en el visor:", route.query.url);
 
     // // ✅ Obtener el usuario autenticado desde el backend
-    // const loadUser = async () => {
-    //   try {
-    //     // Intenta obtener los datos del usuario autenticado
-    //     const response = await apiClient.get("/user");
-    //     this.user = response.data; // Guarda los datos del usuario si existe
-    //     if(this.user == ""){
-    //       this.user = null;
-    //       correo.value = null;
-    //       console.log("Usuario no autenticado");
-    //     }
-    //     else {
-    //       correo.value = response.data.correo;
-    //       console.log("Usuario autenticado");
-    //     }
-    //   } catch (error) {
-    //     // Si no hay usuario autenticado, simplemente continúa con los datos públicos
-    //     console.error("Error al cargar los datos del usuario: ", error);
-    //   }
-    // };
-
-    // const libroUrl = route.query.url;
-
-    // const verificarFavorita = async () => {
-    //   if (!user) return;
-    //   try {
-    //     const { data } = await apiClient.get("/verificar-favorita", {
-    //       params: { correo: correo.value, enlace: libroUrl, pagina: pageNum.value },
-    //     });
-    //     esFavorita.value = data.esFavorita;
-    //     console.log(`⭐ Estado de favorita: ${esFavorita.value}`);
-    //   } catch (error) {
-    //     console.error("⚠️ No se pudo verificar si la página es favorita:", error);
-    //   }
-    // };
-
-    // ✅ Obtener el usuario autenticado desde el backend
     const loadUser = async () => {
-       try {
-         const response = await apiClient.get("/user", { withCredentials: true });
-         correo.value = response.data.correo;
-         console.log("📩 Correo obtenido del backend:", correo.value);
-       } catch (error) {
-         console.error("❌ Error al obtener el usuario:", error);
-         correo.value = null;
-       }
-     };
+      try {
+        // Intenta obtener los datos del usuario autenticado
+        const response = await apiClient.get("/user", { withCredentials: true });
+        user.value = response.data; // Guarda los datos del usuario si existe
+        if(user.value == ""){
+          user.value = null;
+          correo.value = null;
+          console.log("Usuario no autenticado");
+        }
+        else {
+          correo.value = response.data.correo;
+          console.log("Usuario autenticado");
+        }
+      } catch (error) {
+        // Si no hay usuario autenticado, simplemente continúa con los datos públicos
+        console.error("Error al cargar los datos del usuario: ", error);
+      }
+    };
+
  
      const libroUrl = route.query.url;
  
      const verificarFavorita = async () => {
-       if (!correo.value) return;
-       try {
-         const { data } = await apiClient.get("/verificar-favorita", {
-           params: { correo: correo.value, enlace: libroUrl, pagina: pageNum.value },
-         });
-         esFavorita.value = data.esFavorita;
-         console.log(`⭐ Estado de favorita: ${esFavorita.value}`);
-       } catch (error) {
-         console.error("⚠️ No se pudo verificar si la página es favorita:", error);
-       }
+       if (!user.value) return;
+        try {
+          const { data } = await apiClient.get("/verificar-favorita", {
+            params: { correo: correo.value, enlace: libroUrl, pagina: pageNum.value },
+          });
+          esFavorita.value = data.esFavorita;
+          console.log(`⭐ Estado de favorita: ${esFavorita.value}`);
+        } catch (error) {
+          console.error("⚠️ No se pudo verificar si la página es favorita:", error);
+        }
      };
 
     const estiloMarcador = computed(() => {
@@ -184,21 +156,6 @@ export default {
         transformOrigin: "top right",
       }
     })
-
-    // Función para manejar el paso de páginas
-    // const handlerCanvasClick = (event) => {
-    //   const rect = canvas.value.getBoundingClientRect();
-    //   const clickX = event.clientX - rect.left;
-
-    //   // Si el clic es en el tercio izquierdo => página anterior
-    //   if (clickX < rect.width / 3) {
-    //     prevPage();
-    //   } 
-    //   // Si el clic es en el tercio derecho => página siguiente
-    //   else if (clickX > (2 * rect.width) / 3) {
-    //     nextPage();
-    //   }
-    // } 
 
      // ✅ Renderizar página
      const renderPage = async (num) => {
@@ -225,8 +182,7 @@ export default {
 
         console.log(`✅ Página ${num} renderizada`);
         // 🛠 Guardar la página solo si el usuario está autenticado
-        if (!correo.value) {
-          console.error("⚠️ No se puede guardar la página: usuario no autenticado.");
+        if (!user.value) {
           return;
         }
 
@@ -250,36 +206,47 @@ export default {
 
     // ✅ Cargar el PDF
     const loadPdf = async () => {
+  try {
+    console.log("📄 URL recibida en el visor:", route.query.url);
+
+    const pdfUrl = decodeURIComponent(route.query.url);
+    console.log("✅ URL decodificada en WebViewer:", pdfUrl);
+
+    // Cargar el documento PDF
+    pdfDoc = await pdfjsLib.getDocument(pdfUrl).promise;
+    pageCount.value = pdfDoc.numPages;
+
+    // Verificar si el usuario está logeado
+    if (user.value !== null) {
       try {
-        console.log("📄 URL recibida en el visor:", route.query.url);
+        // Obtener la última página vista del usuario
+        const { data } = await apiClient.get("/ultima-pagina", {
+          params: { correo: user.value.correo, libro_id: libroUrl },
+        });
 
-        const pdfUrl = decodeURIComponent(route.query.url);
-        console.log("✅ URL decodificada en WebViewer:", pdfUrl);
-
-        pdfDoc = await pdfjsLib.getDocument(pdfUrl).promise;
-        pageCount.value = pdfDoc.numPages;
-
-        try {
-          const { data } = await apiClient.get("/ultima-pagina", {
-            params: { correo: correo.value, libro_id: libroUrl },
-          });
-
-          pageNum.value = data.pagina || 1;
-        } catch (error) {
-          console.error("❌ Error al obtener la última página:", error);
-          pageNum.value = 1;
-        }
-
-        console.log("🔄 Renderizando página inicial:", pageNum.value);
-        await renderPage(pageNum.value);
-
-        isLoading.value = false;
+        pageNum.value = data.pagina || 1; // Usar la última página obtenida o 1 si no hay datos
       } catch (error) {
-        console.error("❌ Error al cargar el PDF:", error);
-        alert("Error al cargar el PDF. Verifica que el archivo está disponible.");
-        isLoading.value = false;
+        console.error("❌ Error al obtener la última página:", error);
+        pageNum.value = 1; // En caso de error, establecer la página inicial en 1
       }
-    };
+    } else {
+      // Si el usuario no está logeado, establecer la página inicial en 1
+      console.log("⚠️ Usuario no logeado. Estableciendo página inicial en 1.");
+      pageNum.value = 1;
+    }
+
+    // Renderizar la página inicial
+    console.log("🔄 Renderizando página inicial:", pageNum.value);
+    await renderPage(pageNum.value);
+
+    // Finalizar la carga
+    isLoading.value = false;
+  } catch (error) {
+    console.error("❌ Error al cargar el PDF:", error);
+    alert("Error al cargar el PDF. Verifica que el archivo está disponible.");
+    isLoading.value = false;
+  }
+};
 
     onMounted(async () => {
       await loadUser(); // Primero obtener el usuario autenticado
@@ -315,13 +282,13 @@ export default {
     };
 
     const zoomIn = () => {
-      if (zoomLevel.value >= 2.1) return;
+      if (zoomLevel.value >= 3.1) return;
       zoomLevel.value += 0.2;
       renderPage(pageNum.value);
     };
 
     const zoomOut = () => {
-      if (zoomLevel.value <= 1.1) return;
+      if (zoomLevel.value <= 0.3) return;
       zoomLevel.value -= 0.2;
       renderPage(pageNum.value);
     };
@@ -359,6 +326,7 @@ export default {
         return;
       }
 
+      if(!user.value) return;
       try {
         const processedUrl = processBookUrl(libroUrl);
         console.log("📩 Correo:", correo.value);
@@ -399,7 +367,7 @@ export default {
     
     const toggleFavorita = async () => {
       if (!correo.value) {
-        alert("Debes iniciar sesión para guardar favoritas.");
+        alert("Debes iniciar sesión para guardar páginas favoritas.");
         return;
       }
       if (!libroUrl) {
@@ -445,7 +413,7 @@ export default {
       renderPage, processBookUrl,
     };
 
-    return { correo, libroUrl, paginasFavoritas, processBookUrl, renderPage, canvas, isLoading, /*handlerCanvasClick,*/ estiloMarcador, isFullScreen, esFavorita, pageNum, pageCount, prevPage, nextPage, zoomIn, zoomOut, zoomLevel, toggleFullScreen, toggleFavorita};
+    return { correo, libroUrl, paginasFavoritas, processBookUrl, renderPage, canvas, isLoading, estiloMarcador, isFullScreen, esFavorita, pageNum, pageCount, prevPage, nextPage, zoomIn, zoomOut, zoomLevel, toggleFullScreen, toggleFavorita};
   },
 
   methods: {
@@ -454,11 +422,6 @@ export default {
         const correo = this.correo;
         const enlaceoriginal = this.libroUrl; //Enlace sin procesar
         const enlaceProcesado = this.processBookUrl(enlaceoriginal); // Enlace procesado
-
-        // if (!user || !enlaceProcesado) {
-        //   console.error("⚠️ Datos insuficientes para cargar páginas favoritas.");
-        //   return;
-        // }
 
         if (!correo || !enlaceProcesado) {
           console.error("⚠️ Datos insuficientes para cargar páginas favoritas.");
