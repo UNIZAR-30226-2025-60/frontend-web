@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faHeart } from '@fortawesome/free-regular-svg-icons';
 import { faHeart as faHeartSolid, faUser, faChevronUp, faReply, faComment, faCaretDown, faBookOpen, faStar, faStarHalf, faPencil, 
     faRightFromBracket, faArrowLeft, faFileWord, faClock, faTrophy, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { faStar as farStar } from '@fortawesome/free-regular-svg-icons';
 import './assets/global.css'; 
 
 
@@ -28,7 +29,8 @@ library.add(
     faFileWord,
     faClock,
     faTrophy,
-    faMagnifyingGlass
+    faMagnifyingGlass,
+    farStar
 );
 
 import { API_URL, AUTH_URL, GOOGLE_REDIRECT_URI } from "./config"; // Asegurar que está importado

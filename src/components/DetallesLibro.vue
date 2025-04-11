@@ -132,7 +132,7 @@
                 Ordenar por:
               </button>
               <ul class="dropdown-menu dropdown-menu-end">
-                <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('reciente')">Ninguna</a></li>
+                <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('reciente')">Ninguno</a></li>
                 <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('alta')"> Valoración más alta</a></li>
                 <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('baja')"> Valoración más baja</a></li>
                 <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('antigua')"> Valoración más antigua</a></li>
@@ -192,8 +192,17 @@
                 <textarea v-model="nuevaValoracion.mensaje" placeholder="Introduce tu valoración*" required></textarea>
               </div>
               <div>
-                <label class="controls mb-3 p-2" for="valor">Puntuación del 1 al 5:</label>
-                <input type="number" v-model="nuevaValoracion.valor" min="1" max="5">
+                <label class="controls mb-3 p-2">Puntuación:</label>
+                <div class="d-flex align-items-center mb-3">
+                  <font-awesome-icon
+                    v-for="i in 5"
+                    :key="i"
+                    :icon="[i <= nuevaValoracion.valor ? 'fas':'far', 'star']"
+                    class="star"
+                    :class="{ filled: i <= nuevaValoracion.valor }"
+                    @click="nuevaValoracion.valor = i"
+                  />
+                </div>
               </div>
             </form>
           </div>
@@ -289,7 +298,7 @@ export default {
         libro_id: "", 
         titulo_resena: "", 
         mensaje: "", 
-        valor: null
+        valor: 1
       },
       conteoValoraciones: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, total: 0 },
       darkMode: localStorage.getItem("darkMode") === "true", // Obtener el tema guardado
@@ -807,6 +816,18 @@ export default {
   transform: scale(1.05);
 }
 
+.star {
+  font-size: 1.8rem;
+  color: #4C4637;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  margin-right: 5px;
+}
+
+.star.filled {
+  color: gold;
+}
+
 .modal-background {
   position: fixed;
   top: 0;
@@ -820,7 +841,7 @@ export default {
 }
 
 .modal-content {
-  background-color: #F8E79B !important;
+  background-color: #ffff !important;
   color: #4C4637 !important;
   padding: 30px 25px;
   border-radius: 10px;
@@ -837,7 +858,7 @@ export default {
 .modal-header,
 .modal-body,
 .modal-footer {
-  background-color: #F8E79B !important;
+  background-color: #ffff !important;
   color: #4C4637 !important;
   padding: 0;
 }
