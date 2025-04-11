@@ -2,24 +2,24 @@
   <div v-if="foro" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
     <NavBar :dark-mode="darkMode"  :user="user"></NavBar>
 
-    <div class="container-fluid pt-4 p-5 min-vh-100">
-      <div class="libros-header">
-        <h4 class="titulo mb-1">FORO</h4>
+    <div class="header">
+      <h4 class="titulo">FORO</h4>
 
-        <!-- Switch con iconos sol/luna -->
-        <div class="theme-switch-wrapper">
-          <div class="theme-switch" @click="toggleDarkMode">
-            <div class="switch-track" :class="{ 'dark': darkMode }">
-              <div class="switch-thumb" :class="{ 'dark': darkMode }">
-                <!-- Sol icono -->
-                <font-awesome-icon v-if="!darkMode" :icon="['fas', 'sun']" class="icon sun-icon"/>
-                  <!-- Luna icono -->
-                <font-awesome-icon v-else :icon="['fas', 'moon']" class="icon moon-icon"/>
-              </div>
+      <!-- Switch con iconos sol/luna -->
+      <div class="theme-switch-wrapper">
+        <div class="theme-switch" @click="toggleDarkMode">
+          <div class="switch-track" :class="{ 'dark': darkMode }">
+            <div class="switch-thumb" :class="{ 'dark': darkMode }">
+              <!-- Sol icono -->
+              <font-awesome-icon v-if="!darkMode" :icon="['fas', 'sun']" class="icon sun-icon"/>
+              <!-- Luna icono -->
+              <font-awesome-icon v-else :icon="['fas', 'moon']" class="icon moon-icon"/>
             </div>
           </div>
         </div>
       </div>
+    </div>
+    <div class="container-fluid px-5 min-vh-100">
       <div v-if="user != null">
         <h5 class="text-center" >¿Quieres preguntar algo?</h5>
 
@@ -588,5 +588,12 @@ export default {
   font-size: 2rem;
   color: var(--color-texto);
   margin: 30px 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
 }
 </style>
