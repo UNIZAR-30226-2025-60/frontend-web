@@ -44,7 +44,7 @@
         </button>
       </div>
       <div>
-        <button class="btn mb-6 w-25" @click="showImageModal">
+        <button class="btn mb-4 w-25" @click="showImageModal">
           <font-awesome-icon :icon="['fas', 'image']" />
           Cambiar Foto de Perfil
         </button>

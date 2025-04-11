@@ -56,7 +56,7 @@
       </div>
       <div v-for="pregunta in preguntasFiltradas" :key="pregunta.id" class="pregunta mb-3 p-3">
         <h5>{{ pregunta.cuestion }}</h5>
-        <p class="mb-1"><strong>Por:</strong> {{ pregunta.usuario }} <strong>Fecha:</strong> {{ pregunta.fecha }}</p>
+        <p class="mb-1"><strong>Por:</strong> {{ pregunta.nombreUsuario }} <strong>Fecha:</strong> {{ pregunta.fecha }}</p>
         <p v-if="!pregunta.mostrarRespuestas" class="mb-2 text-muted">
           <font-awesome-icon :icon="['fas', 'comment']" />
           {{ pregunta.respuestas.length }} respuestas
@@ -99,7 +99,7 @@
           <h6 class="mb-2">Respuestas:</h6>
           <div v-for="respuesta in pregunta.respuestas" :key="respuesta.id" class="respuesta border-top pt-2 mt-2">
             <p>{{ respuesta.mensaje }}</p>
-            <p class="text-muted"><strong>Por:</strong> {{ respuesta.usuario }} &nbsp; <strong>Fecha:</strong> {{ respuesta.fecha }}
+            <p class="text-muted"><strong>Por:</strong> {{ respuesta.nombreUsuario }} &nbsp; <strong>Fecha:</strong> {{ respuesta.fecha }}
               <!-- Botón para eliminar respuesta -->
               <button
                 v-if="user && respuesta.usuario.trim().toLowerCase() === user.correo.trim().toLowerCase()"
@@ -181,6 +181,7 @@ export default {
       },
       darkMode: localStorage.getItem("darkMode") === "true", // Obtener el tema guardado
       filtroSeleccionado: "reciente", // Ordenación por defecto
+      userCache: {},
     };
   },
   computed: {
@@ -191,10 +192,11 @@ export default {
         ? this.foro.filter(p => p.usuario.trim().toLowerCase() === this.user.correo.trim().toLowerCase())
         : this.foro;
       // Función auxiliar para convertir fechas en formato DD-MM-YYYY a objeto Date
-    const parseCustomDate = (dateStr) => {
-      const [day, month, year] = dateStr.split('-');
-      return new Date(`${year}-${month}-${day}`);
-    };
+      const parseCustomDate = (dateStr) => {
+        if (!dateStr || typeof dateStr !== 'string') return new Date(0);
+        const [day, month, year] = dateStr.split('-');
+        return new Date(`${year}-${month}-${day}`);
+      };
       // Luego ordenamos según el filtro seleccionado
       switch (this.filtroSeleccionado) {
         case "antigua":
@@ -240,7 +242,16 @@ export default {
     async cargarForoCompleto() {
       try {
         const response = await apiClient.get('/obtenerForoCompleto');
-        this.foro = response.data.map(p => ({ ...p, mostrarRespuestas: false })); // Añadir propiedad para mostrar respuestas
+        const preguntas = response.data.map(p => ({ ...p, mostrarRespuestas: false }));
+
+        for (const pregunta of preguntas) {
+          pregunta.nombreUsuario = await this.getUserDisplayName(pregunta.usuario);
+          for (const respuesta of pregunta.respuestas) {
+            respuesta.nombreUsuario = await this.getUserDisplayName(respuesta.usuario);
+          }
+        }
+
+        this.foro = preguntas;
       } catch (error) {
         console.error('Error al cargar el foro:', error);
       }
@@ -305,6 +316,36 @@ export default {
           console.error("Error al eliminar la respuesta:", error);
           alert("No se pudo eliminar la respuesta.");
         }
+      }
+    },
+    async getUserDisplayName(correo) {
+      // Revisar primero el caché para evitar llamadas API innecesarias
+      if (!this.userCache) {
+        this.userCache = {};
+      }
+      
+      // Si ya tenemos el nombre de este usuario en caché, usarlo
+      if (this.userCache[correo]) {
+        return this.userCache[correo];
+      }
+      
+      try {
+        // Solo hacer llamada API si no tenemos el usuario en caché
+        const response = await apiClient.get(`/usuario/${correo}`);
+        if (response.data && response.data.nombre) {
+          // Guardar en caché para uso futuro
+          this.userCache[correo] = response.data.nombre;
+          return response.data.nombre;
+        } else {
+          // Usar correo como alternativa si el nombre no está disponible
+          this.userCache[correo] = correo;
+          return correo;
+        }
+      } catch (error) {
+        console.error(`Error al obtener datos del usuario ${correo}:`, error);
+        // Si la llamada API falla, usar correo como alternativa y guardar en caché para evitar fallos repetidos
+        this.userCache[correo] = correo;
+        return correo;
       }
     },
     toggleDropdown() {
@@ -516,7 +557,7 @@ export default {
 }
 
 .modal-content {
-  background-color: #F8E79B !important;
+  background-color: #ffff !important;
   color: #4C4637 !important;  
   border-radius: 12px;
   padding: 32px;
