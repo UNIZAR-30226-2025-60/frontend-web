@@ -435,19 +435,23 @@ export default {
       return icons;
     },
     async comprobarFavorito() {
-      try {
-        const response = await apiClient.get(`/listas/favoritos/${encodeURIComponent(this.user.correo)}`);
-        if (response.status === 200 && response.data) {
-          const librosFavoritos = response.data;
-          this.isFavorito = librosFavoritos.some(item => item.enlace_libro === this.libro.enlace);
-        } else {
-          console.warn("La consulta no devolvió datos válidos.");
+      if (!this.user) {
+        this.isFavorito = false; // Si no hay usuario, no puede ser favorito
+        return;
+      }
+        try {
+          const response = await apiClient.get(`/listas/favoritos/${encodeURIComponent(this.user.correo)}`);
+          if (response.status === 200 && response.data) {
+            const librosFavoritos = response.data;
+            this.isFavorito = librosFavoritos.some(item => item.enlace_libro === this.libro.enlace);
+          } else {
+            console.warn("La consulta no devolvió datos válidos.");
+            this.isFavorito = false;
+          }
+        } catch (error) {
+          console.error("Error al comprobar favoritos:", error);
           this.isFavorito = false;
         }
-      } catch (error) {
-        console.error("Error al comprobar favoritos:", error);
-        this.isFavorito = false;
-      }
     },
     async toggleFavorito() {
       if (!this.isFavorito) {
