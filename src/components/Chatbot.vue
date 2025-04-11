@@ -7,7 +7,9 @@
     <div class="chat-container">
       <div class="card-container">
         <div class="card-header">
-          <div class="img-avatar"></div>
+          <div class="img-avatar">
+            <img src="../assets/chatBuot.png" alt="Chatbot Avatar" class="avatar" />
+          </div>
           <div class="text-chat">Chatbot</div>
         </div>
         <div class="card-body">
@@ -166,6 +168,11 @@ export default {
   background-color: #6a6553;
 }
 
+.avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 .card-header .text-chat {
   color: #4b4737;
   margin: 0;
