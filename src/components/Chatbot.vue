@@ -2,7 +2,21 @@
   <div :class="darkMode ? 'dark-mode' : 'light-mode'" class="chatbot-wrapper">
     <!-- NavBar -->
     <NavBar :darkMode="darkMode" @toggle-dark-mode="toggleDarkMode"  :user="user"/>
-
+    <div class="container-fluid">
+      <!-- Switch con iconos sol/luna -->
+      <div class="theme-switch-wrapper mb-1">
+        <div class="theme-switch" @click="toggleDarkMode">
+          <div class="switch-track" :class="{ 'dark': darkMode }">
+            <div class="switch-thumb" :class="{ 'dark': darkMode }">
+              <!-- Sol icono -->
+              <font-awesome-icon v-if="!darkMode" :icon="['fas', 'sun']" class="icon sun-icon"/>
+              <!-- Luna icono -->
+              <font-awesome-icon v-else :icon="['fas', 'moon']" class="icon moon-icon"/>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <!-- Contenedor del Chatbot -->
     <div class="chat-container">
       <div class="card-container">
@@ -11,31 +25,33 @@
           <div class="text-chat">Chatbot</div>
         </div>
         <div class="card-body">
-          <div class="messages-container">
-            <!-- Mostrar mensajes del historial -->
-            <div v-for="(message, index) in messages" :key="index" :class="['message-box', message.sender]">
-              <p>{{ message.text }}</p>
+          <div class="input-group-wrapper">
+            <div class="messages-container">
+              <!-- Mostrar mensajes del historial -->
+              <div v-for="(message, index) in messages" :key="index" :class="['message-box', message.sender]">
+                <p>{{ message.text }}</p>
+              </div>
             </div>
-          </div>
-          <div v-if="messages.length === 0" class="message-box bot">
-            <p>Hola, soy tu asistente virtual. ¿En qué puedo ayudarte?</p>
-          </div>
-          <!-- Botones de ejemplo -->
-          <div v-if="messages.length === 0" class="example-buttons">
-            <button @click="addExampleMessage('¡Hola, Chatbot! ¿Puedes recomendarme libros de ciencia ficción?')">¡Hola, Chatbot! ¿Puedes recomendarme libros de ciencia ficción?</button>
-            <button @click="addExampleMessage('¿Tienes algún dato interesante sobre mi última lectura?')">¿Tienes alguna recomendación de libros de historia?</button>
-            <button @click="addExampleMessage('¿Me podrías contar más sobre Moby Dick?')">¿Me podrías contar más sobre Moby Dick?</button>
-            <button @click="addExampleMessage('Cuentame un chiste de lectura')">Cuentame un chiste de lectura</button>
-          </div>
-          <div class="message-input">
-            <form @submit.prevent="sendMessage">
-              <textarea 
-                v-model="userInput" 
-                placeholder="Escribe tu mensaje..." 
-                class="message-send"
-              ></textarea>
-              <button type="submit" class="button-send">Enviar</button>
-            </form>
+            <div v-if="messages.length === 0" class="message-box bot">
+              <p>Hola, soy tu asistente virtual. ¿En qué puedo ayudarte?</p>
+            </div>
+            <!-- Botones de ejemplo -->
+            <div v-if="messages.length === 0" class="example-buttons">
+              <button @click="addExampleMessage('¡Hola, Chatbot! ¿Puedes recomendarme libros de ciencia ficción?')">¡Hola, Chatbot! ¿Puedes recomendarme libros de ciencia ficción?</button>
+              <button @click="addExampleMessage('¿Tienes algún dato interesante sobre mi última lectura?')">¿Tienes alguna recomendación de libros de historia?</button>
+              <button @click="addExampleMessage('¿Me podrías contar más sobre Moby Dick?')">¿Me podrías contar más sobre Moby Dick?</button>
+              <button @click="addExampleMessage('Cuentame un chiste de lectura')">Cuentame un chiste de lectura</button>
+            </div>
+            <div class="message-input">
+              <form @submit.prevent="sendMessage">
+                <textarea 
+                  v-model="userInput" 
+                  placeholder="Escribe tu mensaje..." 
+                  class="message-send"
+                ></textarea>
+                <button type="submit" class="button-send">Enviar</button>
+              </form>
+            </div>
           </div>
         </div>
       </div>
@@ -123,6 +139,7 @@ export default {
 </script>
 
 <style scoped>
+
 .chatbot-wrapper {
   display: flex;
   flex-direction: column;
@@ -141,21 +158,19 @@ export default {
 
 /* Estilos del chatbot */
 .card-container {
-  background-color: #f8f1cc;
+  background-color: var(--color-boton);
   border-radius: 12px;
   padding: 20px;
   margin: 20px;
   display: flex;
   flex-direction: column;
-  width: 450px;
-  border: 1px solid #a9a392;
+  width: 700px;
 }
 
 .card-header {
   display: flex;
   align-items: center;
   padding-bottom: 15px;
-  border-bottom: 1px solid #a9a392;
 }
 
 .card-header .img-avatar {
@@ -163,11 +178,11 @@ export default {
   height: 50px;
   border-radius: 50%;
   margin-right: 20px;
-  background-color: #6a6553;
+  background-color: var(--color-fondo);
 }
 
 .card-header .text-chat {
-  color: #4b4737;
+  color: var(--color-fondo);
   margin: 0;
   font-size: 22px;
 }
@@ -177,6 +192,12 @@ export default {
   overflow-y: auto;
   max-height: 450px;
   padding-bottom: 20px;
+  max-width: 100%;
+}
+
+.input-group-wrapper {
+  width: 100%;
+  max-width: 100%;
 }
 
 .messages-container {
@@ -196,8 +217,8 @@ export default {
 }
 
 .message-box.user {
-  background-color: #f7d547;
-  color: #4b4737;
+  background-color: #f7d547 !important;
+  color: #4b4737 !important;
   align-self: flex-end;
   border-radius: 12px 12px 0 12px;
   margin-left: auto;
@@ -206,6 +227,7 @@ export default {
 .message-box.bot {
   background-color: #d6d2bd;
   color: #4b4737;
+  font-weight: bold;
   align-self: flex-start;
   border-radius: 12px 12px 12px 0;
 }
@@ -215,10 +237,12 @@ export default {
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
   margin-top: 10px;
+  width: 100%;
 }
 
 .example-buttons button {
-  background-color: #f9dd61;
+  background-color: #f7d547;
+  color: #4b4737;
   font-family: inherit;
   padding: 0.4em 1em;
   font-weight: 900;
@@ -231,7 +255,6 @@ export default {
 }
 
 .example-buttons button:hover {
-  transform: translate(-0.05em, -0.05em);
   box-shadow: 0.15em 0.15em;
 }
 
@@ -240,19 +263,38 @@ export default {
   box-shadow: 0.05em 0.05em;
 }
 
+.example-buttons,
+.message-input form {
+  width: 100%;
+}
+
 .message-input {
   padding: 10px;
   border-top: 1px solid #a9a392;
 }
 
 .message-input .message-send {
+  align-content: center;
   width: 100%;
   padding: 12px;
-  border: none;
-  border-radius: 10px;
   resize: none;
   background-color: #f1f1f1;
   color: #4b4737;
+  border-radius: 10px;
+  border-color: var(--color-fondo);
+}
+
+.message-input form {
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
+  gap: 10px;
+}
+
+.message-input .button-send {
+  align-self: center;
+  margin-top: 20px; 
+  width: 150px; 
 }
 
 .message-input .button-send {
@@ -271,50 +313,20 @@ export default {
   color: #4b4737;
 }
 
-/* Modo oscuro */
-.dark-mode .card-container {
-  background-color: #343434;
+/* 🔧 Ancho sincronizado para elementos del input y botones */
+.input-group-wrapper {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
 }
 
-.dark-mode .card-header .text-chat {
-  color: #f8f1cc;
+.example-buttons {
+  grid-column: 1 / -1;
 }
 
-.dark-mode .message-box.user {
-  background-color: #f7d547;
+.message-input {
+  grid-column: 1 / -1;
 }
 
-.dark-mode .message-box.bot {
-  background-color: #bdbaba;
-}
 
-.dark-mode .message-input .message-send {
-  background-color: #bdbaba;
-  color: white;
-}
-
-.light-mode .card-container {
-  background-color: #ead5a1;
-}
-
-.light-mode .message-box.user {
-  background-color: #f7d547;
-}
-
-.light-mode .message-box.bot {
-  background-color: #d6d2bd;
-}
-
-.light-mode .message-input .message-send {
-  background-color: #f1f1f1;
-  color: #4b4737;
-}
-
-.light-mode .chat-container {
-  background-color: #f8f1cc;
-}
-
-.dark-mode .chat-container {
-  background-color: #333;
-}
 </style>
