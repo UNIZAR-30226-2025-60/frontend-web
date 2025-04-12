@@ -24,8 +24,11 @@
         <h5 class="text-center" >¿Quieres preguntar algo?</h5>
 
         <form class="d-flex mb-3 mt-4" @submit.prevent="publicarPregunta">
-          <div class="input-group">
-            <input class="form-control rounded-start-pill" type="text" placeholder="Escribe aquí tu pregunta..." v-model="pregunta">
+          <div class="input-group d-flex flex-nowrap">
+            <div class="input-container flex-grow-1">
+              <input class="form-control rounded-start-pill" type="text" placeholder="Escribe tu pregunta..." v-model="pregunta">
+              <span class="char-counter">{{ pregunta.length }}/{{ maxCaracteresPregunta }} caracteres</span>
+            </div>
             <button type="submit" class="btn btn-preguntar rounded-end-pill">
               Preguntar
             </button>
@@ -47,10 +50,11 @@
             Ordenar por: {{ getSelectedFilterLabel() }}
           </button>
           <ul class="dropdown-menu">
-            <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('reciente')">Más recientes</a></li>
-            <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('antigua')">Más antiguas</a></li>
-            <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('masRespuestas')">Con más respuestas</a></li>
-            <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('menosRespuestas')">Con menos respuestas</a></li>
+            <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('reciente')">Ninguno</a></li>
+            <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('reciente')">Pregunta más reciente</a></li>
+            <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('antigua')">Pregunta más antiguas</a></li>
+            <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('masRespuestas')">Pregunta con más respuestas</a></li>
+            <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('menosRespuestas')">Pregunta con menos respuestas</a></li>
           </ul>
         </div>
       </div>
@@ -73,22 +77,11 @@
           <button v-if="pregunta.respuestas.length > 0" @click="toggleVerRespuestas(pregunta.id)" class="btn btn-sm btn-outline-secondary">
             <font-awesome-icon :icon="['fas', 'comment']" />
             {{ pregunta.mostrarRespuestas ? 'Ocultar respuestas' : 'Ver respuestas' }}
-            <font-awesome-icon
-              v-if="!pregunta.mostrarRespuestas"
-              :icon="['fas', 'caret-down']"
-            />
-            <font-awesome-icon
-              v-else
-              :icon="['fas', 'caret-down']"
-              style="transform: rotate(180deg);"
-            />
+            <font-awesome-icon v-if="!pregunta.mostrarRespuestas" :icon="['fas', 'caret-down']"/>
+            <font-awesome-icon v-else :icon="['fas', 'caret-down']" style="transform: rotate(180deg);"/>
           </button>
           <!-- Botón para eliminar pregunta -->
-          <button
-            v-if="user && pregunta.usuario.trim().toLowerCase() === user.correo.trim().toLowerCase()"
-            class="btn btn-sm btn-outline-danger"
-            @click="eliminarPregunta(pregunta.id)"
-          >
+          <button v-if="user && pregunta.usuario.trim().toLowerCase() === user.correo.trim().toLowerCase()" class="btn btn-sm btn-outline-danger" @click="eliminarPregunta(pregunta.id)">
             <font-awesome-icon :icon="['fas', 'trash']" />
             Eliminar
           </button>
@@ -101,11 +94,7 @@
             <p>{{ respuesta.mensaje }}</p>
             <p class="text-muted"><strong>Por:</strong> {{ respuesta.nombreUsuario }} &nbsp; <strong>Fecha:</strong> {{ respuesta.fecha }}
               <!-- Botón para eliminar respuesta -->
-              <button
-                v-if="user && respuesta.usuario.trim().toLowerCase() === user.correo.trim().toLowerCase()"
-                class="btn btn-sm btn-outline-danger ms-2"
-                @click="eliminarRespuesta(respuesta.id)"
-              >
+              <button v-if="user && respuesta.usuario.trim().toLowerCase() === user.correo.trim().toLowerCase()" class="btn btn-sm btn-outline-danger ms-2" @click="eliminarRespuesta(respuesta.id)">
                 <font-awesome-icon :icon="['fas', 'trash']" />
                 Eliminar
               </button>
@@ -124,19 +113,22 @@
       <div class="modal-dialog modal-dialog-centered"> 
         <div class="modal-content rounded-3 shadow-lg">
           <div class="modal-header">
-            <h4 class="modal-title fw-bold mb-4">Nueva respuesta</h4>
+            <h4 class="modal-title fw-bold mb-2">Nueva respuesta</h4>
           </div>
           <div class="modal-body">
             <form>
               <div>
-                <label class="controls mb-3 p-2" for="mensaje">Mensaje:</label>
-                <textarea v-model="nuevaRespuesta.mensaje" placeholder="Introduce tu respuesta*" required></textarea>
+                <label class="controls mb-1 p-2" for="mensaje">Mensaje:</label>
+                <div class="textarea-container">
+                  <textarea v-model="nuevaRespuesta.mensaje" placeholder="Introduce tu respuesta*" required></textarea>
+                  <span class="char-counter textarea-counter">{{ nuevaRespuesta.mensaje.length }}/{{ maxCaracteresRespuesta }} caracteres</span>
+                </div>
               </div>
             </form>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn-enviar p-2 px-4 me-3 mb-2" @click="enviarRespuesta">Enviar</button>
-            <button type="button" class="btn-cancelar p-2 px-4 mb-2" @click="cerrarModal">Cancelar</button>
+            <button type="button" class="btn modal-btn p-2 px-4 me-3 mt-3" @click="cerrarModal">Cancelar</button>
+            <button type="button" class="btn modal-btn p-2 px-4 mt-3" @click="enviarRespuesta">Enviar</button>
           </div>
         </div>
       </div> 
@@ -177,15 +169,16 @@ export default {
       nuevaRespuesta: {
         pregunta_id: "",
         usuario_respuesta: "",
-        mensaje_respuesta: ""
+        mensaje: ""
       },
       darkMode: localStorage.getItem("darkMode") === "true", // Obtener el tema guardado
       filtroSeleccionado: "reciente", // Ordenación por defecto
       userCache: {},
+      maxCaracteresPregunta: 350, // Definimos el límite de caracteres para preguntas
+      maxCaracteresRespuesta: 350, // Definimos el límite de caracteres para respuestas
     };
   },
   computed: {
-    
     preguntasFiltradas() {
       // Primero filtramos por usuario si es necesario
       let preguntas = this.filtrarPorUsuario
@@ -209,6 +202,20 @@ export default {
           return [...preguntas].sort((a, b) => a.respuestas.length - b.respuestas.length);
         default:
           return preguntas;
+      }
+    }
+  },
+  watch: {
+    // Observador para limitar la longitud de la pregunta
+    pregunta(newValue) {
+      if (newValue.length > this.maxCaracteresPregunta) {
+        this.pregunta = newValue.slice(0, this.maxCaracteresPregunta);
+      }
+    },
+    // Observador para limitar la longitud de la respuesta
+    'nuevaRespuesta.mensaje'(newValue) {
+      if (newValue && newValue.length > this.maxCaracteresRespuesta) {
+        this.nuevaRespuesta.mensaje = newValue.slice(0, this.maxCaracteresRespuesta);
       }
     }
   },
@@ -261,6 +268,12 @@ export default {
         alert('Por favor, escribe una pregunta.');
         return;
       }
+      
+      if (this.pregunta.length > this.maxCaracteresPregunta) {
+        alert(`La pregunta no puede exceder los ${this.maxCaracteresPregunta} caracteres.`);
+        return;
+      }
+      
       try {
         // Guardamos todos los datos necesarios para realizar la consulta
         const nuevaPregunta = {
@@ -372,10 +385,10 @@ export default {
     },
     getSelectedFilterLabel() {
       const filterLabels = {
-        'reciente': 'Más recientes',
-        'antigua': 'Más antiguas',
-        'masRespuestas': 'Con más respuestas',
-        'menosRespuestas': 'Con menos respuestas'
+        'reciente': 'Pregunta más reciente',
+        'antigua': 'Pregunta más antigua',
+        'masRespuestas': 'Pregunta con más respuestas',
+        'menosRespuestas': 'Pregunta con menos respuestas'
       };
       return filterLabels[this.filtroSeleccionado] || 'Ordenar';
     },
@@ -404,9 +417,9 @@ export default {
       this.nuevaRespuesta = {
         pregunta_id: preguntaId,
         usuario_respuesta: this.user.correo,
-        mensaje_respuesta: ""
+        mensaje: ""
       };
-      this.mostrarModal = true; // Abre el modal
+      this.mostrarModal = true; // Abre el modal
     },
     cerrarModal() {
       this.mostrarModal = false; // Cierra el modal
@@ -416,6 +429,12 @@ export default {
         alert("El mensaje de la respuesta es obligatorio");
         return;
       }
+      
+      if (this.nuevaRespuesta.mensaje.length > this.maxCaracteresRespuesta) {
+        alert(`La respuesta no puede exceder los ${this.maxCaracteresRespuesta} caracteres.`);
+        return;
+      }
+      
       try {
         // Guardamos todos los datos necesarios para realizar la consulta
         const nuevaRespuesta = {
@@ -441,7 +460,7 @@ export default {
         this.nuevaRespuesta = {
           pregunta_id: "",
           usuario_respuesta: "",
-          mensaje_respuesta: "",
+          mensaje: "",
         };
 
         // Mostrar mensaje de éxito
@@ -482,7 +501,6 @@ export default {
 </script>
 
 <style scoped>
-
 .page-wrapper {
   min-height: 100vh;
 }
@@ -517,27 +535,6 @@ export default {
   padding: 16px;
   margin-bottom: 16px;
 }
-.pregunta h5,
-.pregunta p,
-.pregunta strong {
-  white-space: normal;
-  overflow-wrap: break-word;
-  word-wrap: break-word;
-  color: var(--color-texto);
-}
-
-.respuestas {
-  margin-left: 20px;
-}
-.respuesta {
-  border-top: 1px solid #ccc;
-  padding-top: 10px;
-  margin-top: 10px;
-}
-.respuesta p,
-.respuesta strong {
-  color: var(--color-texto);
-}
 
 .text-muted {
   color: var(--color-texto) !important;
@@ -568,15 +565,6 @@ export default {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-
-.modal-title,
-.modal-content label,
-.modal-content p,
-.modal-content textarea {
-  color: #4C4637 !important;
-  font-weight: 500;
-}
-
 .modal-content textarea {
   width: 100%;
   height: 100px;
@@ -587,29 +575,7 @@ export default {
   background-color: #fff;
   color: #4C4637;
   font-size: 0.95rem;
-}
-
-/* Modal botones */
-.btn-enviar {
-  background-color: var(--color-btn-enviar);
-  color: var(--color-texto-btn-especial);
-  border: none;
-  border-radius: 20px;
-  padding: 8px 20px;
-  margin-right: 10px;
-  cursor: pointer;
-}
-.btn-cancelar {
-  background-color: var(--color-btn-cancelar);
-  color: var(--color-texto-btn-especial);
-  border: none;
-  border-radius: 20px;
-  padding: 8px 20px;
-  cursor: pointer;
-}
-.btn-enviar:hover,
-.btn-cancelar:hover {
-  filter: brightness(0.95);
+  padding-right: 65px; /* Espacio para el contador */
 }
 
 .btn-preguntar {
@@ -636,5 +602,32 @@ export default {
   align-items: center;
   justify-content: center;
   position: relative;
+}
+
+/* Estilos para los contenedores de input con contador */
+.input-container {
+  position: relative;
+}
+
+.input-container input {
+  padding-right: 65px; /* Espacio para el contador */
+}
+
+.char-counter {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  color: #000000;
+  opacity: 0.7;
+  font-size: 0.8rem;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 2px 5px;
+  border-radius: 3px;
+  pointer-events: none; /* Para que no interfiera con la escritura */
+}
+
+/* Para que el form de la pregunta tenga el mismo ancho que el botón de preguntar*/
+.form-control {
+  height: 100%; 
 }
 </style>

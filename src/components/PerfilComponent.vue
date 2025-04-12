@@ -39,19 +39,19 @@
       <div v-if="!isGoogleUser">
         <button class="btn mb-2 w-25" @click="editPassword"> 
           <font-awesome-icon :icon="['fas', 'pencil']" />
-          Editar Contraseña
+          Editar contraseña
         </button>
       </div>
       <div>
         <button class="btn mb-2 w-25" @click="changeName">
           <font-awesome-icon :icon="['fas', 'pencil']" />
-          Editar Nombre
+          Editar nombre
         </button>
       </div>
       <div>
-        <button class="btn" @click="cerrarSesion">
+        <button class="btn mt-3" @click="cerrarSesion">
           <font-awesome-icon :icon="['fas', 'right-from-bracket']" />
-          Cerrar Sesión
+          Cerrar sesión
         </button>
       </div>
     </div>
@@ -62,17 +62,17 @@
         <h5 class="mb-3">Editar contraseña</h5>
             
         <form @submit.prevent="cambiarContraseña">
-          <div class="form-group">
+          <div class="form-group mb-3">
             <label for="oldPassword">Contraseña actual:</label>
             <input type="password" id="oldPassword" v-model="passwordForm.oldPassword" class="form-input" required/>
           </div>
               
-          <div class="form-group">
+          <div class="form-group mb-3">
             <label for="newPassword">Nueva contraseña:</label>
             <input type="password" id="newPassword" v-model="passwordForm.newPassword" class="form-input" required/>
           </div>
               
-          <div class="form-group">
+          <div class="form-group mb-3">
             <label for="confirmPassword">Confirmar nueva contraseña:</label>
             <input type="password" id="confirmPassword" v-model="confirmPassword" class="form-input" required/>
           </div>
@@ -82,8 +82,8 @@
           </div>
               
           <div class="button-group">
+            <button type="button" class="btn modal-btn me-2" @click="closePasswordModal"> Cerrar </button>
             <button type="submit" class="btn modal-btn" :disabled="passwordLoading"> {{ passwordLoading ? 'Guardando...' : 'Guardar' }}</button>
-            <button type="button" class="btn modal-btn" @click="closePasswordModal"> Cancelar </button>
           </div>
         </form>
       </div>
@@ -95,12 +95,12 @@
         <h5 class="mb-3">Editar nombre</h5>
         
         <form @submit.prevent="guardarNuevoNombre">
-          <div class="form-group">
+          <div class="form-group mb-3">
             <label for="currentName">Nombre actual:</label>
             <input type="text" id="currentName" :value="user.nombre" class="form-input" disabled />
           </div>
           
-          <div class="form-group">
+          <div class="form-group mb-3">
             <label for="newName">Nuevo nombre:</label>
             <input type="text" id="newName" v-model="nameForm.newName" class="form-input" required />
           </div>
@@ -110,8 +110,8 @@
           </div>
           
           <div class="button-group">
+            <button type="button" class="btn modal-btn me-2" @click="closeNameModal"> Cerrar </button>
             <button type="submit" class="btn modal-btn" :disabled="nameLoading"> {{ nameLoading ? 'Guardando...' : 'Confirmar' }}</button>
-            <button type="button" class="btn modal-btn" @click="closeNameModal"> Cancelar </button>
           </div>
         </form>
       </div>
@@ -137,7 +137,7 @@
         </div>
 
         <div class="modal-footer">
-          <button class="btn modal-btn" @click="hideImageModal">Cancelar</button>
+          <button class="btn modal-btn" @click="hideImageModal">Cerrar</button>
           <button class="btn modal-btn" @click="guardarImagen">Guardar</button>
         </div>
       </div>
@@ -436,11 +436,12 @@ export default {
 </script>
     
 <style scoped>
-  
-.profile-container {
-  text-align: center;
+.button-group {
+  display: flex;
+  justify-content: flex-end;
 }
-    
+
+/* Foto de perfil de usuario */    
 .profile-image {
   width: 150px;
   height: 150px;
@@ -448,7 +449,7 @@ export default {
   object-fit: cover;
 }
 
-/* Contenedor para la imagen de perfil y el botón de edición */
+/* Contenedor para la foto de perfil y el botón de edición */
 .profile-image-container {
   position: relative;
   display: inline-block;
@@ -502,21 +503,6 @@ export default {
   background-color: #fbf1cd;
   transform: scale(1.1);
 }
-
-.profile-buttons {
-  margin-top: 20px;
-}
-    
-.profile-buttons button {
-  margin: 10px;
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-}
-   
-.page-wrapper {
-  min-height: 100vh;
-}
   
 .modal-overlay {
   position: fixed;
@@ -529,7 +515,7 @@ export default {
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  }
+}
   
 .modal-content {
   width: 90%;
@@ -537,16 +523,6 @@ export default {
   padding: 25px;
   border-radius: 10px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-    
-.form-group {
-  margin-bottom: 15px;
-}
-  
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
 }
   
 .form-input {
@@ -559,7 +535,6 @@ export default {
   color: #333;
 }
   
- 
 .message {
   padding: 10px;
   border-radius: 5px;
@@ -576,46 +551,11 @@ export default {
   color: #a94442;
 }
 
-.clickable {
-  cursor: pointer;
-  pointer-events: auto; 
-}
-
 .titulo {
   text-align: center;       
   font-weight: bold;    
   font-size: 2rem;        
   margin: 0;        
-}
-
-.image-item {
-  cursor: pointer;
-  border: 2px solid transparent;
-  border-radius: 8px;
-  overflow: hidden;
-  transition: all 0.3s;
-  position: relative;
-}
-
-.image-item .edit-icon {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: white;
-  font-size: 1.2rem;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.image-item:hover .edit-icon {
-  opacity: 1;
-}
-
-.image-preview {
-  width: 100%;
-  height: 100px;
-  object-fit: cover;
 }
 
 .header {

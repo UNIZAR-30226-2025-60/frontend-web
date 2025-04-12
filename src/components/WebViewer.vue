@@ -1,10 +1,25 @@
 <template>
-  <NavBar/>
+  <div v-if="lector" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper"></div>
+  <NavBar :dark-mode="darkMode"  :user="user"/>
 
-  <Cargando v-if="isLoading" />
+  <Cargando v-if="isLoading" :dark-mode="darkMode" />
 
   
   <div id="pdf-container">
+    <!-- Switch con iconos sol/luna -->
+    <div class="theme-switch-wrapper pt-4">
+      <div class="theme-switch" @click="toggleDarkMode">
+        <div class="switch-track" :class="{ 'dark': darkMode }">
+          <div class="switch-thumb" :class="{ 'dark': darkMode }">
+            <!-- Sol icono -->
+            <font-awesome-icon v-if="!darkMode" :icon="['fas', 'sun']" class="icon sun-icon"/>
+            <!-- Luna icono -->
+            <font-awesome-icon v-else :icon="['fas', 'moon']" class="icon moon-icon"/>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div id="nav-controls">
       <template v-if="!isLoading && isFullScreen">
         <div id="zoom-controls">
@@ -100,7 +115,11 @@ export default {
     Cargando,
     FontAwesomeIcon,
   },
-
+  data() {
+    return {
+      lector: null
+    }
+  },
   setup() {
     const canvas = ref(null);
     const pageNum = ref(1);
@@ -480,10 +499,8 @@ export default {
 
   <style scoped>
   #pdf-container {
-    margin-top: 10px;
     text-align: center;
     overflow: auto;
-    background-color:#eebf48cc;
     position: relative;
   }
   

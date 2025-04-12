@@ -129,7 +129,7 @@
             <h5 class="mb-0">Todas las reseñas del libro</h5>
             <div ref="dropdown" class="dropdown">
               <button class="btn dropdown-toggle" type="button" @click="toggleDropdown">
-                Ordenar por:
+                Ordenar por: {{ getSelectedFilterLabel() }}
               </button>
               <ul class="dropdown-menu dropdown-menu-end">
                 <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('reciente')">Ninguno</a></li>
@@ -697,10 +697,10 @@ export default {
     },
     getSelectedFilterLabel() {
       const filterLabels = {
-        'alta': 'valoraciones más altas',
-        'baja': 'valoraciones más bajas',
-        'antigua': 'valoraciones más antiguas',
-        'reciente': 'valoraciones más recientes'
+        'alta': 'Valoración más alta',
+        'baja': 'Valoración más baja',
+        'antigua': 'Valoración más antigua',
+        'reciente': 'Valoración más reciente'
       };
       return filterLabels[this.filtroSeleccionado] || 'Ordenar';
     },
