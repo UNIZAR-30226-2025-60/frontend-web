@@ -34,11 +34,11 @@
             <div class="card p-4" style="min-height: 300px;">
               <div class="mb-3">
                 <label for="nombreLista" class="form-label">Nombre de la lista</label>
-                <input type="text" id="nombreLista" class="form-control" v-model="nombre" style="height: 50px;">
+                <input type="text" id="nombreLista" class="form-control" v-model="nombre" placeholder="Ejemplo: Novelas Policiacas" style="height: 50px;">
               </div>
               <div class="mb-3">
                 <label for="descripcionLista" class="form-label">Descripción</label>
-                <textarea id="descripcionLista" class="form-control" v-model="descripcion" style="height: 100px;"></textarea>
+                <textarea id="descripcionLista" class="form-control" v-model="descripcion" placeholder="Añade una descripción (opcional)" style="height: 100px;"></textarea>
               </div>
               <div class="form-group mb-3">
                 <label for="privacidad">Privacidad</label>
@@ -311,6 +311,21 @@ export default {
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
+}
+
+.row.w-100 {
+  display: flex;
+  align-items: stretch; /* hace que ambas columnas tengan la misma altura */
+}
+
+.row.w-100 > .col-md-4,
+.row.w-100 > .col-md-8 {
+  display: flex;
+  flex-direction: column;
+}
+
+.row.w-100 .card {
+  flex: 1; /* fuerza a la tarjeta a ocupar toda la altura disponible */
 }
 
 </style>

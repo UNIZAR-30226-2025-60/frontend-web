@@ -4,7 +4,6 @@
 
   <Cargando v-if="isLoading" :dark-mode="darkMode" />
 
-  
   <div id="pdf-container">
     <!-- Switch con iconos sol/luna -->
     <div class="theme-switch-wrapper pt-4">
@@ -124,7 +123,7 @@ export default {
     const canvas = ref(null);
     const pageNum = ref(1);
     const pageCount = ref(0);
-    const zoomLevel = ref(0.7);
+    const zoomLevel = ref(0.88);
     const isRendering = ref(false);
     const isLoading = ref(true);
     const isFullScreen = ref(false);
@@ -135,6 +134,15 @@ export default {
     const user = ref(null); // Guardar usuario autenticado
     const correo = ref(""); // Guardar correo del usuario
     const paginasFavoritas = ref([]); // Guardar páginas favoritas del usuario
+    const darkMode = ref(localStorage.getItem("darkMode") === "true");
+
+    const toggleDarkMode = () => {
+      darkMode.value = !darkMode.value;
+      localStorage.setItem("darkMode", darkMode.value);
+      document.body.classList.toggle("dark-mode", darkMode.value);
+      document.body.classList.toggle("light-mode", !darkMode.value);
+    };
+
 
     console.log("📄 URL recibida en el visor:", route.query.url);
 
@@ -326,7 +334,7 @@ export default {
         elem.requestFullscreen()
           .then(() => {
             isFullScreen.value = true;
-            zoomLevel.value = 1.3; // Ajustamos el zoom a 1.1 en pantalla completa
+            zoomLevel.value = 1.5; // Ajustamos el zoom a 1.1 en pantalla completa
             renderPage(pageNum.value);
           })
           .catch((err) => {
@@ -439,7 +447,7 @@ export default {
       renderPage, processBookUrl,
     };
 
-    return { user, correo, libroUrl, paginasFavoritas, processBookUrl, renderPage, canvas, isLoading, estiloMarcador, isFullScreen, esFavorita, pageNum, pageCount, prevPage, nextPage, zoomIn, zoomOut, zoomLevel, toggleFullScreen, toggleFavorita};
+    return { user, correo, libroUrl, paginasFavoritas, processBookUrl, renderPage, canvas, isLoading, estiloMarcador, isFullScreen, esFavorita, pageNum, pageCount, prevPage, nextPage, zoomIn, zoomOut, zoomLevel, toggleFullScreen, toggleFavorita, darkMode, toggleDarkMode };
   },
 
   methods: {
@@ -503,6 +511,7 @@ export default {
     overflow: auto;
     position: relative;
   }
+  
   
   #nav-controls {
     margin-top: 10px;
@@ -736,6 +745,7 @@ export default {
   background-color: #f5e5d6; /* Fondo de la pista del scroll */
   border-radius: 10px; /* Bordes redondeados */
 }
+
 
 </style>
   
