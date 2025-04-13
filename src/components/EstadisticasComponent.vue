@@ -31,7 +31,7 @@
           <div class="stats-circles d-flex justify-content-around align-items-center mb-4">
             <div class="stat-circle shadow" :class="darkMode ? 'circle-dark' : 'circle-light'">
               <div class="circle-text">{{ librosEnProgreso }}</div>
-              <div class="circle-label">En progreso</div>
+              <div class="circle-label">En proceso</div>
             </div>
             <div class="stat-circle shadow" :class="darkMode ? 'circle-dark' : 'circle-light'">
               <div class="circle-text">{{ totalLibrosLeidosMes }}</div>
@@ -546,10 +546,24 @@ export default {
         const resp = await apiClient.get(`/estadisticas/generales/${this.user.correo}`);
         this.rawEstadisticasGenerales = resp.data;
 
-        this.librosEnProgreso = parseInt(resp.data.librosEnProgreso || 0, 10);
+        // Obtener listas reales de libros
+        const [enProcesoResponse, leidosResponse] = await Promise.all([
+          apiClient.get(`/libros/enproceso/${this.user.correo}`),
+          apiClient.get(`/libros/leidos/${this.user.correo}`)
+        ]);
+
+        const enProceso = enProcesoResponse.data;
+        const leidos = leidosResponse.data;
+
+        // Crear set con los IDs de libros leídos
+        const idsLeidos = new Set(leidos.map(libro => libro.enlace));
+        
+        // Filtrar los libros en proceso quitando los leídos
+        const librosEnProcesoFiltrados = enProceso.filter(libro => !idsLeidos.has(libro.enlace));
+
+        this.librosEnProgreso = librosEnProcesoFiltrados.length;
         this.librosTotales = parseInt(resp.data.totalLibrosLeidos || 0, 10);
         this.tematicasMasLeidas = resp.data.tematicasMasLeidas || [];
-
         this.librosMasValorados = resp.data.librosMasValorados || [];
       } catch (error) {
         console.error('Error al cargar estadísticas generales:', error);

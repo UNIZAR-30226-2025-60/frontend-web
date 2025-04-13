@@ -31,11 +31,11 @@
             <div class="lista-card card shadow-sm">
               <img :src=transformarURLGoogleDrive(lista.portada) class="lista-image card-img-top" alt="Portada de la lista">
               <div class="lista-header p-2">
-                <div class="lista-title-container">
-                  <h6 class="lista-title">{{ lista.nombre }}</h6>
+                <div class="lista-title-container ms-2 text-center">
+                  <h6 class="lista-title">{{ lista.nombre.length > 30 ? lista.nombre.slice(0, 30) + '...' : lista.nombre }}</h6>
                 </div>
                 <div class="options-menu" v-if="listaDelUsuario(lista)">
-                  <button class="btn btn-light btn-sm" @click.stop="lista.mostrarMenu = !lista.mostrarMenu">⋮</button>
+                  <button class="menu-dots ms-3" @click.stop="lista.mostrarMenu = !lista.mostrarMenu">⋮</button>
                   <div v-if="lista.mostrarMenu" class="menu-dropdown">
                     <ul>
                       <li @click.stop="editarLista(lista)">Editar</li>
@@ -244,26 +244,7 @@ export default {
   justify-content: center;
   transition: transform 0.3s ease-in-out;
   cursor: pointer;
-}
-
-.lista-card:hover {
-  transform: scale(1.05);
-}
-
-.lista-image {
-  width: 100%;
-  height: auto;
-  object-fit: cover;
-  border-radius: 5px;
-}
-
-.lista-card {
-  width: 180px;
-  cursor: pointer;
-  transition: transform 0.3s ease-in-out;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  position: relative;
 }
 
 .lista-card:hover {
@@ -280,7 +261,11 @@ export default {
 .lista-title {
   font-size: 0.9rem;
   font-weight: bold;
-  width: 160px;
+  width: 100%;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  padding-right: 25px;
 }
 
 .create-list {
@@ -292,20 +277,44 @@ export default {
 
 .options-menu {
   position: absolute;
-  right: 10px; 
+  right: 2px; 
   top: 50%;
   transform: translateY(-50%);
+  z-index: 5;
+}
+
+/* Botón de tres puntos sin círculo */
+.menu-dots {
+  background: transparent;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  color: inherit;
+  
+  /* Mejora el área de clic sin afectar visualmente el botón */
+  min-width: 32px;
+  min-height: 32px;
+  padding: 8px;
+}
+
+.menu-dots:hover {
+  opacity: 0.7;
 }
 
 .menu-dropdown {
   position: absolute;
   right: 0;
-  top: 30px;
-  background: --color-texto;
+  top: 25px;
+  background: white;
   border-radius: 5px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 10;
   min-width: 120px;
+}
+
+.dark-mode .menu-dropdown {
+  background: #333;
+  color: white;
 }
 
 .menu-dropdown ul {
@@ -321,20 +330,26 @@ export default {
 }
 
 .menu-dropdown li:hover {
-  background-color: #f0f0f0;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.dark-mode .menu-dropdown li:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .lista-header {
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
   width: 100%;
+  padding: 10px 5px;
 }
 
 .lista-title-container {
+  display: flex;
+  justify-content: center;
   flex-grow: 1; 
-  text-align: center; 
+  overflow: hidden;
 }
 
 .create-list-btn {
@@ -382,7 +397,7 @@ export default {
 }
 
 .dark-mode .create-list-icon {
-  color: #343434; /* Icono blanco para el modo oscuro */
+  color: #343434; /* Icono oscuro para el modo oscuro */
 }
 
 .light-mode .create-list-btn {
@@ -392,5 +407,4 @@ export default {
 .light-mode .create-list-icon {
   color: #ead5a1; 
 }
-
 </style>

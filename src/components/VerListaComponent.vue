@@ -123,8 +123,16 @@ export default {
           this.libros = response.data;
         }
         else if(listaID == "En proceso"){
-          const response = await apiClient.get(`/libros/enproceso/${this.user.correo}`);
-          this.libros = response.data;
+          const [enProcesoResponse, leidosResponse] = await Promise.all([
+            apiClient.get(`/libros/enproceso/${this.user.correo}`),
+            apiClient.get(`/libros/leidos/${this.user.correo}`)
+          ]);
+
+          const enProceso = enProcesoResponse.data;
+          const leidos = leidosResponse.data;
+
+          const idsLeidos = new Set(leidos.map(libro => libro.enlace));
+          this.libros = enProceso.filter(libro => !idsLeidos.has(libro.enlace));
         }
         else {
           this.cargarLibros();
