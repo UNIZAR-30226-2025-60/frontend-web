@@ -185,11 +185,11 @@
             <form>
               <div>
                 <label class="controls mb-3 p-2" for="titulo">Título:</label>
-                <input type="text" v-model="nuevaValoracion.titulo_resena" placeholder="Introduce tu título">
+                <input type="text" v-model="nuevaValoracion.titulo_resena" placeholder="Introduce tu título" required>
               </div>
               <div>
                 <label class="controls mb-3 p-2" for="mensaje">Mensaje:</label>
-                <textarea v-model="nuevaValoracion.mensaje" placeholder="Introduce tu valoración*" required></textarea>
+                <textarea v-model="nuevaValoracion.mensaje" placeholder="Introduce tu valoración" required></textarea>
               </div>
               <div>
                 <label class="controls mb-3 p-2">Puntuación:</label>

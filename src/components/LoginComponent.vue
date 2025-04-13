@@ -20,7 +20,7 @@
             <div class="page-content">
               <h3>Índice</h3>
               <ul>
-                <li @click="goToPage('login')">Iniciar Sesión</li>
+                <li @click="goToPage('login')">Iniciar sesión</li>
                 <li @click="goToPage('register')">Registrarse</li>
               </ul>
             </div>
@@ -33,11 +33,11 @@
               <form @submit.prevent="login">
                 <div class="form-group">
                   <label>Correo electrónico:</label>
-                  <input type="email" v-model="email" class="form-control" />
+                  <input type="email" v-model="email" placeholder="ejemplo@ejemplo.com" class="form-control" />
                 </div>
                 <div class="form-group">
                   <label>Contraseña:</label>
-                  <input type="password" v-model="password" class="form-control" />
+                  <input type="password" v-model="password" placeholder="1234abc@" class="form-control" />
                 </div>
                 <button type="submit" class="btn-primary">Confirmar</button>
               </form>
@@ -53,15 +53,15 @@
               <form @submit.prevent="registerUsuario">
                 <div class="form-group">
                   <label>Nombre:</label>
-                  <input type="text" v-model="name" class="form-control" />
+                  <input type="text" v-model="name" placeholder="miNombre" class="form-control" />
                 </div>
                 <div class="form-group">
                   <label>Correo electrónico</label>
-                  <input type="email" v-model="email" class="form-control" />
+                  <input type="email" v-model="email" placeholder="ejemplo@ejemplo.com" class="form-control" />
                 </div>
                 <div class="form-group">
                   <label>Contraseña:</label>
-                  <input type="password" v-model="password" class="form-control" />
+                  <input type="password" v-model="password" placeholder="1234abc@" class="form-control" />
                 </div>
                 <button type="submit" class="btn-primary">Confirmar</button>
               </form>

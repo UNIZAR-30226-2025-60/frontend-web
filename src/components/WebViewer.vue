@@ -6,7 +6,7 @@
 
   <div id="pdf-container">
     <!-- Switch con iconos sol/luna -->
-    <div class="theme-switch-wrapper pt-4">
+    <div class="theme-switch-wrapper pt-4" v-if="!isFullScreen">
       <div class="theme-switch" @click="toggleDarkMode">
         <div class="switch-track" :class="{ 'dark': darkMode }">
           <div class="switch-thumb" :class="{ 'dark': darkMode }">
@@ -334,7 +334,7 @@ export default {
         elem.requestFullscreen()
           .then(() => {
             isFullScreen.value = true;
-            zoomLevel.value = 1.5; // Ajustamos el zoom a 1.1 en pantalla completa
+            zoomLevel.value = 0.9; // Ajustamos el zoom a 0.9 en pantalla completa
             renderPage(pageNum.value);
           })
           .catch((err) => {
