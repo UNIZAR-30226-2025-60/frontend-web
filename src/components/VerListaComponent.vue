@@ -283,8 +283,9 @@ export default {
 
 .lista-banner {
   display: flex;
-  align-items: center;
-  justify-content: flex-start;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 20px;
   margin-top: 60px;
   margin-bottom: 20px;
   padding: 20px;
@@ -299,6 +300,7 @@ export default {
   overflow: hidden;
   border-radius: 10px;
   margin-right: 20px; 
+  flex-shrink: 0;
 }
 
 .banner-image img {
@@ -308,7 +310,8 @@ export default {
 }
 
 .lista-info {
-  flex-grow: 1; 
+  flex: 1;
+  min-width: 0;
   text-align: left;
   color: var(--color-texto);
 }
@@ -318,6 +321,9 @@ export default {
   font-weight: bold;
   margin-bottom: 10px;
   color: var(--color-texto);
+  word-break: break-word;     
+  overflow-wrap: break-word;  
+  white-space: normal;        
 }
 
 .lista-descripcion {

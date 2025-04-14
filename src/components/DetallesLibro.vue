@@ -153,7 +153,7 @@
                 </span>
               </p>
               <p class="mb-1">{{ valoracion.mensaje }}</p>
-              <p>Por {{valoracion.usuario_id}} el {{ new Date(valoracion.fecha).toLocaleDateString() }}</p>
+              <p>Por {{valoracion.nombreUsuario }} el {{ new Date(valoracion.fecha).toLocaleDateString() }}</p>
               <hr>
             </div>
           </div>
@@ -302,7 +302,8 @@ export default {
       },
       conteoValoraciones: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, total: 0 },
       darkMode: localStorage.getItem("darkMode") === "true", // Obtener el tema guardado
-      isFavorito: false
+      isFavorito: false,
+      userCache: {},
     };
   },
   computed: {
@@ -425,6 +426,31 @@ export default {
             alert("Hubo un error al eliminar el libro de la lista.");
           }
         }
+      }
+    },
+    async getUserDisplayName(correo) {
+      // Revisar primero el caché para evitar llamadas API innecesarias
+      if (this.userCache[correo]) {
+        return this.userCache[correo];
+      }
+      
+      try {
+        // Solo hacer llamada API si no tenemos el usuario en caché
+        const response = await apiClient.get(`/usuario/${correo}`);
+        if (response.data && response.data.nombre) {
+          // Guardar en caché para uso futuro
+          this.userCache[correo] = response.data.nombre;
+          return response.data.nombre;
+        } else {
+          // Usar correo como alternativa si el nombre no está disponible
+          this.userCache[correo] = correo;
+          return correo;
+        }
+      } catch (error) {
+        console.error(`Error al obtener datos del usuario ${correo}:`, error);
+        // Si la llamada API falla, usar correo como alternativa
+        this.userCache[correo] = correo;
+        return correo;
       }
     },
     getStarIcons(rating) {
@@ -600,6 +626,11 @@ export default {
       try {
         const response = await apiClient.get(`/opiniones/${encodeURIComponent(this.libro.enlace)}`);
         this.valoraciones = response.data;
+        
+        // Obtener los nombres de los usuarios
+        for (const valoracion of this.valoraciones) {
+          valoracion.nombreUsuario = await this.getUserDisplayName(valoracion.usuario_id);
+        }
       } catch (error) {
         console.error("Error al obtener las valoraciones:", error);
       }
