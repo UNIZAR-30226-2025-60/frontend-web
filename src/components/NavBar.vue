@@ -256,16 +256,6 @@ export default {
   background-color: transparent !important;
 }
 
-.dropdown-menu {
-  min-width: 10rem;
-  z-index: 9999;
-}
-
-.dropdown-menu-end {
-  right: 0;
-  left: auto;
-}
-
 .clickable {
   cursor: pointer;
   pointer-events: auto; 

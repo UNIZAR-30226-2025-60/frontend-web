@@ -268,13 +268,6 @@ export default {
   padding-right: 25px;
 }
 
-.create-list {
-  background-color: #f6e5bb;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .options-menu {
   position: absolute;
   right: 2px; 

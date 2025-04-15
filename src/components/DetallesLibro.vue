@@ -989,10 +989,4 @@ input[type="number"] {
   border-radius: 3px;
 }
 
-.form-check-input:checked {
-  background-color: #046f2a;
-  border-color: #046f2a;
-}
-
-
 </style>

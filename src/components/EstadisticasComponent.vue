@@ -701,19 +701,6 @@ export default {
   min-height: 100vh;
 }
 
-.small-cover {
-  height: 150px;
-  object-fit: cover;
-}
-
-.stats-main-title {
-  font-size: 2rem;       
-  font-weight: 800;      
-  color: var(--color-texto);        
-  text-transform: uppercase; 
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-}
-
 .carousel-container {
   gap: 0;
 }
@@ -791,12 +778,6 @@ export default {
   background: none !important;
 }
 
-.border-end {
-  border-right: none !important;
-  border-bottom: 2px solid var(--color-texto) !important;
-  padding-bottom: 2rem;
-  margin-bottom: 2rem;
-}
 
 .tematicas-block {
   border-radius: 8px;
@@ -837,18 +818,6 @@ export default {
   font-size: 0.85rem;
   margin-top: 2px;
   color: inherit;
-}
-
-.book-image {
-  width: 100%; 
-  height: 100px; 
-  object-fit: cover; 
-  cursor: pointer;
-  transition: transform 0.3s;
-}
-
-.book-image:hover {
-  transform: scale(1.05);
 }
 
 .no-data-message {
