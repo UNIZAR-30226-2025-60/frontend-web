@@ -2,7 +2,7 @@
   <div :class="darkMode ? 'dark-mode' : 'light-mode'" class="chatbot-wrapper">
     <!-- NavBar -->
     <NavBar :darkMode="darkMode" @toggle-dark-mode="toggleDarkMode"  :user="user"/>
-    <div class="container-fluid">
+    <div class="container-fluid pt-4">
       <!-- Switch con iconos sol/luna -->
       <div class="theme-switch-wrapper mb-1">
         <div class="theme-switch" @click="toggleDarkMode">
