@@ -1,5 +1,5 @@
 <template>
-  <div v-if="foro" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
+  <div v-if="!loading" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
     <NavBar :dark-mode="darkMode"  :user="user"></NavBar>
 
     <div class="header">
@@ -176,6 +176,7 @@ export default {
       userCache: {},
       maxCaracteresPregunta: 350, // Definimos el límite de caracteres para preguntas
       maxCaracteresRespuesta: 350, // Definimos el límite de caracteres para respuestas
+      loading: true
     };
   },
   computed: {
@@ -242,6 +243,8 @@ export default {
     } 
     catch (error) {
       console.error('Error al cargar el foro:', error);
+    } finally {
+      this.loading = false
     }
     document.addEventListener('click', this.closeDropdownOnClickOutside);
   },

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="libro && librosRelacionados" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
+  <div v-if="!loading" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
     <NavBar :dark-mode="darkMode"  :user="user"></NavBar>
     <div v-if="libro" class="container-fluid pt-4 p-5 min-vh-100">
       <!-- Switch con iconos sol/luna -->
@@ -304,6 +304,7 @@ export default {
       darkMode: localStorage.getItem("darkMode") === "true", // Obtener el tema guardado
       isFavorito: false,
       userCache: {},
+      loading: true
     };
   },
   computed: {
@@ -365,6 +366,8 @@ export default {
     this.dropdownInstance = new Dropdown(this.$refs.dropdown);
   } catch (error) {
     console.error('Error al cargar los detalles del libro:', error);
+  } finally {
+    this.loading = false;
   }
 },
   watch: {

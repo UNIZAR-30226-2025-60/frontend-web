@@ -2,65 +2,70 @@
   <div :class="darkMode ? 'dark-mode' : 'light-mode'" class="chatbot-wrapper">
     <!-- NavBar -->
     <NavBar :darkMode="darkMode" @toggle-dark-mode="toggleDarkMode"  :user="user"/>
-    <div class="container-fluid pt-4">
-      <!-- Switch con iconos sol/luna -->
-      <div class="theme-switch-wrapper mb-1">
-        <div class="theme-switch" @click="toggleDarkMode">
-          <div class="switch-track" :class="{ 'dark': darkMode }">
-            <div class="switch-thumb" :class="{ 'dark': darkMode }">
-              <!-- Sol icono -->
-              <font-awesome-icon v-if="!darkMode" :icon="['fas', 'sun']" class="icon sun-icon"/>
-              <!-- Luna icono -->
-              <font-awesome-icon v-else :icon="['fas', 'moon']" class="icon moon-icon"/>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Contenedor del Chatbot -->
-    <div class="chat-container">
-      <div class="card-container">
-        <div class="card-header">
-          <div class="img-avatar">
-            <img src="../assets/chatBuot.png" alt="Chatbot Avatar" class="avatar" />
-          </div>
-          <div class="text-chat">Chatbot</div>
-        </div>
-        <div class="card-body">
-          <div class="input-group-wrapper">
-            <div class="messages-container">
-              <!-- Mostrar mensajes del historial -->
-              <div v-for="(message, index) in messages" :key="index" :class="['message-box', message.sender]">
-                <p>{{ message.text }}</p>
+    <div v-if="!loading">
+      <div class="container-fluid pt-4">
+        <!-- Switch con iconos sol/luna -->
+        <div class="theme-switch-wrapper mb-1">
+          <div class="theme-switch" @click="toggleDarkMode">
+            <div class="switch-track" :class="{ 'dark': darkMode }">
+              <div class="switch-thumb" :class="{ 'dark': darkMode }">
+                <!-- Sol icono -->
+                <font-awesome-icon v-if="!darkMode" :icon="['fas', 'sun']" class="icon sun-icon"/>
+                <!-- Luna icono -->
+                <font-awesome-icon v-else :icon="['fas', 'moon']" class="icon moon-icon"/>
               </div>
             </div>
-            <div v-if="messages.length === 0" class="message-box bot">
-              <p>Hola, soy tu asistente virtual. ¿En qué puedo ayudarte?</p>
+          </div>
+        </div>
+      </div>
+      <!-- Contenedor del Chatbot -->
+      <div class="chat-container">
+        <div class="card-container">
+          <div class="card-header">
+            <div class="img-avatar">
+              <img src="../assets/chatBuot.png" alt="Chatbot Avatar" class="avatar" />
             </div>
-            <!-- Botones de ejemplo -->
-            <div v-if="messages.length === 0" class="example-buttons">
-              <button @click="addExampleMessage('¡Hola, Chatbot! ¿Puedes recomendarme libros de ciencia ficción?')">¡Hola, Chatbot! ¿Puedes recomendarme libros de ciencia ficción?</button>
-              <button @click="addExampleMessage('¿Tienes algún dato interesante sobre mi última lectura?')">¿Tienes alguna recomendación de libros de historia?</button>
-              <button @click="addExampleMessage('¿Me podrías contar más sobre Moby Dick?')">¿Me podrías contar más sobre Moby Dick?</button>
-              <button @click="addExampleMessage('Cuentame un chiste de lectura')">Cuentame un chiste de lectura</button>
-            </div>
-            <div class="message-input">
-              <form @submit.prevent="sendMessage">
-                <textarea 
-                  v-model="userInput" 
-                  placeholder="Escribe tu mensaje..." 
-                  class="message-send"
-                ></textarea>
-                <button type="submit" class="button-send">Enviar</button>
-              </form>
+            <div class="text-chat">Chatbot</div>
+          </div>
+          <div class="card-body">
+            <div class="input-group-wrapper">
+              <div class="messages-container">
+                <!-- Mostrar mensajes del historial -->
+                <div v-for="(message, index) in messages" :key="index" :class="['message-box', message.sender]">
+                  <p>{{ message.text }}</p>
+                </div>
+              </div>
+              <div v-if="messages.length === 0" class="message-box bot">
+                <p>Hola, soy tu asistente virtual. ¿En qué puedo ayudarte?</p>
+              </div>
+              <!-- Botones de ejemplo -->
+              <div v-if="messages.length === 0" class="example-buttons">
+                <button @click="addExampleMessage('¡Hola, Chatbot! ¿Puedes recomendarme libros de ciencia ficción?')">¡Hola, Chatbot! ¿Puedes recomendarme libros de ciencia ficción?</button>
+                <button @click="addExampleMessage('¿Tienes algún dato interesante sobre mi última lectura?')">¿Tienes alguna recomendación de libros de historia?</button>
+                <button @click="addExampleMessage('¿Me podrías contar más sobre Moby Dick?')">¿Me podrías contar más sobre Moby Dick?</button>
+                <button @click="addExampleMessage('Cuentame un chiste de lectura')">Cuentame un chiste de lectura</button>
+              </div>
+              <div class="message-input">
+                <form @submit.prevent="sendMessage">
+                  <textarea 
+                    v-model="userInput" 
+                    placeholder="Escribe tu mensaje..." 
+                    class="message-send"
+                  ></textarea>
+                  <button type="submit" class="button-send">Enviar</button>
+                </form>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Footer -->
-    <Footer :darkMode="darkMode" />
+      <!-- Footer -->
+      <Footer :darkMode="darkMode" />
+    </div>
+    <div v-else>
+      <Cargando :dark-mode="darkMode"></Cargando>
+    </div>
   </div>
 </template>
 
@@ -82,6 +87,7 @@ export default {
       userEmail: '',  // Aquí el correo del usuario que se obtendrá dinámicamente
       user: null,  // Aquí almacenamos los datos del usuario
       darkMode: localStorage.getItem("darkMode") === "true", // Obtener el tema guardado
+      loading: true
     };
   },
   async mounted() {
@@ -98,6 +104,8 @@ export default {
     } catch (error) {
       // Si no hay usuario autenticado, simplemente continúa con los datos públicos
       console.error("Error al cargar los datos del usuario: ", error);
+    } finally {
+      this.loading = false;
     }
   },
   methods: {

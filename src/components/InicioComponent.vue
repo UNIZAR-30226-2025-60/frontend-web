@@ -1,5 +1,5 @@
 <template>
-  <div v-if="user || (!user && libros.length > 0)">
+  <div v-if="!loading">
     <NavBar :dark-mode="darkMode"  :user="user"></NavBar>
     <div class="cabecera" style="background-color: #f8e79b;">
       <div class="container mt-2 position-relative">
@@ -115,6 +115,7 @@ export default {
       darkMode: localStorage.getItem("darkMode") === "true", // Obtener el tema guardado
       isAtStart: true,
       isAtEnd: false,
+      loading: true
     };
   },
   computed: {
@@ -145,6 +146,8 @@ export default {
     } catch (error) {
       console.error("Error al cargar datos públicos:", error);
       alert("Hubo un problema al cargar la página. Inténtalo más tarde.");
+    } finally {
+      this.loading = false;
     }
   },
   watch: {

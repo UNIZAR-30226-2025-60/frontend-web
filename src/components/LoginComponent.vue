@@ -18,8 +18,8 @@
           <!-- Índice -->
           <div class="content index" :class="{ 'active': page === 'index' }">
             <div class="page-content">
-              <h3>Índice</h3>
-              <ul>
+              <h2>Índice</h2>
+              <ul class="menu-list">
                 <li @click="goToPage('login')">Iniciar sesión</li>
                 <li @click="goToPage('register')">Registrarse</li>
               </ul>
@@ -29,7 +29,7 @@
           <!-- Login -->
           <div class="content login" :class="{ 'active': page === 'login' }">
             <div class="page-content">
-              <h3>Iniciar Sesión</h3>
+              <h2>Iniciar Sesión</h2>
               <form @submit.prevent="login">
                 <div class="form-group">
                   <label>Correo electrónico:</label>
@@ -41,15 +41,21 @@
                 </div>
                 <button type="submit" class="btn-primary">Confirmar</button>
               </form>
+              <div class="divider">
+                <span>o</span>
+              </div>
               <button class="google-btn" @click="loginWithGoogle">
                 <img src="@/assets/logo-google.png" alt="Google logo" />
                 Continuar con Google
               </button>
+              <p class="back-link" @click="goToPage('index')">← Volver al índice</p>
             </div>
           </div>
+          
+          <!-- Register -->
           <div class="content register" :class="{ 'active': page === 'register' }">
             <div class="page-content">
-              <h3>Registrarse</h3>
+              <h2>Registrarse</h2>
               <form @submit.prevent="registerUsuario">
                 <div class="form-group">
                   <label>Nombre:</label>
@@ -65,6 +71,7 @@
                 </div>
                 <button type="submit" class="btn-primary">Confirmar</button>
               </form>
+              <p class="back-link" @click="goToPage('index')">← Volver al índice</p>
             </div>
           </div>
         </div> 
@@ -76,7 +83,7 @@
 <script>
 import axios from "axios";
 import { useRouter } from "vue-router";
-import { apiClient, GOOGLE_REDIRECT_URI } from '../config'; // Importamos
+import { apiClient, GOOGLE_REDIRECT_URI } from '../config';
 
 export default {
   setup() {
@@ -114,6 +121,7 @@ export default {
         this.isPageTurning = false;
       }, 600);
     },
+    
     async login() {
       try {
         const response = await apiClient.post("/usuarios/login", {
@@ -154,11 +162,12 @@ export default {
 
 <style scoped>
 .book-scene {
-  height: 70vh;
+  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2rem;
+  background-color: #f7f4ef;
 }
 
 .book-container {
@@ -167,14 +176,16 @@ export default {
   height: 600px;
   perspective: 2000px;
   transform-style: preserve-3d;
+  margin: 0 auto;
 }
 
 .book {
   position: relative;
-  width: 128%;
-  height: 128%;
+  width: 100%;
+  height: 100%;
   transform-style: preserve-3d;
   transition: transform 0.5s;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
 .cover {
@@ -186,37 +197,24 @@ export default {
   transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   z-index: 10;
-  overflow: hidden; 
-}
-
-.index {
-  position: absolute;
-  width: 65%; 
-  height: 62.5%; 
-  background: #f8f1e4;
-  padding: 40px;
-  border-radius: 1px 15px 15px 1px;
-  transform-origin: left;
-  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
-  z-index: 5;
-  top: 19%; 
-  left: 17%;
+  overflow: hidden;
 }
 
 .cover-image {
   width: 100%;
   height: 100%;
-  object-fit: cover; 
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
 }
 
 .book-spine {
   position: absolute;
   left: 0;
-  width: 40px;
+  width: 20px;
   height: 100%;
-  background: rgba(0, 0, 0, 0.1);
-  transform: rotateY(-20deg) translateX(-20px);
+  background: linear-gradient(to right, rgba(0,0,0,0.6), rgba(0,0,0,0.1));
+  transform: rotateY(-20deg) translateX(-10px);
   z-index: 9;
 }
 
@@ -230,18 +228,18 @@ export default {
 
 .content {
   position: absolute;
-  width: 65%;
-  height: 62.5%;
-  background: #f8f1e4;
-  padding: 40px;
-  border-radius: 1px 15px 15px 1px;
-  box-shadow: -5px 0 10px rgba(0, 0, 0, 0.1);
+  width: 95%;
+  height: 95%;
+  background: linear-gradient(135deg, #f8f1e4 0%, #f0e6d2 100%);
+  padding: 30px;
+  border-radius: 0 15px 15px 0;
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
   transform-origin: left;
-  transition: transform 0.5s ease-out;
+  transition: transform 0.5s ease-out, opacity 0.3s ease-out;
   opacity: 0;
   visibility: hidden;
-  top: 19%;
-  left: 17%;
+  top: 2.5%;
+  left: 2.5%;
 }
 
 .content.active {
@@ -250,20 +248,60 @@ export default {
   transform: rotateY(0);
 }
 
-.open .cover {
-  transform: rotateY(-125deg);
+.page-content {
+  height: 100%;
+  overflow-y: auto;
+  padding-right: 10px;
+  scrollbar-width: thin;
 }
 
-.page-turn .content {
-  transition: transform 0.6s ease-in-out, opacity 0.3s ease-in-out;
+.page-content::-webkit-scrollbar {
+  width: 4px;
 }
 
-.page-turn .content.active {
-  transform: rotateY(0);
+.page-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
 }
 
-.page-turn .content:not(.active) {
-  transform: rotateY(-180deg);
+.page-content::-webkit-scrollbar-thumb {
+  background: rgba(107, 68, 35, 0.3);
+  border-radius: 10px;
+}
+
+h2 {
+  color: #432818;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 700;
+  font-family: 'Georgia', serif;
+  border-bottom: 2px solid rgba(107, 68, 35, 0.2);
+  padding-bottom: 10px;
+}
+
+.menu-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 2rem;
+}
+
+.menu-list li {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s;
+  text-align: center;
+  font-size: 1.2rem;
+  background-color: rgba(107, 68, 35, 0.05);
+  border: 1px solid rgba(107, 68, 35, 0.1);
+}
+
+.menu-list li:hover {
+  background-color: rgba(107, 68, 35, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
 .form-group {
@@ -274,31 +312,69 @@ label {
   display: block;
   margin-bottom: 0.5rem;
   color: #432818;
-  font-weight: bold;
+  font-weight: 600;
+  font-size: 0.9rem;
 }
 
 .form-control {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid #d4c5b9;
-  border-radius: 4px;
-  background: #fff;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.9);
   color: #2a1810;
+  transition: all 0.3s;
+  font-size: 0.95rem;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #6b4423;
+  box-shadow: 0 0 0 2px rgba(107, 68, 35, 0.2);
 }
 
 .btn-primary {
   width: 100%;
-  padding: 0.75rem;
-  background: #6b4423;
+  padding: 0.85rem;
+  background: linear-gradient(to right, #6b4423, #8c5a30);
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: all 0.3s;
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
 }
 
 .btn-primary:hover {
-  background: #432818;
+  background: linear-gradient(to right, #5a381d, #7c4e29);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 1.5rem 0;
+  color: #6b4423;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid rgba(107, 68, 35, 0.2);
+}
+
+.divider span {
+  padding: 0 10px;
+  font-size: 0.9rem;
 }
 
 .google-btn {
@@ -307,50 +383,66 @@ label {
   justify-content: center;
   width: 100%;
   padding: 0.75rem;
-  margin-top: 1rem;
   background: white;
   border: 1px solid #d4c5b9;
-  border-radius: 4px;
-  color: #2a1810;
+  border-radius: 6px;
+  color: #333;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: all 0.3s;
+  font-weight: 500;
 }
 
 .google-btn img {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   margin-right: 0.75rem;
 }
 
 .google-btn:hover {
   background: #f8f8f8;
+  border-color: #c4b5a9;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
-ul {
-  list-style: none;
-  padding: 0;
-}
-
-li {
-  padding: 1rem;
-  margin-bottom: 0.5rem;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background 0.3s;
-}
-
-li:hover {
-  background: rgba(107, 68, 35, 0.1);
-}
-
-h3 {
-  color: #432818;
-  margin-bottom: 2rem;
+.back-link {
   text-align: center;
-  font-size: 1.5rem;
+  margin-top: 1.5rem;
+  color: #6b4423;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: color 0.3s;
+}
+
+.back-link:hover {
+  color: #432818;
+  text-decoration: underline;
 }
 
 .open .cover {
-  transform: rotateY(-125deg);
+  transform: rotateY(-110deg);
+  box-shadow: -10px 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.page-turn .content {
+  transition: transform 0.6s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.3s ease-in-out;
+}
+
+.page-turn .content:not(.active) {
+  transform: rotateY(-180deg);
+}
+
+@media (max-width: 768px) {
+  .book-container {
+    width: 300px;
+    height: 500px;
+  }
+  
+  .content {
+    padding: 20px;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
 }
 </style>

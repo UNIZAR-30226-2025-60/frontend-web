@@ -1,5 +1,5 @@
 <template>
-  <div v-if="user" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
+  <div v-if="!loading" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
     <NavBar :dark-mode="darkMode"  :user="user"></NavBar>
   
     <div class="header pt-4">
@@ -202,6 +202,7 @@ export default {
       CshowImageModal: false,
       imagenes: [],
       imagenSeleccionada: null,
+      loading: true
     };
   },
   async mounted() {
@@ -235,6 +236,8 @@ export default {
       this.applyTheme();
     } catch (error) {
       console.error('Error al cargar el perfil del usuario:', error);
+    } finally {
+      this.loading = false;
     }
   },
   methods: {

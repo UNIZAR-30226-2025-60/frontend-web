@@ -1,5 +1,5 @@
 <template>
-  <div v-if="lista && libros" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
+  <div v-if="!loading" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
     <NavBar :dark-mode="darkMode"  :user="user"></NavBar>
 
     <div class="container-fluid pt-4 p-5 min-vh-100">
@@ -96,6 +96,7 @@ export default {
       busqueda: "",
       donde: "",
       darkMode: localStorage.getItem("darkMode") === "true", // Obtener el tema guardado
+      loading: true
     };
   },
   async mounted() {
@@ -149,6 +150,8 @@ export default {
     }catch(error){
       console.error("Error al cargar la lista:", error);
       this.$router.push("/");
+    }finally {
+      this.loading = false;
     }
   },
   watch: {

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="top3UsuariosAnio && top3UsuariosMes && top5LibrosAnioActual && top5LibrosMesActual" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
+  <div v-if="!loading" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
     <NavBar :dark-mode="darkMode"  :user="user"></NavBar>
 
     <div class="container-fluid">
@@ -293,6 +293,9 @@
 
     <Footer></Footer>
   </div>
+  <div v-else>
+    <Cargando :dark-mode="darkMode"></Cargando>
+  </div>
 </template>
 
 <script>
@@ -335,6 +338,7 @@ export default {
       // Carrusel
       currentIndex: 0,
       visibleCount: 3,
+      loading: true,
     
       darkMode: localStorage.getItem("darkMode") === "true" // Obtener el tema guardado
     };
@@ -441,12 +445,14 @@ export default {
       if (error.response && error.response.status === 401) {
         this.$router.push("/");
       }
+    } finally {
+      this.loading = false
     }
 
     // Evento de redimensionamiento para el carrusel
     window.addEventListener('resize', this.handleResize);
     this.handleResize();
-  },
+  } ,
   beforeDestroy() {
     window.removeEventListener('resize', this.handleResize);
   },

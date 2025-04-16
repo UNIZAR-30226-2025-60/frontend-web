@@ -1,5 +1,5 @@
 <template>
-  <div v-if="listas" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
+  <div v-if="!loading" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
     <NavBar :dark-mode="darkMode"  :user="user"></NavBar>
 
     <div class="listado min-vh-100">
@@ -78,7 +78,8 @@ export default {
       listas: [],
       privacidad: "",
       donde: "",
-      darkMode: localStorage.getItem("darkMode") === "true" // Obtener el tema guardado
+      darkMode: localStorage.getItem("darkMode") === "true", // Obtener el tema guardado
+      loading: true
     };
   },
   watch: {
@@ -123,6 +124,8 @@ export default {
     } catch (error) {
       console.error("Error al obtener el usuario:", error);
       this.$router.push("/");
+    } finally {
+      this.loading = false;
     }
   },
   beforeUnmount() {

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="imagenes" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
+  <div v-if="!loading" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
     <NavBar :dark-mode="darkMode"  :user="user"></NavBar>
     <div class="container-fluid pt-5 p-5 min-vh-100">
       <!-- Switch con iconos sol/luna -->
@@ -115,6 +115,7 @@ export default {
       defaultProfileImage: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
       hacer: this.$route.params.hacer, // 'Crear' o 'Editar'
       nombre: this.$route.params.nombre || "", // Nombre de la lista si es edición
+      loading: true
     };
   },
   async mounted() {
@@ -138,6 +139,8 @@ export default {
     } catch (error) {
       console.error("Error al obtener los datos del usuario:", error);
       this.$router.push("/");
+    } finally {
+      this.loading = false;
     }
     
     try {
