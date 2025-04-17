@@ -6,7 +6,7 @@
 
   <div id="pdf-container">
     <!-- Switch con iconos sol/luna -->
-    <div class="theme-switch-wrapper pt-4" v-if="!isFullScreen">
+    <div class="theme-switch-wrapper pt-4" v-if="!isLoading && !isFullScreen">
       <div class="theme-switch" @click="toggleDarkMode">
         <div class="switch-track" :class="{ 'dark': darkMode }">
           <div class="switch-thumb" :class="{ 'dark': darkMode }">
@@ -35,9 +35,9 @@
 
       <div class="canvas-wrapper">
         <button v-if="!isLoading && !isFullScreen" id="pantCompleta" @click="toggleFullScreen">⛶ Pantalla Completa</button>
-        <canvas ref="canvas" ></canvas>
+        <canvas v-show="!isLoading" ref="canvas" ></canvas>
         <div v-if="!isLoading && isFullScreen" id="contPagina">Página {{ pageNum }} de {{ pageCount }}</div>
-        <button id="marcador" @click="toggleFavorita" :style="estiloMarcador"> 
+        <button v-if="!isLoading" id="marcador" @click="toggleFavorita" :style="estiloMarcador"> 
           <font-awesome-icon :icon="[esFavorita ? 'fas' : 'far', 'bookmark']" />
         </button>
         <!-- Flecha izquierda -->
@@ -75,6 +75,7 @@
               @click="irAPagina(pagina)" 
               :class="{ active: pagina === pageNum }"
             >
+            <span class="star-icon">⭐</span>
               Página {{ pagina }}
             </li>
           </ul>
@@ -275,6 +276,8 @@ export default {
 
     // Finalizar la carga
     isLoading.value = false;
+
+    console.log("El estado de loading es:", isLoading.value);
   } catch (error) {
     console.error("❌ Error al cargar el PDF:", error);
     alert("Error al cargar el PDF. Verifica que el archivo está disponible.");
@@ -431,7 +434,7 @@ export default {
           console.log("✅ Página añadida a favoritos");
 
           //Actualizar la lista de páginas favoritas
-          paginasFavoritas.value = [...paginasFavoritas.value, pageNum.value];
+          paginasFavoritas.value = [...paginasFavoritas.value, pageNum.value].sort((a,b) => a - b);
         }
         
         esFavorita.value = !esFavorita.value; // Alternar el estado del icono
@@ -582,16 +585,16 @@ export default {
 
   #zoom-controls {
   position: absolute;
-  margin-top: 15px; /* 📌 Se sitúa en la parte superior */
+  margin-top: 15px; /* Se sitúa en la parte superior */
   left: 50%;
-  transform: translateX(-50%); /* 📌 Centrar horizontalmente */
+  transform: translateX(-50%); /* Centrar horizontalmente */
   padding: 10px 15px;
   border-radius: 5px;
   display: flex;
   font-size: 30px;
   align-items: center;
   gap: 10px;
-  z-index: 10; /* 📌 Asegurar que esté sobre el PDF */
+  z-index: 10; /* Asegurar que esté sobre el PDF */
 }
 #zoom-controls button {
   width: 40px; /* Aumenta el tamaño del botón */
@@ -672,29 +675,44 @@ export default {
 /* Estilo para el menú de páginas favoritas */
 #favoritas-menu {
   position: fixed;
-  top: 80px; /* Ajusta según la altura del NavBar */
-  right: 30px; /* Aumenta el margen derecho para mayor simetría */
-  width: 250px; /* Ancho más grande para mejorar la legibilidad */
-  background-color: #f5e5d6; /* Fondo claro en tono marrón claro */
-  border: 1px solid #b27d09; /* Borde en tono marrón oscuro */
-  border-radius: 12px; /* Bordes redondeados más suaves */
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* Sombra más pronunciada */
-  padding: 20px; /* Espaciado interno más amplio */
+  top: 20px; 
+  right: 30px; 
+  width: 280px; 
+  background-color: #f5e5d6; 
+  border: 1px solid #b27d09; 
+  border-radius: 16px; 
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); 
+  padding: 25px; 
   z-index: 20;
 
   /* Limitar la altura y habilitar scroll */
-  max-height: 500px; /* Altura máxima más alta para aprovechar el espacio */
-  overflow-y: auto; /* Scroll vertical cuando sea necesario */
+  max-height: 550px;
+  overflow-y: auto; 
+
+  /* Oculto la barra de scroll vertical */
+  &::-webkit-scrollbar {
+    display: none; 
+  }
+
+  /* Para otros navegadores */
+  -ms-overflow-style: none; 
+  scrollbar-width: none; 
 }
 
 /* Título del menú */
 #favoritas-menu h3 {
-  margin: 0 0 15px;
-  font-size: 18px;
+  margin: 0 0 20px;
+  font-size: 20px;
   text-align: center;
-  color: #b27d09; /* Título en tono marrón oscuro */
+  color: #b27d09; 
   font-weight: bold;
-  letter-spacing: 1px; /* Espaciado entre letras para un diseño más elegante */
+  letter-spacing: 1.5px; 
+  text-transform: uppercase; 
+  font-family: 'Arial', sans-serif; 
+  background-color: #e6d8c7; 
+  padding: 10px 20px; 
+  border-radius: 10px; 
+  box-shadow: inset 0 -3px 10px rgba(0, 0, 0, 0.1); 
 }
 
 /* Lista de páginas favoritas */
@@ -706,44 +724,42 @@ export default {
 
 /* Elementos individuales de la lista */
 #favoritas-menu li {
-  padding: 12px; /* Aumenta el espaciado interno */
-  margin-bottom: 8px; /* Espacio entre elementos */
+  padding: 14px 18px;
+  margin-bottom: 10px; 
   cursor: pointer;
-  border-radius: 8px; /* Bordes redondeados más suaves */
-  transition: background-color 0.3s ease, color 0.3s ease;
-  background-color: transparent; /* Fondo inicial transparente */
-  color: #333; /* Texto oscuro */
-  font-size: 16px; /* Tamaño de fuente más grande */
+  border-radius: 10px; 
+  transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+  background-color: transparent; 
+  color: #333; 
+  font-size: 16px; 
+  font-family: 'Arial', sans-serif; 
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Ícono de estrella para cada página favorita */
+#favoritas-menu .star-icon {
+  color: #ffcc00; 
+  font-size: 18px;
+  margin-right: 10px;
 }
 
 /* Hover sobre los elementos de la lista */
 #favoritas-menu li:hover {
-  background-color: #e6d8c7; /* Fondo suave al hover */
-  color: #b27d09; /* Texto en tono marrón oscuro al hover */
+  background-color: #e6d8c7; 
+  color: #b27d09; 
+  transform: scale(1.02); 
 }
 
 /* Página activa resaltada */
 #favoritas-menu li.active {
-  background-color: #d2b48c; /* Fondo resaltado para página activa */
-  color: #ffffff; /* Texto blanco para página activa */
-  font-weight: bold; /* Texto en negrita para destacar */
-}
-
-/* Barra de desplazamiento personalizada */
-#favoritas-menu::-webkit-scrollbar {
-  width: 10px; /* Ancho ligeramente mayor para mejor visibilidad */
-  background-color: transparent; /* Fondo transparente */
-}
-
-#favoritas-menu::-webkit-scrollbar-thumb {
-  background-color: #b27d09; /* Color de la manija del scroll */
-  border-radius: 10px; /* Bordes redondeados */
-  border: 2px solid #f5e5d6; /* Borde para darle un efecto 3D */
-}
-
-#favoritas-menu::-webkit-scrollbar-track {
-  background-color: #f5e5d6; /* Fondo de la pista del scroll */
-  border-radius: 10px; /* Bordes redondeados */
+  background-color: #d2b48c; 
+  color: #ffffff; 
+  font-weight: bold; 
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); 
+  border: 2px solid #b27d09; 
+  border-radius: 10px; 
 }
 
 
