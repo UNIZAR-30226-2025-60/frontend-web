@@ -377,18 +377,20 @@ export default {
       // document.cookie = "userEmail=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 
       apiClient.get('/logout').then(() => {
-      // Limpiar localStorage
-      localStorage.removeItem("userToken");
-      localStorage.removeItem("userData");
+        // Limpiar localStorage
+        localStorage.removeItem("userToken");
+        localStorage.removeItem("userData");
 
-      // Reiniciar el estado de la aplicación
-      this.user = null;
-
-      // Redirigir al login
-      this.$router.push({ name: 'Login' });
-    }).catch((error) => {
-      console.error('Error al cerrar sesión:', error);
-    });
+        // Redirigir al login primero, antes de modificar this.user
+        this.$router.push({ name: 'Login' }).then(() => {
+          // Reiniciar el estado de la aplicación después de la navegación
+          this.user = null;
+        });
+      }).catch((error) => {
+        console.error('Error al cerrar sesión:', error);
+        // En caso de error, intentar navegar de todos modos
+        this.$router.push({ name: 'Login' });
+      });
     },
   async cargarImagenes() {
       try {
