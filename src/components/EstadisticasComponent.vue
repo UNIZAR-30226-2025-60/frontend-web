@@ -301,12 +301,13 @@
 <script>
 import axios from 'axios';
 import NavBar from '@/components/NavBar.vue';
+import Cargando from '@/components/Cargando.vue'
 import Footer from '@/components/Footer.vue';
 import { apiClient } from '../config';
 
 export default {
   name: 'EstadisticasComponent',
-  components: { NavBar, Footer },
+  components: { NavBar, Footer, Cargando },
   data() {
     return {
       user: null,
@@ -431,14 +432,11 @@ export default {
       // Cargar rankings
       await this.cargarTop3UsuariosMes();
       await this.cargarTop3UsuariosAnio();
-      await this.cargarTop5LibrosMesActual();
-      await this.cargarTop5LibrosAnioActual();
+      // Cargar los datos de libros más populares inicialmente
+      await this.cargarTop5Libros(this.selectedMonth, this.selectedYear);
 
       // Aplicar tema
       this.applyTheme();
-      
-      // Cargar los datos de libros más populares inicialmente
-      await this.cargarTop5Libros(this.selectedMonth, this.selectedYear);
     } catch (error) {
       console.error("Error al obtener el usuario o estadísticas:", error);
       // Solo redirigir si hay un error de autenticación
@@ -623,30 +621,7 @@ export default {
         console.error('Error al cargar top3 usuarios del año:', error);
         this.top3UsuariosAnio = [];
       }
-    },
-    
-    async cargarTop5LibrosMesActual() {
-      try {
-        const month = new Date().getMonth() + 1;
-        const year = new Date().getFullYear();
-        const response = await apiClient.get(`/estadisticas/top5libros/${month}/${year}`);
-        this.top5LibrosMesActual = response.data;
-      } catch (error) {
-        console.error('Error al cargar top5 libros del mes actual:', error);
-        this.top5LibrosMesActual = [];
-      }
-    },
-    
-    async cargarTop5LibrosAnioActual() {
-      try {
-        const year = new Date().getFullYear();
-        const response = await apiClient.get(`/estadisticas/top5librosanuales/${year}`);
-        this.top5LibrosAnioActual = response.data;
-      } catch (error) {
-        console.error('Error al cargar top5 libros del año actual:', error);
-        this.top5LibrosAnioActual = [];
-      }
-    },
+    },  
     
     async cargarTop5Libros(month, year) {
       try {

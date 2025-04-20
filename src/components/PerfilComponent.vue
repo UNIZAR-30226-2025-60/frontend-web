@@ -381,15 +381,15 @@ export default {
         localStorage.removeItem("userToken");
         localStorage.removeItem("userData");
 
-        // Redirigir al login primero, antes de modificar this.user
-        this.$router.push({ name: 'Login' }).then(() => {
+        // Redirigir al inicio primero, antes de modificar this.user
+        this.$router.push({ name: 'Inicio' }).then(() => {
           // Reiniciar el estado de la aplicación después de la navegación
           this.user = null;
         });
       }).catch((error) => {
         console.error('Error al cerrar sesión:', error);
         // En caso de error, intentar navegar de todos modos
-        this.$router.push({ name: 'Login' });
+        this.$router.push({ name: 'Inicio' });
       });
     },
   async cargarImagenes() {

@@ -155,63 +155,58 @@ export default {
     });
   },
   methods: {
-    // Métodos de navegación que NO recargan
     goToChatBot() {
       this.$router.push('/chatbot');
     },
+
     goToForo() {
       this.$router.push('/foro');
     },
+
     goToInicio() {
-      this.$router.push('/').then(() => {
-        this.$router.go(0); // Recarga la página
-      });
+      this.$router.push('/');
     },
+
     goToEstadisticas() {
       this.$router.push('/estadisticas');
     },
+
     goToMisListas() {
       this.$router.push({ name: 'Listas', params: { privacidad: 'MisListas' } });
     },
+
     goToListas() {
       this.$router.push({ name: 'Listas', params: { privacidad: 'ListasPublicas' } });
     },
 
-    // Métodos que SÍ recargan para forzar la lógica anterior:
     goToFavoritos() {
       this.$router.push({ 
         name: 'VerLista', 
         params: { donde: 'MisListas', id: 'Mis Favoritos' } 
-      }).then(() => {
-        this.$router.go(0); // recarga la página
       });
     },
+
     goToLeidos() {
       this.$router.push({ 
         name: 'VerLista', 
         params: { donde: 'MisListas', id: 'Leídos' } 
-      }).then(() => {
-        this.$router.go(0); // recarga la página
       });
     },
+
     goToEnProceso() {
       this.$router.push({ 
         name: 'VerLista', 
         params: { donde: 'MisListas', id: 'En proceso' } 
-      }).then(() => {
-        this.$router.go(0); // recarga la página
       });
     },
+
     goToPerfil() {
-      this.$router.push({ name: 'Perfil' }).then(() => {
-        this.$router.go(0); // Recarga la página
-      });
+      this.$router.push({ name: 'Perfil' });
     },
+
     goToLogin() {
-      this.$router.push('/login').then(() => {
-        this.$router.go(0); // Recarga la página
-      });
-    },
+      this.$router.push('/login');
+    }
   }
 };
 </script>

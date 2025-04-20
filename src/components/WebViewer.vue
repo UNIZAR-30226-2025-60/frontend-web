@@ -37,7 +37,7 @@
         <button v-if="!isLoading && !isFullScreen" id="pantCompleta" @click="toggleFullScreen">⛶ Pantalla Completa</button>
         <canvas v-show="!isLoading" ref="canvas" ></canvas>
         <div v-if="!isLoading && isFullScreen" id="contPagina">Página {{ pageNum }} de {{ pageCount }}</div>
-        <button v-if="!isLoading" id="marcador" @click="toggleFavorita" :style="estiloMarcador"> 
+        <button v-if="!isLoading && isFullScreen && user && user.value !== null" id="marcador" @click="toggleFavorita" :style="estiloMarcador">
           <font-awesome-icon :icon="[esFavorita ? 'fas' : 'far', 'bookmark']" />
         </button>
         <!-- Flecha izquierda -->
@@ -88,7 +88,7 @@
 
 
 
-   <script>
+<script>
 import { ref, onMounted, watch } from "vue";
 import * as pdfjsLib from "pdfjs-dist/build/pdf";
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
@@ -403,10 +403,6 @@ export default {
     };
     
     const toggleFavorita = async () => {
-      if (!correo.value) {
-        alert("Debes iniciar sesión para guardar páginas favoritas.");
-        return;
-      }
       if (!libroUrl) {
         console.error("❌ No se puede gestionar favorito: libro no definido.");
         return;

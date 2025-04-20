@@ -1,45 +1,65 @@
 <template>
+  <!-- Solo muestra el contenido si ya está cargado -->
   <div v-if="!loading" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
+    <!-- Barra de navegación superior -->
     <NavBar :dark-mode="darkMode"  :user="user"></NavBar>
+
+    <!-- Contenido principal -->
     <div class="container-fluid pt-5 p-5 min-vh-100">
       <!-- Switch con iconos sol/luna -->
       <div class="theme-switch-wrapper mb-1">
         <div class="theme-switch" @click="toggleDarkMode">
           <div class="switch-track" :class="{ 'dark': darkMode }">
             <div class="switch-thumb" :class="{ 'dark': darkMode }">
-              <!-- Sol icono -->
+              <!-- Icono de sol si está en modo claro -->
               <font-awesome-icon v-if="!darkMode" :icon="['fas', 'sun']" class="icon sun-icon"/>
-              <!-- Luna icono -->
+              <!-- Icono de luna si está en modo oscuro -->
               <font-awesome-icon v-else :icon="['fas', 'moon']" class="icon moon-icon"/>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- Formulario principal: imagen + campos -->
       <div class="container d-flex justify-content-center">
         <div class="row w-100">
+
+          <!-- Columna izquierda: imagen y botón modal -->
           <div class="col-md-4">
             <div class="card text-center p-3">
+              <!-- Muestra imagen seleccionada o imagen por defecto -->
               <img :src="imagenSeleccionada ? transformarURLGoogleDrive(imagenSeleccionada.foto) : defaultProfileImage" 
                    alt="Foto lista" 
                    class="rounded-2 mx-auto d-block" 
                    width="100">
+              <!-- Título dinámico -->
               <h4 class="mt-2">{{ hacer === 'Editar' ? 'Editar Lista' : 'Confirmar' }}</h4>
+              <!-- Descripción general -->
               <p class="text-secondary text-justify">Crea o edita tu lista de temáticas especiales. ¿Quieres compartir tus recomendaciones o prefieres mantener tu lista solo para ti? ¡Tú decides! Pública para inspirar a otros, privada para disfrutar en solitario.</p>
+              <!-- Botón para abrir modal de selección de imagen -->
               <button type="button" class="btn modal-btn" @click="showModal">
                 Editar foto de perfil
               </button>
             </div>
           </div>
+
+          <!-- Columna derecha: formulario -->
           <div class="col-md-8">
             <div class="card p-4" style="min-height: 300px;">
+
+              <!-- Campo nombre de la lista -->
               <div class="mb-3">
                 <label for="nombreLista" class="form-label">Nombre de la lista</label>
                 <input type="text" id="nombreLista" class="form-control" v-model="nombre" placeholder="Ejemplo: Novelas Policiacas" style="height: 50px;">
               </div>
+
+              <!-- Campo descripción -->
               <div class="mb-3">
                 <label for="descripcionLista" class="form-label">Descripción</label>
                 <textarea id="descripcionLista" class="form-control" v-model="descripcion" placeholder="Añade una descripción (opcional)" style="height: 100px;"></textarea>
               </div>
+
+              <!-- Selector de privacidad -->
               <div class="form-group mb-3">
                 <label for="privacidad">Privacidad</label>
                 <select id="privacidad" class="form-control" v-model="publica">
@@ -47,6 +67,7 @@
                   <option :value="false">Privada</option>
                 </select>
               </div>
+              <!-- Botón guardar -->
               <button class="btn modal-btn" @click="guardarLista">{{ hacer === 'Editar' ? 'Guardar Cambios' : 'Confirmar' }}</button>
             </div>
           </div>
@@ -54,13 +75,17 @@
       </div>
     </div>
     
-    <!-- Modal -->
+    <!-- Modal de selección de imagen -->
     <div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true" ref="modalElement">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
+
+          <!-- Cabecera -->
           <div class="modal-header">
             <h5 class="modal-title" id="profileModalLabel">Seleccione una foto de perfil</h5>
           </div>
+
+          <!-- Imágenes para seleccionar -->
           <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
             <div class="row">
               <div v-for="(imagen, index) in imagenes" :key="index" class="col-md-4 mb-3">
@@ -72,6 +97,8 @@
               </div>
             </div>
           </div>
+
+          <!-- Botones del modal -->
           <div class="modal-footer">
             <button type="button" class="btn modal-btn" @click="hideModal">Cerrar</button>
             <button type="button" class="btn modal-btn" @click="guardarSeleccion">Guardar cambios</button>
@@ -81,9 +108,10 @@
     </div>
   </div>
   <div v-else>
-    <Cargando></Cargando>
+    <!-- Mostrar componente de carga si no está listo -->
+    <Cargando></Cargando> 
   </div>
-  
+  <!-- Pie de página -->
   <Footer></Footer>
 </template>
 
@@ -104,11 +132,11 @@ export default {
   data() {
     return {
       user: null,
-      nombreOriginal: this.$route.params.nombre || "",
+      nombreOriginal: this.$route.params.nombre || "",  // Nombre original (para editar)
       descripcion: '',
-      publica: true,
+      publica: true,  // true = pública, false = privada
       modal: null,
-      imagenes: [],
+      imagenes: [],  // Lista de imágenes disponibles
       imagenSeleccionada: null,
       busqueda: "",
       darkMode: localStorage.getItem("darkMode") === "true",
@@ -219,6 +247,7 @@ export default {
         console.error('Error al cargar las imagenes:', error);
       }
     },
+
     // Función para comparar URLs en busca de imágenes duplicadas
     normalizarURL(url) {
       if (!url) return "";
@@ -233,12 +262,18 @@ export default {
       // Si no es una URL de Google Drive, normalizar quitando parámetros
       return url.split('?')[0];
     },
+
+    // Selecciona una imagen del modal
     seleccionarImagen(imagen) {
       this.imagenSeleccionada = imagen;
     },
+
+    // Cierra modal sin hacer nada
     guardarSeleccion() {
       this.hideModal();
     },
+
+    // Guarda o actualiza la lista
     async guardarLista() {
       if (!this.nombre.trim()) {
         alert("El nombre de la lista no puede estar vacío.");
@@ -279,21 +314,29 @@ export default {
         alert('No se pudo guardar la lista');
       }
     },
+
+    // Mostrar el modal
     showModal() {
       if (this.modal) {
         this.modal.show();
       }
     },
+
+    // Ocultar el modal
     hideModal() {
       if (this.modal) {
         this.modal.hide();
       }
     },
+
+    // Alterna el modo y lo guarda en localStorage
     toggleDarkMode() {
       this.darkMode = !this.darkMode;
       localStorage.setItem("darkMode", this.darkMode);
       this.applyTheme();
     },
+
+    // Aplicar clases al body para reflejar tema
     applyTheme() {
       document.body.classList.toggle("dark-mode", this.darkMode);
       document.body.classList.toggle("light-mode", !this.darkMode);
@@ -303,11 +346,13 @@ export default {
 </script>
 
 <style scoped>
+/* Contenedor principal centrado y con ancho máximo */
 .container {
   max-width: 900px;
   margin-top: 20px;
 }
 
+/* Estilo para tarjetas */
 .card {
   background-color: #F8E79B ;
   color: #4C4637;
@@ -316,17 +361,20 @@ export default {
   margin-bottom: 20px;
 }
 
+/* Hace que las columnas de la fila tengan igual altura */
 .row.w-100 {
   display: flex;
-  align-items: stretch; /* hace que ambas columnas tengan la misma altura */
+  align-items: stretch;  /* Estira los elementos hijos para que coincidan en altura */
 }
 
+/* Asegura que las columnas contengan contenido apilado verticalmente */
 .row.w-100 > .col-md-4,
 .row.w-100 > .col-md-8 {
   display: flex;
-  flex-direction: column;
+  flex-direction: column;  /* Los elementos dentro de cada columna se apilan de arriba a abajo */
 }
 
+/* Las tarjetas dentro de las columnas se expanden para ocupar el espacio vertical */
 .row.w-100 .card {
   flex: 1; /* fuerza a la tarjeta a ocupar toda la altura disponible */
 }

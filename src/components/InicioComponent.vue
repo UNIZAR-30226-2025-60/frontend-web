@@ -137,7 +137,6 @@ export default {
       // Si no hay usuario autenticado, simplemente continúa con los datos públicos
       console.error("Error al cargar los datos del usuario: ", error);
     }
-
     // Cargar libros y temáticas independientemente del estado de autenticación
     try {
       await this.cargarLibros();

@@ -100,93 +100,73 @@ export default {
     };
   },
   async mounted() {
-    try {
-      // Intenta obtener los datos del usuario autenticado
-      const response = await apiClient.get("/user");
-      this.user = response.data; // Guarda los datos del usuario si existe
-      console.log("Usuario autenticado:", this.user);
-      if(this.user == ""){
-        this.user = null;
-        console.log("Usuario no autenticado");
-      }
-    } catch (error) {
-      // Si no hay usuario autenticado, simplemente continúa con los datos públicos
-      console.error("Error al cargar los datos del usuario: ", error);
-    }
-    try{
-      this.donde = this.$route.params.donde;
-      const listaID = this.$route.params.id;
-      if(this.donde == "MisListas"){
-        const response = await apiClient.get(`/listas/${this.user.correo}/${listaID}`);
-        this.lista = response.data;
-        if(listaID == "Leídos"){
-          const response = await apiClient.get(`/libros/leidos/${this.user.correo}`);
-          this.libros = response.data;
-        }
-        else if(listaID == "En proceso"){
-          const [enProcesoResponse, leidosResponse] = await Promise.all([
-            apiClient.get(`/libros/enproceso/${this.user.correo}`),
-            apiClient.get(`/libros/leidos/${this.user.correo}`)
-          ]);
-
-          const enProceso = enProcesoResponse.data;
-          const leidos = leidosResponse.data;
-
-          const idsLeidos = new Set(leidos.map(libro => libro.enlace));
-          this.libros = enProceso.filter(libro => !idsLeidos.has(libro.enlace));
-        }
-        else {
-          this.cargarLibros();
-        }
-        
-        console.log("Lista obtenida (usuario dueño):", this.lista);
-      } else {
-        const response = await apiClient.get(`/listas/publicas/${listaID}`);
-        this.lista = response.data;
-        this.cargarLibros();
-        console.log("Lista obtenida (pública):", this.lista);
-      }
-      this.applyTheme();        
-    }catch(error){
-      console.error("Error al cargar la lista:", error);
-      this.$router.push("/");
-    }finally {
-      this.loading = false;
-    }
+    await this.montarDeNuevo();
   },
   watch: {
     // Observador para buscar mientras se escribe
     busqueda(newValue) {
       if (!newValue) {
-        // Si está vacío, se muestran todos los libros
         this.libros = this.librosOriginales;
         return;
       }
       
-      // Filtrar libros basado en la búsqueda
       const busquedaMinuscula = newValue.toLowerCase().trim();
       this.libros = this.librosOriginales.filter(libro => 
         libro.nombre.toLowerCase().includes(busquedaMinuscula)
       );
-    }
-  },
-  watch: {
-    // Observador para buscar mientras se escribe
-    busqueda(newValue) {
-      if (!newValue) {
-        // Si está vacío, se muestran todos los libros
-        this.libros = this.librosOriginales;
-        return;
+    },
+
+    // Observador para cambios en la URL
+    '$route.params': {
+      immediate: false,
+      deep: true,
+      handler() {
+        this.loading = true;
+        this.montarDeNuevo(); // puedes mover la lógica de `mounted` aquí
       }
-      
-      // Filtrar libros basado en la búsqueda
-      const busquedaMinuscula = newValue.toLowerCase().trim();
-      this.libros = this.librosOriginales.filter(libro => 
-        libro.nombre.toLowerCase().includes(busquedaMinuscula)
-      );
     }
   },
   methods: {
+    async montarDeNuevo() {
+      try {
+        const response = await apiClient.get("/user");
+        this.user = response.data || null;
+
+        this.donde = this.$route.params.donde;
+        const listaID = this.$route.params.id;
+
+        if (this.donde === "MisListas") {
+          const response = await apiClient.get(`/listas/${this.user.correo}/${listaID}`);
+          this.lista = response.data;
+
+          if (listaID === "Leídos") {
+            const response = await apiClient.get(`/libros/leidos/${this.user.correo}`);
+            this.libros = response.data;
+          } else if (listaID === "En proceso") {
+            const [enProcesoResponse, leidosResponse] = await Promise.all([
+              apiClient.get(`/libros/enproceso/${this.user.correo}`),
+              apiClient.get(`/libros/leidos/${this.user.correo}`)
+            ]);
+
+            const idsLeidos = new Set(leidosResponse.data.map(libro => libro.enlace));
+            this.libros = enProcesoResponse.data.filter(libro => !idsLeidos.has(libro.enlace));
+          } else {
+            await this.cargarLibros();
+          }
+        } else {
+          const response = await apiClient.get(`/listas/publicas/${listaID}`);
+          this.lista = response.data;
+          await this.cargarLibros();
+        }
+
+        this.applyTheme();
+      } catch (error) {
+        console.error("Error al montar:", error);
+        this.$router.push("/");
+      } finally {
+        this.loading = false;
+      }
+    },
     async cargarLibros() {
       try {
         if (!this.user) return;

@@ -142,16 +142,19 @@
 <script>
 import axios from 'axios';
 import NavBar from '@/components/NavBar.vue';
+import Cargando from '@/components/Cargando.vue'
 import Footer from '@/components/Footer.vue';
 import { apiClient } from '../config';
 import { Dropdown } from 'bootstrap';
-import { parse } from '@fortawesome/fontawesome-svg-core';
+// Eliminamos la importación innecesaria
+// import { parse } from '@fortawesome/fontawesome-svg-core';
 
 export default {
   name: 'ForoComponent',
   components: {
     NavBar,
-    Footer
+    Footer,
+    Cargando
   },
   data() {
     return {
@@ -182,27 +185,48 @@ export default {
   computed: {
     preguntasFiltradas() {
       // Primero filtramos por usuario si es necesario
-      let preguntas = this.filtrarPorUsuario
-        ? this.foro.filter(p => p.usuario.trim().toLowerCase() === this.user.correo.trim().toLowerCase())
+      let preguntas = this.filtrarPorUsuario && this.user
+        ? this.foro.filter(p => p.usuario && this.user.correo && p.usuario.trim().toLowerCase() === this.user.correo.trim().toLowerCase())
         : this.foro;
+      
+      // Verificar que tenemos un array válido
+      if (!Array.isArray(preguntas)) {
+        console.error('preguntas no es un array:', preguntas);
+        return [];
+      }
+      
       // Función auxiliar para convertir fechas en formato DD-MM-YYYY a objeto Date
       const parseCustomDate = (dateStr) => {
         if (!dateStr || typeof dateStr !== 'string') return new Date(0);
         const [day, month, year] = dateStr.split('-');
         return new Date(`${year}-${month}-${day}`);
       };
+      
       // Luego ordenamos según el filtro seleccionado
-      switch (this.filtroSeleccionado) {
-        case "antigua":
-          return [...preguntas].sort((a, b) => parseCustomDate(a.fecha) - parseCustomDate(b.fecha));
-        case "reciente":
-          return [...preguntas].sort((a, b) => parseCustomDate(b.fecha) - parseCustomDate(a.fecha));
-        case "masRespuestas":
-          return [...preguntas].sort((a, b) => b.respuestas.length - a.respuestas.length);
-        case "menosRespuestas":
-          return [...preguntas].sort((a, b) => a.respuestas.length - b.respuestas.length);
-        default:
-          return preguntas;
+      try {
+        switch (this.filtroSeleccionado) {
+          case "antigua":
+            return [...preguntas].sort((a, b) => parseCustomDate(a.fecha) - parseCustomDate(b.fecha));
+          case "reciente":
+            return [...preguntas].sort((a, b) => parseCustomDate(b.fecha) - parseCustomDate(a.fecha));
+          case "masRespuestas":
+            return [...preguntas].sort((a, b) => {
+              const aLength = a.respuestas && Array.isArray(a.respuestas) ? a.respuestas.length : 0;
+              const bLength = b.respuestas && Array.isArray(b.respuestas) ? b.respuestas.length : 0;
+              return bLength - aLength;
+            });
+          case "menosRespuestas":
+            return [...preguntas].sort((a, b) => {
+              const aLength = a.respuestas && Array.isArray(a.respuestas) ? a.respuestas.length : 0;
+              const bLength = b.respuestas && Array.isArray(b.respuestas) ? b.respuestas.length : 0;
+              return aLength - bLength;
+            });
+          default:
+            return preguntas;
+        }
+      } catch (error) {
+        console.error('Error en preguntasFiltradas:', error);
+        return preguntas; // Devuelve las preguntas sin ordenar en caso de error
       }
     }
   },
@@ -233,37 +257,76 @@ export default {
     } catch (error) {
       // Si no hay usuario autenticado, simplemente continúa con los datos públicos
       console.error("Error al cargar los datos del usuario: ", error);
+      this.user = null;
     }
+    
     try {
-      this.cargarForoCompleto();
+      await this.cargarForoCompleto();
 
       // Aplicar el tema guardado al cargar la página
       this.applyTheme();
-      this.dropdownInstance = new Dropdown(this.$refs.dropdown);
+      
+      // Inicializar dropdown solo después de que el componente esté totalmente cargado
+      this.$nextTick(() => {
+        if (this.$refs.dropdown) {
+          try {
+            this.dropdownInstance = new Dropdown(this.$refs.dropdown);
+          } catch (error) {
+            console.error('Error al inicializar dropdown:', error);
+          }
+        }
+      });
     } 
     catch (error) {
       console.error('Error al cargar el foro:', error);
     } finally {
-      this.loading = false
+      // Asegurarse de que loading cambie a false incluso si hay errores
+      this.loading = false;
     }
+    
     document.addEventListener('click', this.closeDropdownOnClickOutside);
+  },
+  beforeDestroy() {
+    // Limpieza del evento al destruir el componente
+    document.removeEventListener('click', this.closeDropdownOnClickOutside);
   },
   methods: {
     async cargarForoCompleto() {
       try {
         const response = await apiClient.get('/obtenerForoCompleto');
-        const preguntas = response.data.map(p => ({ ...p, mostrarRespuestas: false }));
+        
+        if (!response.data || !Array.isArray(response.data)) {
+          console.error('La respuesta no contiene un array:', response.data);
+          this.foro = [];
+          return;
+        }
+        
+        const preguntas = response.data.map(p => ({ 
+          ...p, 
+          mostrarRespuestas: false,
+          respuestas: p.respuestas || [] // Asegurar que respuestas siempre sea un array
+        }));
 
         for (const pregunta of preguntas) {
-          pregunta.nombreUsuario = await this.getUserDisplayName(pregunta.usuario);
+          if (pregunta.usuario) {
+            pregunta.nombreUsuario = await this.getUserDisplayName(pregunta.usuario);
+          } else {
+            pregunta.nombreUsuario = 'Usuario desconocido';
+          }
+          
           for (const respuesta of pregunta.respuestas) {
-            respuesta.nombreUsuario = await this.getUserDisplayName(respuesta.usuario);
+            if (respuesta.usuario) {
+              respuesta.nombreUsuario = await this.getUserDisplayName(respuesta.usuario);
+            } else {
+              respuesta.nombreUsuario = 'Usuario desconocido';
+            }
           }
         }
 
         this.foro = preguntas;
       } catch (error) {
         console.error('Error al cargar el foro:', error);
+        this.foro = []; // Inicializar como array vacío en caso de error
       }
     },
     async publicarPregunta() {
@@ -278,6 +341,12 @@ export default {
       }
       
       try {
+        // Verificar que user existe antes de continuar
+        if (!this.user || !this.user.correo) {
+          alert('Debes iniciar sesión para hacer una pregunta.');
+          return;
+        }
+        
         // Guardamos todos los datos necesarios para realizar la consulta
         const nuevaPregunta = {
           usuarioCorreo: this.user.correo,
@@ -340,6 +409,8 @@ export default {
         this.userCache = {};
       }
       
+      if (!correo) return 'Usuario desconocido';
+      
       // Si ya tenemos el nombre de este usuario en caché, usarlo
       if (this.userCache[correo]) {
         return this.userCache[correo];
@@ -365,26 +436,44 @@ export default {
       }
     },
     toggleDropdown() {
-      this.dropdownInstance.toggle();
+      if (this.dropdownInstance) {
+        try {
+          this.dropdownInstance.toggle();
+        } catch (error) {
+          console.error('Error al toggle dropdown:', error);
+        }
+      }
     },
 
     seleccionarFiltro(filtro) {
       this.cambiarFiltro(filtro);
-      this.dropdownInstance.hide();
+      if (this.dropdownInstance) {
+        try {
+          this.dropdownInstance.hide();
+        } catch (error) {
+          console.error('Error al ocultar dropdown:', error);
+        }
+      }
     },
     cambiarFiltro(filtro) {
       console.log("Cambiando filtro a:", filtro);
       this.filtroSeleccionado = filtro;
       
-      const dropdownToggle = this.$el.querySelector('.dropdown-toggle');
-      if (dropdownToggle) {
-        dropdownToggle.setAttribute('aria-expanded', 'false');
-        const dropdownMenu = dropdownToggle.nextElementSibling;
-        if (dropdownMenu) {
-          dropdownMenu.classList.remove('show');
-          dropdownToggle.closest('.dropdown').classList.remove('show');
+      // Solo intentar manipular el DOM si estamos seguros de que los elementos existen
+      this.$nextTick(() => {
+        const dropdownToggle = this.$el.querySelector('.dropdown-toggle');
+        if (dropdownToggle) {
+          dropdownToggle.setAttribute('aria-expanded', 'false');
+          const dropdownMenu = dropdownToggle.nextElementSibling;
+          if (dropdownMenu) {
+            dropdownMenu.classList.remove('show');
+            const dropdownParent = dropdownToggle.closest('.dropdown');
+            if (dropdownParent) {
+              dropdownParent.classList.remove('show');
+            }
+          }
         }
-      }
+      });
     },
     getSelectedFilterLabel() {
       const filterLabels = {
@@ -417,6 +506,12 @@ export default {
       }
     },
     aniadirRespuesta(preguntaId) {
+      // Verificar que el usuario está autenticado
+      if (!this.user || !this.user.correo) {
+        alert('Debes iniciar sesión para responder.');
+        return;
+      }
+      
       this.nuevaRespuesta = {
         pregunta_id: preguntaId,
         usuario_respuesta: this.user.correo,
@@ -439,6 +534,12 @@ export default {
       }
       
       try {
+        // Verificar que los datos necesarios existen
+        if (!this.nuevaRespuesta.pregunta_id || !this.nuevaRespuesta.usuario_respuesta) {
+          alert('Información incompleta. Por favor, inténtalo de nuevo.');
+          return;
+        }
+        
         // Guardamos todos los datos necesarios para realizar la consulta
         const nuevaRespuesta = {
           pregunta_id: this.nuevaRespuesta.pregunta_id,
@@ -475,23 +576,19 @@ export default {
     },
     async obtenerPreguntas() {
       try {
-        const usuarioCorreo = this.filtrarPorUsuario ? this.user.correo : null;
-        console.log("Vamos a ver las preguntas de usuario: ", usuarioCorreo)
+        const usuarioCorreo = this.filtrarPorUsuario && this.user ? this.user.correo : null;
+        console.log("Vamos a ver las preguntas de usuario: ", usuarioCorreo);
 
-        const response = await apiClient.get('/preguntas', {
-          params: { usuarioCorreo }
-        });
+        // Si estamos filtrando por usuario pero no hay usuario autenticado, resetear
+        if (this.filtrarPorUsuario && !this.user) {
+          this.filtrarPorUsuario = false;
+          alert('Debes iniciar sesión para filtrar por tus preguntas');
+          return;
+        }
 
-        this.foro = response.data.map(p => ({
-          ...p,
-          respuestas: p.respuestas || [],
-          mostrarRespuestas: false
-        }));
-
-        // Recargar el foro para actualizar las respuestas de las preguntas
+        // Cargar todo el foro con la función existente
         await this.cargarForoCompleto();
-
-        console.log('Preguntas obtenidas correctamente:', response.data);
+        
       } catch (error) {
         console.error("Error al obtener preguntas:", error);
       }
