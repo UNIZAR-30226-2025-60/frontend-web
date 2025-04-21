@@ -1,38 +1,75 @@
-# frontend-movil
-TUTORIAL
-    PASO Nº0
-        git pull origin main
-    PASO Nº1
-        Nos metemos en la carpeta en la que queremos trabajar (backend, frontend-movil, frontend-web) cd backend.
-    PASO Nº2
-        Creamos SIEMPRE una rama para trabajar en local, es decir, los cambios que hagas en los archivos y los que creas o destruyes solo se hace en local.
-        git checkout -b nombreRama
-        Siendo nombreRama el nombre que tu quieras, con el checkout te cambias de rama y con el -b creas la rama.
-        Si solo quieres cambiarte de rama git checkout nombreADondeVas
-        Y si solo quieres crear rama git branch nuevaRama, siendo nuevaRama el nombre de la que creas.
-        Y si solo quieres ver en que rama estas git branch y te saldra con asterisco o en verde en la que estás.
+# 🌐 Bookly - Frontend Web
 
-    PASO Nº3
-        Ahora podemos comprobar en la rama en la que estamos git branch, y tendrá que ser la que hemos creado anteriormente.
-        Si coincide ya estamos en disposición de empezar a modificar, añadir o eliminar ficheros.
+Frontend web de la plataforma **Bookly**, desarrollado en **Vue**. Consume la API del backend y permite funcionalidades como navegación por libros, reseñas, gestión de listas, login con Google y lectura de PDF integrada.  
 
-        Una vez acabemos con nuestra tarea tendremos que guardar los cambios (en nuestra rama)
-        1- git add .
-        2- git commit -m “Cambio”
-        3- git push origin nombreRama
-        Ahora ya tenemos los cambios que hemos hecho en local subidos a una rama, pero esta no es la rama main a la que todos tienen acceso.
+Cuenta con detección automática del entorno (local o producción) para ajustar rutas de API y autenticación, centralizado en un archivo `config.js`.
 
-    PASO Nº4
-        Ahora haremos un  git checkout main para volver a la rama main(la compartida entre todos) y con git pull origin main me bajo los posibles cambios. Unimos nuestra rama con la compartida, git merge ramaPrueba y git push origin main (subes los cambios definitivamente a lo compartido por todos)
+- **Framework:** Vue
+- **Lenguajes:** Vue, JavaScript, HTML, CSS
+- **Gestión de paquetes:** npm
+- **CI/CD:** COMPLETAR 
 
+---
 
-    git pull origin main(te bajas lo último que ha hecho alguien)
-    git checkout -b ramaPrueba (Creas la rama con el -b y te cambias a la vez con el checkout).
-    //modifico lo que quiera
-    git add . (para guardar todos los cambios que has hecho).
-    git commit -m “Cambio”
-    git push origin ramaPrueba
-    git checkout main (te cambias a la rama principal).
-    git pull origin main (para bajarte los cambios de la rama que especificas despues del origin).
-    git merge ramaPrueba (“fusionas la rama”).
-    git push origin main (subes los cambios definitivamente).
+## 📁 Estructura del Proyecto
+
+- **📁 public/** → Archivos estáticos públicos
+- **📁 src/**
+  - **📁 assets/** → Imágenes y estilos globales
+  - **📁 components/** → Componentes reutilizables y vistas
+  - **📁 services/** → Lógica de peticiones HTTP
+  - **📄 App.vue** → Componente raíz que renderiza las vistas
+  - **📄 main.js** → Punto de entrada, configura router, estilos y fuentes
+  - **📄 config.js** → Rutas dinámicas de API, autenticación y Google Redirect
+  - **📁 router/**
+    - **📄 index.js** → Configuración de rutas de la SPA
+- **📄 .env** → Variables de entorno
+- **📄 jsconfig.js** → Alias para importar desde `/src`
+- **📄 package.json** → Dependencias y scripts del proyecto
+- **📄 vue.config.js** → Configuración general
+
+---
+
+## 🔧 Instalación y entorno local
+
+### 1. Crear archivo `.env` en la raíz con el siguiente contenido:
+
+```bash
+VUE_APP_API_URL=http://localhost:3000/api
+VUE_APP_RENDER_API_URL=https://backend-dcy8.onrender.com/api
+VUE_APP_AUTH_URL=http://localhost:3000/auth
+VUE_APP_RENDER_AUTH_URL=https://backend-dcy8.onrender.com/auth
+VUE_APP_GOOGLE_REDIRECT_URI=http://localhost:3000/auth/google/callback
+VUE_APP_RENDER_GOOGLE_REDIRECT_URI=https://backend-dcy8.onrender.com/auth/google/callback
+```
+
+### 2. Instalar dependencias
+
+- Tener Node.js y npm instalados
+```bash
+npm install
+npm install -g @vue/cli
+npm install axios
+npm install vue-router@4
+npm install bootstrap @popperjs/core
+npm install @fortawesome/fontawesome-svg-core @fortawesome/free-solid-svg-icons @fortawesome/free-regular-svg-icons @fortawesome/vue-fontawesome
+```
+
+### 3. Iniciar la web en local
+
+```
+npm run serve
+```
+
+Obtendremos lo siguiente:
+```
+App running at:
+- Local:   http://localhost:8081/
+- Network: http://192.168.1.13:8081/
+```
+
+Seleccionamos local para acceder desde local como su nombre indica o Network para acceder desde Render.
+
+## 🌐 Acceder a la web desplegada
+
+No se si se puede, si es así descibir cómo, sino BORRAR
