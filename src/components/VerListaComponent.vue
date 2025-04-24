@@ -20,7 +20,7 @@
       <div>
 
         <!-- Banner con imagen a la izquierda y texto a la derecha -->
-        <div class="lista-banner">
+        <div v-if="banner" class="lista-banner">
           <div class="banner-image">
             <img :src="transformarURLGoogleDrive(lista.portada) || 'https://via.placeholder.com/150x150.png?text=Imagen+de+Lista'" alt="Imagen de la lista">
           </div>
@@ -34,6 +34,11 @@
                 {{ lista.publica ? 'Pública' : 'Privada' }}
               </span>
             </p>
+          </div>
+        </div>
+        <div v-else>
+          <div class="lista-info">
+            <h2 class="lista-titulo">{{ lista.nombre }}</h2>
           </div>
         </div>
 
@@ -96,7 +101,8 @@ export default {
       busqueda: "",
       donde: "",
       darkMode: localStorage.getItem("darkMode") === "true", // Obtener el tema guardado
-      loading: true
+      loading: true,
+      banner: true
     };
   },
   async mounted() {
@@ -140,9 +146,11 @@ export default {
           this.lista = response.data;
 
           if (listaID === "Leídos") {
+            this.banner = false;
             const response = await apiClient.get(`/libros/leidos/${this.user.correo}`);
             this.libros = response.data;
           } else if (listaID === "En proceso") {
+            this.banner = false;
             const [enProcesoResponse, leidosResponse] = await Promise.all([
               apiClient.get(`/libros/enproceso/${this.user.correo}`),
               apiClient.get(`/libros/leidos/${this.user.correo}`)
@@ -150,7 +158,11 @@ export default {
 
             const idsLeidos = new Set(leidosResponse.data.map(libro => libro.enlace));
             this.libros = enProcesoResponse.data.filter(libro => !idsLeidos.has(libro.enlace));
-          } else {
+          } else if (listaID === "Mis Favoritos"){
+            this.banner = false;
+            await this.cargarLibros();
+          }
+          else {
             await this.cargarLibros();
           }
         } else {
