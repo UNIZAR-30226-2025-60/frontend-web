@@ -366,45 +366,53 @@ export default {
   },
 
   async mounted() {
-  try {
-    console.log("Componente montado.");
-    // Obtener información del usuario
     try {
-      // Intenta obtener los datos del usuario autenticado
-      const response = await apiClient.get("/user");
-      this.user = response.data; // Guarda los datos del usuario si existe
-      console.log("Usuario autenticado:", this.user);
-      if(this.user == ""){
-        this.user = null;
-        console.log("Usuario no autenticado");
+      console.log("Componente montado.");
+      // Obtener información del usuario
+      try {
+        // Intenta obtener los datos del usuario autenticado
+        const response = await apiClient.get("/user");
+        this.user = response.data; // Guarda los datos del usuario si existe
+        console.log("Usuario autenticado:", this.user);
+        if(this.user == ""){
+          this.user = null;
+          console.log("Usuario no autenticado");
+        }
+      } catch (error) {
+        // Si no hay usuario autenticado, simplemente continúa con los datos públicos
+        console.error("Error al cargar los datos del usuario: ", error);
       }
+
+      // Obtener detalles del libro desde la API usando el ID de la ruta
+      const libroId = encodeURIComponent(this.$route.params.id);
+      const response = await apiClient.get(`/libros/titulo/${libroId}`);
+      this.libro = response.data;
+
+      // Si se obtiene el libro correctamente, carga datos adicionales
+      if (this.libro) {
+        await this.comprobarFavorito();             // Verifica si está en favoritos
+        await this.obtenerLibrosDelMismoAutor();    // Busca libros relacionados
+        await this.obtenerConteoValoraciones();     // Obtiene estadísticas de valoraciones
+        await this.obtenerValoraciones();           // Carga las valoraciones completas
+      }
+
+      // Aplica el tema guardado (claro/oscuro) al cargar la página
+      this.applyTheme();
+      // Usa nextTick para asegurarte de que el DOM está actualizado
+      this.$nextTick(() => {
+        if (this.$refs.dropdown) {
+          this.dropdownInstance = new Dropdown(this.$refs.dropdown);
+          console.log("Dropdown inicializado:", this.dropdownInstance);
+        } else {
+          console.warn("No se encontró el elemento dropdown en el DOM");
+        }
+      });
     } catch (error) {
-      // Si no hay usuario autenticado, simplemente continúa con los datos públicos
-      console.error("Error al cargar los datos del usuario: ", error);
+      console.error('Error al cargar los detalles del libro:', error);
+    } finally {
+      this.loading = false;  // Finaliza el estado de carga
     }
-
-    // Obtener detalles del libro desde la API usando el ID de la ruta
-    const libroId = encodeURIComponent(this.$route.params.id);
-    const response = await apiClient.get(`/libros/titulo/${libroId}`);
-    this.libro = response.data;
-
-    // Si se obtiene el libro correctamente, carga datos adicionales
-    if (this.libro) {
-      await this.comprobarFavorito();             // Verifica si está en favoritos
-      await this.obtenerLibrosDelMismoAutor();    // Busca libros relacionados
-      await this.obtenerConteoValoraciones();     // Obtiene estadísticas de valoraciones
-      await this.obtenerValoraciones();           // Carga las valoraciones completas
-    }
-
-    // Aplica el tema guardado (claro/oscuro) al cargar la página
-    this.applyTheme();
-    this.dropdownInstance = new Dropdown(this.$refs.dropdown);
-  } catch (error) {
-    console.error('Error al cargar los detalles del libro:', error);
-  } finally {
-    this.loading = false;  // Finaliza el estado de carga
-  }
-},
+  },
   watch: {
     // Observa cambios en la ruta y vuelve a cargar los detalles del libro
     '$route.params.id': async function() {
@@ -795,15 +803,9 @@ export default {
       console.log("Cambiando filtro a:", filtro);
       this.filtroSeleccionado = filtro;
       
-      // Cierra el dropdown manualmente después de seleccionar
-      const dropdownToggle = this.$el.querySelector('.dropdown-toggle');
-      if (dropdownToggle) {
-        dropdownToggle.setAttribute('aria-expanded', 'false');
-        const dropdownMenu = dropdownToggle.nextElementSibling;
-        if (dropdownMenu) {
-          dropdownMenu.classList.remove('show');
-          dropdownToggle.closest('.dropdown').classList.remove('show');
-        }
+      // En lugar de manipular el DOM directamente, usamos la instancia del dropdown
+      if (this.dropdownInstance) {
+        this.dropdownInstance.hide();
       }
     },
     
@@ -820,13 +822,33 @@ export default {
     
     // Selecciona un filtro y cierra el dropdown
     seleccionarFiltro(filtro) {
-      this.cambiarFiltro(filtro);
-      this.dropdownInstance.hide(); // Cierra el dropdown después de seleccionar
+      this.filtroSeleccionado = filtro;  // Establecer directamente el filtro
+      
+      // Cerrar el dropdown usando la instancia
+      if (this.dropdownInstance) {
+        this.dropdownInstance.hide();
+      } else {
+        // Si no existe la instancia, intentar inicializarla
+        if (this.$refs.dropdown) {
+          this.dropdownInstance = new Dropdown(this.$refs.dropdown);
+          this.dropdownInstance.hide();
+        }
+      }
     },
     
     // Alterna la visibilidad del dropdown
     toggleDropdown() {
-      this.dropdownInstance.toggle();
+      if (this.dropdownInstance) {
+        this.dropdownInstance.toggle();
+      } else {
+        // Reintentar inicializar el dropdown
+        if (this.$refs.dropdown) {
+          this.dropdownInstance = new Dropdown(this.$refs.dropdown);
+          this.dropdownInstance.toggle();
+        } else {
+          console.error('No se pudo encontrar el elemento dropdown');
+        }
+      }
     },
     
     // Navega a la página de creación de listas

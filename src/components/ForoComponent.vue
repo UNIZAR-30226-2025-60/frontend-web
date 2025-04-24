@@ -46,15 +46,16 @@
       <!-- Dropdown de ordenación (movido aquí, debajo del switch) -->
       <div class="mb-3">
         <div ref="dropdown" class="dropdown">
-          <button class="btn btn-outline-secondary dropdown-toggle" type="button" @click="toggleDropdown">
+          <button class="btn dropdown-toggle" type="button" @click="toggleDropdown">
             Ordenar por: {{ getSelectedFilterLabel() }}
           </button>
+          <!-- Opciones de ordenación -->
           <ul class="dropdown-menu">
             <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('reciente')">Ninguno</a></li>
-            <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('reciente')">Pregunta más reciente</a></li>
-            <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('antigua')">Pregunta más antiguas</a></li>
-            <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('masRespuestas')">Pregunta con más respuestas</a></li>
-            <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('menosRespuestas')">Pregunta con menos respuestas</a></li>
+            <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('reciente')"> Pregunta más reciente</a></li>
+            <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('antigua')"> Pregunta más antigua</a></li>
+            <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('masRespuestas')"> Pregunta con más respuestas</a></li>
+            <li><a href="#" class="dropdown-item" @click.prevent="seleccionarFiltro('menosRespuestas')"> Pregunta con menos respuestas</a></li>
           </ul>
         </div>
       </div>
@@ -266,14 +267,13 @@ export default {
       // Aplicar el tema guardado al cargar la página
       this.applyTheme();
       
-      // Inicializar dropdown solo después de que el componente esté totalmente cargado
+      // Usa nextTick para asegurarte de que el DOM está actualizado
       this.$nextTick(() => {
         if (this.$refs.dropdown) {
-          try {
-            this.dropdownInstance = new Dropdown(this.$refs.dropdown);
-          } catch (error) {
-            console.error('Error al inicializar dropdown:', error);
-          }
+          this.dropdownInstance = new Dropdown(this.$refs.dropdown);
+          console.log("Dropdown inicializado:", this.dropdownInstance);
+        } else {
+          console.warn("No se encontró el elemento dropdown en el DOM");
         }
       });
     } 
@@ -283,12 +283,6 @@ export default {
       // Asegurarse de que loading cambie a false incluso si hay errores
       this.loading = false;
     }
-    
-    document.addEventListener('click', this.closeDropdownOnClickOutside);
-  },
-  beforeDestroy() {
-    // Limpieza del evento al destruir el componente
-    document.removeEventListener('click', this.closeDropdownOnClickOutside);
   },
   methods: {
     async cargarForoCompleto() {
@@ -435,23 +429,33 @@ export default {
         return correo;
       }
     },
+    // Alterna la visibilidad del dropdown
     toggleDropdown() {
       if (this.dropdownInstance) {
-        try {
+        this.dropdownInstance.toggle();
+      } else {
+        // Reintentar inicializar el dropdown
+        if (this.$refs.dropdown) {
+          this.dropdownInstance = new Dropdown(this.$refs.dropdown);
           this.dropdownInstance.toggle();
-        } catch (error) {
-          console.error('Error al toggle dropdown:', error);
+        } else {
+          console.error('No se pudo encontrar el elemento dropdown');
         }
       }
     },
 
+    // Selecciona un filtro y cierra el dropdown
     seleccionarFiltro(filtro) {
-      this.cambiarFiltro(filtro);
+      this.filtroSeleccionado = filtro;  // Establecer directamente el filtro
+      
+      // Cerrar el dropdown usando la instancia
       if (this.dropdownInstance) {
-        try {
+        this.dropdownInstance.hide();
+      } else {
+        // Si no existe la instancia, intentar inicializarla
+        if (this.$refs.dropdown) {
+          this.dropdownInstance = new Dropdown(this.$refs.dropdown);
           this.dropdownInstance.hide();
-        } catch (error) {
-          console.error('Error al ocultar dropdown:', error);
         }
       }
     },
@@ -459,21 +463,10 @@ export default {
       console.log("Cambiando filtro a:", filtro);
       this.filtroSeleccionado = filtro;
       
-      // Solo intentar manipular el DOM si estamos seguros de que los elementos existen
-      this.$nextTick(() => {
-        const dropdownToggle = this.$el.querySelector('.dropdown-toggle');
-        if (dropdownToggle) {
-          dropdownToggle.setAttribute('aria-expanded', 'false');
-          const dropdownMenu = dropdownToggle.nextElementSibling;
-          if (dropdownMenu) {
-            dropdownMenu.classList.remove('show');
-            const dropdownParent = dropdownToggle.closest('.dropdown');
-            if (dropdownParent) {
-              dropdownParent.classList.remove('show');
-            }
-          }
-        }
-      });
+      // En lugar de manipular el DOM directamente, usamos la instancia del dropdown
+      if (this.dropdownInstance) {
+        this.dropdownInstance.hide();
+      }
     },
     getSelectedFilterLabel() {
       const filterLabels = {
