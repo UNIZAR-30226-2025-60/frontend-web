@@ -7,7 +7,7 @@ Cuenta con detección automática del entorno (local o producción) para ajustar
 - **Framework:** Vue
 - **Lenguajes:** Vue, JavaScript, HTML, CSS
 - **Gestión de paquetes:** npm
-- **CI/CD:** COMPLETAR 
+- **CI/CD:** Despliegue automático mediante Render. 
 
 ---
 
@@ -72,4 +72,4 @@ Seleccionamos local para acceder desde local como su nombre indica o Network par
 
 ## 🌐 Acceder a la web desplegada
 
-No se si se puede, si es así descibir cómo, sino BORRAR
+La web es accesible mediante url: https://booklyweb-469w.onrender.com/
