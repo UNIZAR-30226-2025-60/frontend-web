@@ -1,171 +1,181 @@
 <template>
+  <!-- Si ya se cargó todo, se muestra el contenido principal -->
   <div v-if="!loading" :class="darkMode ? 'dark-mode' : 'light-mode'" class="page-wrapper">
-    <NavBar :dark-mode="darkMode"  :user="user"></NavBar>
+    
+    <!-- Barra de navegación con datos del usuario y tema -->
+    <NavBar :dark-mode="darkMode" :user="user" />
 
+    <!-- Contenedor principal con paddings y altura mínima -->
     <div class="container-fluid pt-4 p-5 min-vh-100">
-      <!-- Switch con iconos sol/luna -->
+
+      <!-- Switch para cambiar entre modo claro/oscuro -->
       <div class="theme-switch-wrapper mb-1">
         <div class="theme-switch" @click="toggleDarkMode">
           <div class="switch-track" :class="{ 'dark': darkMode }">
             <div class="switch-thumb" :class="{ 'dark': darkMode }">
-              <!-- Sol icono -->
+              <!-- Ícono dinámico: sol para claro, luna para oscuro -->
               <font-awesome-icon v-if="!darkMode" :icon="['fas', 'sun']" class="icon sun-icon"/>
-              <!-- Luna icono -->
               <font-awesome-icon v-else :icon="['fas', 'moon']" class="icon moon-icon"/>
             </div>
           </div>
         </div>
       </div>
 
-      <div>
-
-        <!-- Banner con imagen a la izquierda y texto a la derecha -->
-        <div v-if="banner" class="lista-banner">
-          <div class="banner-image">
-            <img :src="transformarURLGoogleDrive(lista.portada) || 'https://via.placeholder.com/150x150.png?text=Imagen+de+Lista'" alt="Imagen de la lista">
-          </div>
-          <div class="lista-info">
-            <h2 class="lista-titulo">{{ lista.nombre }}</h2>
-            <p class="lista-descripcion">{{ lista.descripcion }}</p>
-            <!-- Tipo de lista: Pública o Privada -->
-            <p class="lista-tipo">
-              <span :class="darkMode ? 'text-light' : 'text-dark'">
-                <i v-if="!lista.publica" class="fas fa-lock"></i>
-                {{ lista.publica ? 'Pública' : 'Privada' }}
-              </span>
-            </p>
-          </div>
+      <!-- Si hay un banner, muestra información e imagen -->
+      <div v-if="banner" class="lista-banner">
+        <div class="banner-image">
+          <img :src="transformarURLGoogleDrive(lista.portada) || 'https://via.placeholder.com/150x150.png?text=Imagen+de+Lista'" alt="Imagen de la lista">
         </div>
-        <div v-else>
-          <div class="lista-info">
-            <h2 class="lista-titulo">{{ lista.nombre }}</h2>
-          </div>
+        <div class="lista-info">
+          <h2 class="lista-titulo">{{ lista.nombre }}</h2>
+          <p class="lista-descripcion">{{ lista.descripcion }}</p>
+          <p class="lista-tipo">
+            <span :class="darkMode ? 'text-light' : 'text-dark'" class="d-flex align-items-center gap-2">
+              <font-awesome-icon
+                :icon="lista.publica ? ['fas', 'lock-open'] : ['fas', 'lock']"
+                class="me-2"
+              />
+              {{ lista.publica ? 'Pública' : 'Privada' }}
+            </span>
+          </p>
         </div>
+      </div>
 
-        <!-- Barra de búsqueda -->
-        <form class="d-flex mb-3 mt-4" @submit.prevent="buscarLibros">
-          <div class="position-relative w-100">
-            <font-awesome-icon :icon="['fas', 'magnifying-glass']" class="position-absolute" style="left: 15px; top: 50%; transform: translateY(-50%); color: #aaa;"/>
-            <input class="form-control rounded-pill ps-5" type="search" placeholder="Buscar libros..." aria-label="Buscar" v-model="busqueda">
-          </div>
-        </form>
+      <!-- Si no hay banner, solo muestra el nombre de la lista -->
+      <div v-else>
+        <div class="lista-info">
+          <h2 class="lista-titulo">{{ lista.nombre }}</h2>
+        </div>
+      </div>
 
-        <h5 class="text-center p-2">{{ libros.length > 0 ? '' : 'No se encontraron libros' }}</h5>
+      <!-- Barra de búsqueda -->
+      <form class="d-flex mb-3 mt-4" @submit.prevent="buscarLibros">
+        <div class="position-relative w-100">
+          <font-awesome-icon :icon="['fas', 'magnifying-glass']" class="position-absolute" style="left: 15px; top: 50%; transform: translateY(-50%); color: #aaa;"/>
+          <input class="form-control rounded-pill ps-5" type="search" placeholder="Buscar libros..." v-model="busqueda" />
+        </div>
+      </form>
 
-        <!-- Lista de libros -->
-        <div class="listado">
-          <div class="l-container p-2 mx-5">
-            <div class="row libros-container">
-              <div v-for="libro in libros" :key="libro.enlace" class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4 d-flex justify-content-center" @click="goToDetalles(libro)">
-                <div class="book-card card shadow-sm">
-                  <img :src="libro.imagen_portada" class="book-image card-img-top" alt="Portada del libro">
-                  <div class="card-body text-center p-2">
-                    <h6 class="book-title">{{ libro.nombre }}</h6>
-                  </div>
+      <!-- Mensaje si no hay resultados -->
+      <h5 class="text-center p-2">{{ libros.length > 0 ? '' : 'No se encontraron libros' }}</h5>
+
+      <!-- Lista de libros -->
+      <div class="listado">
+        <div class="l-container p-2 mx-5">
+          <div class="row libros-container">
+            <div v-for="libro in libros" :key="libro.enlace" class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4 d-flex justify-content-center" @click="goToDetalles(libro)">
+              <div class="book-card card shadow-sm">
+                <img :src="libro.imagen_portada" class="book-image card-img-top" alt="Portada del libro">
+                <div class="card-body text-center p-2">
+                  <h6 class="book-title">{{ libro.nombre }}</h6>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
     </div>
 
-    <Footer></Footer>
+    <!-- Pie de página -->
+    <Footer />
   </div>
+
+  <!-- Si loading aún está activo, se muestra el spinner -->
   <div v-else>
-    <Cargando :dark-mode="darkMode"></Cargando>
+    <Cargando :dark-mode="darkMode" />
   </div>
+
 </template>
 
 
 <script>
+// Importaciones necesarias
 import axios from "axios";
-import NavBar from '@/components/NavBar.vue'
-import Cargando from '@/components/Cargando.vue'
-import Footer from '@/components/Footer.vue'
+import NavBar from '@/components/NavBar.vue';
+import Cargando from '@/components/Cargando.vue';
+import Footer from '@/components/Footer.vue';
 import { apiClient } from '../config';
-
 
 export default {
   name: 'VerLista',
-  components: {
-    NavBar,
-    Footer,
-    Cargando
-  },
+  components: { NavBar, Footer, Cargando },
+
   data() {
     return {
       user: null,
       libros: [],
+      librosOriginales: [],
       lista: null,
       busqueda: "",
       donde: "",
-      darkMode: localStorage.getItem("darkMode") === "true", // Obtener el tema guardado
+      darkMode: localStorage.getItem("darkMode") === "true",
       loading: true,
       banner: true
     };
   },
+
   async mounted() {
     await this.montarDeNuevo();
   },
+
   watch: {
-    // Observador para buscar mientras se escribe
+    // Buscar libros automáticamente al escribir
     busqueda(newValue) {
       if (!newValue) {
         this.libros = this.librosOriginales;
         return;
       }
-      
-      const busquedaMinuscula = newValue.toLowerCase().trim();
-      this.libros = this.librosOriginales.filter(libro => 
-        libro.nombre.toLowerCase().includes(busquedaMinuscula)
+
+      const texto = newValue.toLowerCase().trim();
+      this.libros = this.librosOriginales.filter(libro =>
+        libro.nombre.toLowerCase().includes(texto)
       );
     },
 
-    // Observador para cambios en la URL
+    // Reaccionar a cambios en la URL (parámetros)
     '$route.params': {
-      immediate: false,
       deep: true,
       handler() {
         this.loading = true;
-        this.montarDeNuevo(); // puedes mover la lógica de `mounted` aquí
+        this.montarDeNuevo();
       }
     }
   },
+
   methods: {
     async montarDeNuevo() {
       try {
+        // Obtener usuario
         const response = await apiClient.get("/user");
         this.user = response.data || null;
 
         this.donde = this.$route.params.donde;
         const listaID = this.$route.params.id;
 
+        // Si la lista es privada
         if (this.donde === "MisListas") {
-          const response = await apiClient.get(`/listas/${this.user.correo}/${listaID}`);
-          this.lista = response.data;
+          const res = await apiClient.get(`/listas/${this.user.correo}/${listaID}`);
+          this.lista = res.data;
 
           if (listaID === "Leídos") {
             this.banner = false;
-            const response = await apiClient.get(`/libros/leidos/${this.user.correo}`);
-            this.libros = response.data;
+            const leidos = await apiClient.get(`/libros/leidos/${this.user.correo}`);
+            this.libros = leidos.data;
           } else if (listaID === "En proceso") {
             this.banner = false;
-            const [enProcesoResponse, leidosResponse] = await Promise.all([
+            const [enProceso, leidos] = await Promise.all([
               apiClient.get(`/libros/enproceso/${this.user.correo}`),
               apiClient.get(`/libros/leidos/${this.user.correo}`)
             ]);
-
-            const idsLeidos = new Set(leidosResponse.data.map(libro => libro.enlace));
-            this.libros = enProcesoResponse.data.filter(libro => !idsLeidos.has(libro.enlace));
-          } else if (listaID === "Mis Favoritos"){
-            this.banner = false;
-            await this.cargarLibros();
-          }
-          else {
+            const idsLeidos = new Set(leidos.data.map(l => l.enlace));
+            this.libros = enProceso.data.filter(libro => !idsLeidos.has(libro.enlace));
+          } else {
+            this.banner = listaID !== "Mis Favoritos";
             await this.cargarLibros();
           }
         } else {
+          // Si es una lista pública
           const response = await apiClient.get(`/listas/publicas/${listaID}`);
           this.lista = response.data;
           await this.cargarLibros();
@@ -179,72 +189,47 @@ export default {
         this.loading = false;
       }
     },
+
     async cargarLibros() {
       try {
         if (!this.user) return;
-      
-        // En primer lugar obtenemos todos los libros de la base de datos
+
         const response = await apiClient.get("/libros");
         const todosLosLibros = response.data;
 
-
         let librosLista;
-        
-        if(this.donde == "MisListas"){
-          // Si es una lista propia
-          const response1 = await apiClient.get(`/listas/${this.user.correo}/${this.lista.nombre}/libros`);
-          librosLista = response1.data;
+        if (this.donde === "MisListas") {
+          const res = await apiClient.get(`/listas/${this.user.correo}/${this.lista.nombre}/libros`);
+          librosLista = res.data;
         } else {
-          // Si es una lista pública
-          const responsePublica = await apiClient.get(`/listas/publicas/${this.lista.nombre}/librosP`);
-          librosLista = responsePublica.data;
+          const res = await apiClient.get(`/listas/publicas/${this.lista.nombre}/librosP`);
+          librosLista = res.data;
         }
-      
-        console.log("Vamos a cargar los libros favoritos de:", this.user.correo);
-        console.log("los libros favoritos de usuario son:", librosLista);
-        
-        // Después filtramos los libros
+
+        // Filtrar los libros que realmente están disponibles
         this.libros = librosLista.map(libroL => {
-          // Nos quedamos únicamente con los que coinciden los enlaces, es decir, los favoritos del usuario
-          const libroEncontrado = todosLosLibros.find(libro => 
-            libro.enlace === libroL.enlace_libro
-          );
-          
-          // Nos guardamos todos los atributos que no sabíamos de los libros favoritos y que ahora conocemos
-          return libroEncontrado ? {
-            ...libroEncontrado,
-            imagen_portada: libroEncontrado.imagen_portada || 'https://via.placeholder.com/150x225?text=Sin+Portada'
-          } : null;
-        }).filter(libro => libro !== null); // Remove any null entries
-        
-        // Guardar una copia de todos los libros favoritos
+          const libro = todosLosLibros.find(l => l.enlace === libroL.enlace_libro);
+          return libro ? { ...libro, imagen_portada: libro.imagen_portada || 'https://via.placeholder.com/150x225?text=Sin+Portada' } : null;
+        }).filter(l => l !== null);
+
         this.librosOriginales = [...this.libros];
-        
-        console.log("Se han podido mostrar los libros guardados en favoritos con éxito:", this.libros);
       } catch (error) {
         console.error("Error al cargar los libros favoritos:", error);
       }
     },
-    // Función para transformar URLs de Google Drive
+
     transformarURLGoogleDrive(url) {
       if (!url) return null;
 
       try {
-        // Extraer el ID del archivo de Google Drive
         const match = url.match(/id=([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)\//);
-        
-        if (match) {
-          const id = match[1];
-          // Nueva URL usando lh3.googleusercontent.com
-          return `https://lh3.googleusercontent.com/d/${id}=w500`;
-        }
-        
-        return url; // Si no es de Drive, devolver tal cual
+        return match ? `https://lh3.googleusercontent.com/d/${match[1]}=w500` : url;
       } catch (error) {
         console.error("Error al transformar URL:", error);
         return null;
       }
     },
+
     async buscarLibros() {
       try {
         const response = await apiClient.get(`/libros/obtenerTitulo/${this.busqueda.trim()}`);
@@ -254,20 +239,24 @@ export default {
         this.libros = [];
       }
     },
+
     toggleDarkMode() {
-      this.darkMode = !this.darkMode; // Cambiar el estado
-      localStorage.setItem("darkMode", this.darkMode); // Guardar la elección
-      this.applyTheme(); // Aplicar el nuevo tema
+      this.darkMode = !this.darkMode;
+      localStorage.setItem("darkMode", this.darkMode);
+      this.applyTheme();
     },
+
     applyTheme() {
       document.body.classList.toggle("dark-mode", this.darkMode);
       document.body.classList.toggle("light-mode", !this.darkMode);
     },
+
     goToDetalles(libro) {
       this.$router.push({ name: 'Detalles', params: { id: libro.nombre } });
     }
   }
 };
+
 </script>
 
 <style scoped>
