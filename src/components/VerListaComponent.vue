@@ -162,6 +162,7 @@ export default {
             this.banner = false;
             const leidos = await apiClient.get(`/libros/leidos/${this.user.correo}`);
             this.libros = leidos.data;
+            this.librosOriginales = [...this.libros];
           } else if (listaID === "En proceso") {
             this.banner = false;
             const [enProceso, leidos] = await Promise.all([
@@ -170,6 +171,7 @@ export default {
             ]);
             const idsLeidos = new Set(leidos.data.map(l => l.enlace));
             this.libros = enProceso.data.filter(libro => !idsLeidos.has(libro.enlace));
+            this.librosOriginales = [...this.libros];
           } else {
             this.banner = listaID !== "Mis Favoritos";
             await this.cargarLibros();
@@ -192,8 +194,6 @@ export default {
 
     async cargarLibros() {
       try {
-        if (!this.user) return;
-
         const response = await apiClient.get("/libros");
         const todosLosLibros = response.data;
 
@@ -214,7 +214,7 @@ export default {
 
         this.librosOriginales = [...this.libros];
       } catch (error) {
-        console.error("Error al cargar los libros favoritos:", error);
+        console.error("Error al cargar los libros:", error);
       }
     },
 
@@ -231,12 +231,25 @@ export default {
     },
 
     async buscarLibros() {
-      try {
-        const response = await apiClient.get(`/libros/obtenerTitulo/${this.busqueda.trim()}`);
-        this.libros = Array.isArray(response.data) ? response.data : [response.data];
-      } catch (error) {
-        console.error("Error al buscar el libro:", error);
-        this.libros = [];
+      const texto = this.busqueda.trim().toLowerCase();
+
+      if (!texto) {
+        this.libros = this.librosOriginales;
+        return;
+      }
+
+      if (["Leídos", "En proceso"].includes(this.$route.params.id)) {
+        this.libros = this.librosOriginales.filter(libro =>
+          libro.nombre.toLowerCase().includes(texto)
+        );
+      } else {
+        try {
+          const response = await apiClient.get(`/libros/obtenerTitulo/${texto}`);
+          this.libros = Array.isArray(response.data) ? response.data : [response.data];
+        } catch (error) {
+          console.error("Error al buscar el libro:", error);
+          this.libros = [];
+        }
       }
     },
 

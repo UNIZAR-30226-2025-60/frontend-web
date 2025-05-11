@@ -257,12 +257,12 @@
               <ul class="list-group">
                 <!-- Por cada lista del usuario, mostrar una opción con checkbox -->
                 <li v-for="lista in listasUsuario" :key="lista.id" class="list-group-li bg-dark">
-                  <div class="d-flex align-items-center w-100 px-3 py-2">
+                  <div class="d-flex align-items-center w-100 px-3 py-2 overflow-hidden">
                     <!-- Checkbox personalizado para indicar si el libro ya está en la lista -->
                     <div class="custom-checkbox me-3" @click="toggleLibroEnLista(lista)">
                       {{ seleccionadas.includes(lista.nombre) ? '✓' : '' }}
                     </div>
-                    <span class="list-name me-2">{{ lista.nombre }}</span>
+                    <span class="list-name me-2 text-truncate">{{ lista.nombre }}</span>
                     <!-- Icono que indica si la lista es pública o privada -->
                     <span :title="lista.publica ? 'Lista pública' : 'Lista privada'">
                       {{ lista.publica ? '🔓' : '🔒' }}
