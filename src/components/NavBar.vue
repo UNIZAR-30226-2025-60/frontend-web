@@ -9,7 +9,14 @@
       </a>
 
       <!-- Botón para colapsar menú en pantallas pequeñas -->
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+      <button
+        class="navbar-toggler"
+        type="button"
+        aria-controls="navbarSupportedContent"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+        @click="toggleNavbar"   
+      >
         <span class="navbar-toggler-icon"></span>
       </button>
 
@@ -38,7 +45,7 @@
           </li>
 
           <!-- Estadísticas (name: "Estadisticas") solo para usuarios logueados -->
-          <li  v-if="user != null" class="nav-item">
+          <li class="nav-item">
             <a class="nav-link nav-bold clickable"
                :class="{ 'active-link': activeRouteName === 'Estadisticas' }"
                @click="goToEstadisticas">
@@ -117,6 +124,7 @@
 
 <script>
 import { Dropdown } from 'bootstrap';
+import Collapse from 'bootstrap/js/dist/collapse'; 
 
 export default {
   name: "NavBar",
@@ -148,11 +156,17 @@ export default {
       return this.$route.params;
     }
   },
+    data() {
+    return {
+      collapseInstance: null 
+    };
+  },
   mounted() {
-    const dropdownElements = this.$el.querySelectorAll('.dropdown-toggle');
-    dropdownElements.forEach(el => {
-      new Dropdown(el);
-    });
+    this.$el.querySelectorAll('.dropdown-toggle')
+      .forEach(el => new Dropdown(el));
+
+    const navCol = this.$el.querySelector('#navbarSupportedContent');
+    this.collapseInstance = new Collapse(navCol, { toggle: false });
   },
   methods: {
     goToChatBot() {
@@ -206,6 +220,10 @@ export default {
 
     goToLogin() {
       this.$router.push('/login');
+    },
+
+    toggleNavbar() {
+      this.collapseInstance.toggle();
     }
   }
 };
@@ -298,4 +316,20 @@ export default {
 .nav-link:hover::after {
   width: 100%;
 }
+
+.navbar-toggler {
+  background-color: transparent !important;
+  border: none !important;
+  color: #4c4637;       
+}
+
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'>\
+<path stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/>\
+</svg>") !important;
+}
+
+
+
 </style>

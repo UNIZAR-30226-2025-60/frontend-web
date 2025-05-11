@@ -407,41 +407,49 @@ export default {
     nombrePodioTerceroAnio() { return this.getNombreAnio(2); }
   },
   async mounted() {
+    // 1) Obtenemos al usuario, pero SIN redirigir si no está logueado
     try {
-      // Cargar datos del usuario autenticado
-      const response = await apiClient.get("/user");
-      this.user = response.data;
-      if(this.user == ""){
-        this.$router.push("/");
-      }
-    } catch (error) {
-      console.error("Error al cargar los datos del usuario: ", error);
+      const resp = await apiClient.get("/user");
+      this.user = resp.data || null;
+    } catch (err) {
+      console.error("Error al cargar datos del usuario:", err);
+      this.user = null;
     }
 
+    // 2) Cargamos siempre las estadísticas generales de la plataforma
     try {
-      // Cargar estadísticas y rankings
-      await this.cargarEstadisticasMes();
-      await this.cargarEstadisticasGenerales();
-      await this.cargarLibrosRecomendados();
-      await this.cargarTop3UsuariosMes();
-      await this.cargarTop3UsuariosAnio();
-      await this.cargarTop5Libros(this.selectedMonth, this.selectedYear);
-
-      // Aplicar tema oscuro o claro
-      this.applyTheme();
-    } catch (error) {
-      console.error("Error al obtener el usuario o estadísticas:", error);
-      if (error.response && error.response.status === 401) {
-        this.$router.push("/");
-      }
-    } finally {
-      this.loading = false
+      await Promise.all([
+        this.cargarTop3UsuariosMes(),
+        this.cargarTop3UsuariosAnio(),
+        this.cargarTop5Libros(this.selectedMonth, this.selectedYear),
+      ]);
+    } catch (err) {
+      console.error("Error al cargar estadísticas generales:", err);
     }
 
-    // Escuchar cambios de tamaño de ventana para ajustar el carrusel
+    // 3) Si hay sesión, cargamos las estadísticas privadas
+    if (this.user) {
+      try {
+        await Promise.all([
+          this.cargarEstadisticasMes(),
+          this.cargarEstadisticasGenerales(),
+          this.cargarLibrosRecomendados(),
+        ]);
+      } catch (err) {
+        console.error("Error al cargar estadísticas de usuario:", err);
+        // aquí podrías decidir mostrar un mensaje, pero NO redirigir
+      }
+    }
+
+    // 4) Aplicamos tema y desactivamos el loader
+    this.applyTheme();
+    this.loading = false;
+
+    // 5) Ajuste de carrusel
     window.addEventListener('resize', this.handleResize);
     this.handleResize();
   },
+
   beforeDestroy() {
     // Eliminar evento al destruir el componente
     window.removeEventListener('resize', this.handleResize);
